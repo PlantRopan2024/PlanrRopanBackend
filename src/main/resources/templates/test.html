@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="test.css">
+</head>
+<body>
+    <div class="container-fluid p-3">
+        <!-- Navigation breadcrumbs -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0">
+                <li class="breadcrumb-item">People Management</li>
+                <li class="breadcrumb-item">e*Labor</li>
+                <li class="breadcrumb-item">Advanced Weekly Schedule</li>
+                <li class="breadcrumb-item">600201, VOLUNTEER PKWY</li>
+                <li class="breadcrumb-item active" aria-current="page">09/01/2024</li>
+            </ol>
+        </nav>
+
+        <!-- Input Row -->
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <input type="date" class="form-control" value="2024-09-01">
+            </div>
+            <div class="col-md-6">
+                <select class="form-control">
+                    <option>600201, VOLUNTEER PKWY</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary w-100">GO</button>
+            </div>
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="row mt-4">
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <h5>Projected Sales</h5>
+                    <p class="metric-value">$0.00</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <h5>Actual Sales</h5>
+                    <p class="metric-value">$0.00</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <h5>Actual Transactions</h5>
+                    <p class="metric-value">0.0</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <h5>Projected Crew Labor %</h5>
+                    <p class="metric-value">0.00%</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <h5>Total Scheduled Hrs</h5>
+                    <p class="metric-value">00:00</p>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="metric-card">
+                    <h5>Total Fixed Task Variance Hrs</h5>
+                    <p class="metric-value">280:00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Labor Data Section -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4>Current Week Labor Data</h4>
+                <div class="labor-trend">
+                    <canvas id="laborChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('laborChart').getContext('2d');
+        const laborChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Labor Trend',
+                    data: [10, 12, 8, 11, 14, 9, 15],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="planManage">
+
+<head>
+	<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+		<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+		<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
+		<link rel="stylesheet" href="css/planManage.css" th:href="@{/css/planManage.css}" />
+		<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+			href="js/1c26fb5c51.js" th:src="@{js/1c26fb5c51.js}"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+			href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>\
+		<script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
+		<script src="/js/planManage.js" th:src="@{js/planManage.js}"></script>
+		<title>Welcome to Plant Ropan</title>
+</head>
+
+<body ng-controller="planManageController">
+    <!-- Main content start -->
+	<!--  header.html  -->
+		 <div th:include="header :: nav-bar"></div>
+		
+		<!--  side nav bar  -->
+		 <div th:include="sideNavbar :: sidenav-bar"></div>
+	  <main class="mt-5 pt-3">
+        <div class="container-fluid">
+            <!-- Cards -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            Add Plans
+                        </div>
+                        <div class="card-body">
+                            <!-- AngularJS ng-submit -->
+                            <form name="myPlanForm" ng-submit="submitPlan()">
+                                <div class="row">
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Plans Rs</label>
+                                            <input type="text" class="form-control" name="plansRs" ng-model="plan.plansRs" placeholder="Plan Rs e.g. 249"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Time Duration</label>
+                                            <input type="text" class="form-control" name="timeDuration" ng-model="plan.timeDuration" placeholder="e.g 45 min to 1Hr" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Up to Pots</label>
+                                            <input type="text" class="form-control" name="UptoPots" ng-model="plan.UptoPots" placeholder="Upto 50 Pot" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Services Name</label>
+                                            <input type="text" class="form-control" name="servicesName" ng-model="plan.servicesName" placeholder="Gudai/katai/Ropai" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Plan Type</label>
+                                            <input type="text" class="form-control" name="planType" ng-model="plan.planType" placeholder="4 Visit/Month"/>
+                                        </div>
+                                    </div>
+									
+									<div class="col-md-6">
+									    <div class="mb-3">
+									        <label class="form-label">Plan Packs</label>
+									        <select class="form-control" name="planPacks" ng-model="plan.planPacks">
+									            <option value="" disabled selected>Select Plan Pack</option>
+									            <option value="DAILY">Daily</option>
+									            <option value="MONTHLY">Monthly</option>
+									        </select>
+									    </div>
+									</div>
+									
+									<div class="col-md-6">
+										<div class="mb-3">
+											<label class="form-label">Active Plan</label>
+											<select class="form-control" name="isActive" ng-model="plan.isActive">
+												 <option value="" disabled selected>Select Plan Pack</option>
+												 <option value="Yes">Yes</option>
+												<option value="No">No</option>
+											 </select>
+										</div>
+									</div>
+									
+                                    <div class="col-md-12">
+                                        <button id="myButton" type="submit" name="submit" class="btn btn-success">
+                                            Add Plan
+                                        </button>
+                                        <button type="reset" class="btn btn-secondary">Cancel</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

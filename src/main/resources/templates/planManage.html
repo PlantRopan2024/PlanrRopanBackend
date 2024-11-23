@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="planManage">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+	<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+	<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
+	<link rel="stylesheet" href="css/planManage.css" th:href="@{/css/planManage.css}" />
+	<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/1c26fb5c51.js" th:src="@{js/1c26fb5c51.js}"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>\
+	<script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
+	<script src="/js/planManage.js" th:src="@{js/planManage.js}"></script>
+	<title>Welcome to Plant Ropan</title>
+</head>
+
+<body ng-controller="planManageController">
+	<!--  header.html  -->
+	<div th:include="header :: nav-bar"></div>
+
+	<!--  side nav bar  -->
+	<div th:include="sideNavbar :: sidenav-bar"></div>
+
+	<main class="mt-5 pt-3">
+		<div class="container-fluid">
+
+			<div class="select-container">
+				<div class="row mt-5">
+					<div class="col-md-12">
+						<ul class="nav nav-tabs" id="myTab" role="tablist">
+							<li class="nav-item" role="presentation">
+								<button class="nav-link " id="daily-loans" data-bs-toggle="tab"
+									data-bs-target="#daily-loans-pane" type="button" role="tab"
+									aria-controls="daily-loans-pane" aria-selected="true">Daily Plan </button>
+							</li>
+							<li class="nav-item" role="presentation">
+								<button class="nav-link  active" id="new-students" data-bs-toggle="tab"
+									data-bs-target="#new-students-pane" type="button" role="tab"
+									aria-controls="new-students-pane" aria-selected="false">
+									Monthly Plan</button>
+							</li>
+							<!-- 		<li class="nav-item" role="presentation">
+								<button class="nav-link " id="recent-loans" data-bs-toggle="tab"
+									data-bs-target="#recent-loans-pane" type="button" role="tab"
+									aria-controls="recent-loans-pane" aria-selected="false">Yearly Plan </button>
+							</li>  -->
+
+						</ul>
+						<div class="tab-content" id="myTabContent">
+							<div class="tab-pane fade show active" id="daily-loans-pane" role="tabpanel"
+								aria-labelledby="daily-loans" tabindex="0">
+								<div class="table-responsive">
+									<table class="table table-responsive table-striped">
+										<thead class="table-dark">
+											<tr>
+												<th scope="col">Plans Rs</th>
+												<th scope="col">Time Duration</th>
+												<th scope="col">Up to Pots</th>
+												<th scope="col">Service Name</th>
+												<th scope="col">Plan Type</th>
+												<th scope="col">Plan Packs</th>
+												<th scope="col">Is Active</th>
+												<th scope="col">Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="DailyRecords in DailyRecord">
+
+												<td>{{ DailyRecords.plansRs }}</td>
+												<td>{{ DailyRecords.timeDuration }}</td>
+												<td>{{ DailyRecords.uptoPots }}</td>
+												<td>{{ DailyRecords.servicesName }}</td>
+												<td>{{ DailyRecords.planType }}</td>
+												<td>{{ DailyRecords.planPacks }}</td>
+												<td>{{ DailyRecords.isActive }}</td>
+												<td>
+													<button type="button" class="btn btn-success">
+														<i class="fa-light fa-badge-check"></i> Active
+													</button>
+													<button type="button" class="btn btn-success">
+														<i class="fa-light fa-badge-check"></i> Deactive
+													</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="new-students-pane" role="tabpanel"
+								aria-labelledby="new-students" tabindex="0">
+								<div class="table-responsive">
+									<div class="table-responsive">
+										<table class="table table-responsive table-striped">
+											<thead class="table-dark">
+												<tr>
+													<th scope="col">Plans Rs</th>
+													<th scope="col">Time Duration</th>
+													<th scope="col">Up to Pots</th>
+													<th scope="col">Service Name</th>
+													<th scope="col">Plan Type</th>
+													<th scope="col">Plan Packs</th>
+													<th scope="col">Is Active</th>
+													<th scope="col">Action</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="MontheRecords in MontheRecord">
+
+													<td>{{ MontheRecords.plansRs }}</td>
+													<td>{{ MontheRecords.timeDuration }}</td>
+													<td>{{ MontheRecords.uptoPots }}</td>
+													<td>{{ MontheRecords.servicesName }}</td>
+													<td>{{ MontheRecords.planType }}</td>
+													<td>{{ MontheRecords.planPacks }}</td>
+													<td>{{ MontheRecords.isActive }}</td>
+													<td>
+														<button type="button" class="btn btn-success">
+															<i class="fa-light fa-badge-check"></i> Active
+														</button>
+														<button type="button" class="btn btn-success">
+															<i class="fa-light fa-badge-check"></i> Deactive
+														</button>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<!--		<div class="tab-pane fade" id="recent-loans-pane" role="tabpanel"
+								aria-labelledby="recent-loans" tabindex="0">
+								<div class="table-responsive">
+									<div class="card" style="width: 18rem;">
+										<img src="..." class="card-img-top" alt="...">
+										<div class="card-body">
+											<h5 class="card-title">Card title</h5>
+											<p class="card-text">Some quick example text to build on the card title and
+												make up the bulk of the card's content.</p>
+											<a href="#" class="btn btn-primary">Go somewhere</a>
+										</div>
+									</div>
+								</div>
+							</div>  -->
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+	<!--Main Container End-->
+
+</body>
+
+</html>

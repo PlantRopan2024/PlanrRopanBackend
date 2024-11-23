@@ -1,0 +1,46 @@
+.row1{
+    display: block;
+    margin-bottom: 4px;
+    margin-left: 15px;
+    margin-top: 12px;
+    padding: .375rem .75rem;
+    font-size: -8rem;
+    font-weight: 400;
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+.rowhide {
+            display: none;
+}
+.field {
+    flex: 1;
+    margin-right: 10px;
+}
+.data {
+    font-weight: bold;
+    color: #333; /* Change color as needed */
+}
+
+.btn {
+    padding: 3px 24px;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    display: inline;
+    margin-bottom: 5px;
+    margin-left: 1200px;
+    /* margin-right: 61px; */
+    margin-top: 4px;
+    border-radius: 25px;
+}
+.btn-primary1 {
+    background-color: #c3c2b4e6;
+    color: #3e1a1a;
+}
+
+/* Style for button on hover */
+.btn:hover {
+    opacity: 0.8;
+}

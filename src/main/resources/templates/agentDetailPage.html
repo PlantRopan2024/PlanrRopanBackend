@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="agentVerfication">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+	<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+	<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
+	<link rel="stylesheet" href="css/agentDetailPage.css" th:href="@{/css/agentDetailPage.css}" />
+	<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/1c26fb5c51.js" th:src="@{js/1c26fb5c51.js}"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>\
+	<script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
+	<script src="/js/agentVerfication.js" th:src="@{js/agentVerfication.js}"></script>
+	<title>Welcome to Plant Ropan</title>
+</head>
+
+<body ng-controller="agentController">
+	<!--  header.html  -->
+	<div th:include="header :: nav-bar"></div>
+
+	<!--  side nav bar  -->
+	<div th:include="sideNavbar :: sidenav-bar"></div>
+
+	<main class="mt-5 pt-3">
+		<div class="container-fluid">
+			<!--Cards-->
+			<div class="row dashboard-counts">
+				<div class="col-md-12">
+
+					<h4 class="fw-bold text-uppercase"></h4>
+				</div>
+
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header text-uppercase">
+							Agent Per Record
+							<button onclick="goBack()" class="btn btn-primary1">Back</button>
+						</div>
+						<div class="card-body">
+
+							<ul class="nav nav-tabs" id="myTab" role="tablist">
+								<li class="nav-item" role="presentation">
+									<button class="nav-link  active" id="new-students" data-bs-toggle="tab"
+										data-bs-target="#new-students-pane" type="button" role="tab"
+										aria-controls="new-students-pane" aria-selected="true">
+										Personal Detail</button>
+								</li>
+								<li class="nav-item" role="presentation">
+									<button class="nav-link " id="recent-loans" data-bs-toggle="tab"
+										data-bs-target="#recent-loans-pane" type="button" role="tab"
+										aria-controls="recent-loans-pane" aria-selected="false">Aaddhar Details
+									</button>
+								</li>
+								<li class="nav-item" role="presentation">
+									<button class="nav-link " id="bank-record" data-bs-toggle="tab"
+										data-bs-target="#recent-bank-record" type="button" role="tab"
+										aria-controls="recent-bank-record" aria-selected="false">Bank Detail
+									</button>
+								</li>
+
+							</ul>
+							<div class="tab-content" id="myTabContent">
+								<div class="tab-pane fade show active" id="new-students-pane" role="tabpanel"
+									aria-labelledby="new-students" tabindex="0">
+									<div class="row1">
+										<div class="field">
+											<span class="label">Selfi Image: </span> <span id="selfiImage"
+												class="data"></span>
+										</div>
+
+									</div>
+									<div class="row1">
+										<div class="field">
+											<span class="label">First Name: </span> <span id="firstName"
+												class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">Last Name: </span> <span id="lastName"
+												class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">Email ID: </span> <span id="emailId"
+												class="data"></span>
+										</div>
+									</div>
+									<div class="row1">
+										<div class="field">
+											<span class="label">Mobile No: </span> <span id="mobileNumber"
+												class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">Agent Verfied: </span> <span id="agentVerified"
+												class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">Active Agent: </span> <span id="activeAgent"
+												class="data"></span>
+										</div>
+									</div>
+
+									<div class="row1">
+										<div class="field">
+											<span class="label">Address: </span> <span id="address" class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">State: </span> <span id="state" class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">City: </span> <span id="city" class="data"></span>
+										</div>
+									</div>
+								</div>
+
+								<div class="tab-pane fade" id="recent-loans-pane" role="tabpanel"
+									aria-labelledby="recent-loans" tabindex="0">
+									<div class="row1">
+										<div class="field">
+											<span class="label">Aadhaar Number: </span> <span id="aadhaarNumber"
+												class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">Aadhaar Image: </span> <span id="aadharImg"
+												class="data"></span>
+										</div>
+									</div>
+								</div>
+								<div class="tab-pane fade" id="recent-bank-record" role="tabpanel"
+									aria-labelledby="bank-record" tabindex="0">
+
+									<div class="row1">
+										<div class="field">
+											<span class="label">Bank Pass Book Image: </span> <span
+												id="bankAccPassBookImage" class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">Account Holder Name: </span> <span id="accHolderName"
+												class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">Bank Name: </span> <span id="bankName"
+												class="data"></span>
+										</div>
+									</div>
+									<div class="row1">
+										<div class="field">
+											<span class="label">Account Holder Mobile No: </span> <span
+												id="accMobNumber" class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">Account Number: </span> <span id="accNumber"
+												class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">IFSC Code: </span> <span id="ifsccode"
+												class="data"></span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+</body>
+
+</html>
