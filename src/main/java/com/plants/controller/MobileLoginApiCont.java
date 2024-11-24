@@ -3,6 +3,7 @@ package com.plants.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import com.plants.Dao.MobileApiDao;
 import com.plants.Dao.userDao;
 import com.plants.Service.AgentLoginService;
 import com.plants.config.JwtUtil;
+import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
 
 
@@ -40,10 +42,33 @@ public class MobileLoginApiCont {
 	@Autowired
     private JwtUtil jwtUtil;
 	
-	@GetMapping("/GetsendOTP")
-	public ResponseEntity<String> sendOTP() {
-	    // Your logic for sending OTP
-	    return ResponseEntity.ok("OTP Sent");
+	@GetMapping("/getallDetailAgent")
+	public ResponseEntity<Map<String, Object>> getAllDetailAgent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+	    Map<String, Object> response = new HashMap<>();
+	    
+	    try {
+	        String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+	        String mobileNumber = jwtUtil.extractUsername(jwtToken);
+
+	        AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+
+	        // Validate token and agent records
+	        if (agentRecords == null || !jwtToken.equals(agentRecords.getToken())) {
+	            response.put("error", "Invalid or expired token");
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+	        }
+	        agentRecords.setBankPassBookImage(Utils.findImgPath(agentRecords.getBankPassBookImage()));
+	        agentRecords.setSelfieImg(Utils.findImgPath(agentRecords.getSelfieImg()));
+	        agentRecords.setAadharImgFrontSide(Utils.findImgPath(agentRecords.getAadharImgFrontSide()));
+	        agentRecords.setAadharImgBackSide(Utils.findImgPath(agentRecords.getAadharImgBackSide()));
+	        response.put("data", agentRecords); // Ensure AgentMain is serializable or convert to DTO
+	        return ResponseEntity.ok(response);
+
+	    } catch (Exception e) {
+	        response.put("error", "An unexpected error occurred");
+	        response.put("details", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+	    }
 	}
 	
 	@PostMapping("/sendOTP")
@@ -64,14 +89,13 @@ public class MobileLoginApiCont {
 		
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
-		List<AgentMain> agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
 		
-	    if (agentRecords.isEmpty() || !jwtToken.equals(agentRecords.get(0).getToken())) {
+	    if (Objects.isNull(agentRecords)   || !jwtToken.equals(agentRecords.getToken())) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 	    }
 		
-		ResponseEntity<Map<String, Object>> getprofileDetails = agentLoginService.profileInfoDetailsAgent(agentPersonalDetails, selfieImg);
-		
+		ResponseEntity<Map<String, Object>> getprofileDetails = agentLoginService.profileInfoDetailsAgent(agentRecords,agentPersonalDetails, selfieImg);
 		return ResponseEntity.ok(getprofileDetails.getBody());
 	}
 	
@@ -84,14 +108,13 @@ public class MobileLoginApiCont {
 		
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
-		List<AgentMain> agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
 		
-	    if (agentRecords.isEmpty() || !jwtToken.equals(agentRecords.get(0).getToken())) {
+	    if (Objects.isNull(agentRecords)   || !jwtToken.equals(agentRecords.getToken())) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 	    }
 		
-		ResponseEntity<Map<String, Object>> getprofileDetails = agentLoginService.AadhaarDetailFill(AadhaardetailsAgents, aadharImgFrontSide , aadharImgBackSide);
-		
+		ResponseEntity<Map<String, Object>> getprofileDetails = agentLoginService.AadhaarDetailFill(agentRecords,AadhaardetailsAgents, aadharImgFrontSide , aadharImgBackSide);
 		return ResponseEntity.ok(getprofileDetails.getBody());
 	}
 	
@@ -103,14 +126,13 @@ public class MobileLoginApiCont {
 		
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
-		List<AgentMain> agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
 		
-	    if (agentRecords.isEmpty() || !jwtToken.equals(agentRecords.get(0).getToken())) {
+	    if (Objects.isNull(agentRecords)   || !jwtToken.equals(agentRecords.getToken())) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 	    }
 		
-		ResponseEntity<Map<String, Object>> getprofileDetails = agentLoginService.bankDetailFill(bankDetailsAgent, bankPassBookImage);
-		
+		ResponseEntity<Map<String, Object>> getprofileDetails = agentLoginService.bankDetailFill(agentRecords,bankDetailsAgent, bankPassBookImage);
 		return ResponseEntity.ok(getprofileDetails.getBody());
 	}
 
@@ -137,7 +159,6 @@ public class MobileLoginApiCont {
 		} else {
 			response.put("message", "No Record Found Agent");
 		}
-
 		return ResponseEntity.ok(response);
 	}
 

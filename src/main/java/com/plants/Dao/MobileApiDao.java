@@ -16,5 +16,5 @@ public interface MobileApiDao extends CrudRepository<AgentMain, Integer>{
 	
 	
 	@Query("select e FROM AgentMain e WHERE e.mobileNumber = :mobileNumber")
-	public List<AgentMain> findMobileNumberValidateToken(@Param("mobileNumber") String mobileNumber );
+	public AgentMain findMobileNumberValidateToken(@Param("mobileNumber") String mobileNumber );
 }

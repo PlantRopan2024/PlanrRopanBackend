@@ -51,6 +51,12 @@ public class AgentMain {
 	@Column(name = "is_profile_completed", nullable = true)
 	private boolean isProfileCompleted;
 	private String fcmTokenAgent;
+	@Column(name = "is_Profile_Info_Step_First", nullable = true)
+	private boolean isProfileInfoStepFirst;
+	@Column(name = "is_Aadhar_Info_Step_Second", nullable = true)
+	private boolean isAadharInfoStepSecond;
+	@Column(name = "is_Bank_Info_Step_Third", nullable = true)
+	private boolean isBankInfoStepThird;
 	public AgentMain() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -60,7 +66,8 @@ public class AgentMain {
 			String mobileNumber, boolean agentVerified, boolean isActiveAgent, String state, String city,
 			String address, String pincode, double latitude, double longitude, String aadhaarNumber,
 			String aadharImgFrontSide, String aadharImgBackSide, String accHolderName, String accNumber,
-			String bankName, String ifscCode, String bankPassBookImage, String fcmTokenAgent , String token , boolean isProfileCompleted, String gender ) {
+			String bankName, String ifscCode, String bankPassBookImage, String fcmTokenAgent , String token , boolean isProfileCompleted, String gender,
+			boolean isProfileInfoStepFirst , boolean isAadharInfoStepSecond, boolean isBankInfoStepThird) {
 		super();
 		this.AgentIDPk = agentIDPk;
 		this.firstName = firstName;
@@ -88,6 +95,9 @@ public class AgentMain {
 		this.token=token;
 		this.isProfileCompleted= isProfileCompleted;
 		this.gender=gender;
+		this.isProfileInfoStepFirst= isProfileInfoStepFirst;
+		this.isAadharInfoStepSecond= isAadharInfoStepSecond;
+		this.isBankInfoStepThird= isBankInfoStepThird;
 	}
 
 
@@ -248,6 +258,31 @@ public class AgentMain {
 
 	public void setGender(String gender) {
 		this.gender = gender;
+	}
+	
+
+	public boolean isProfileInfoStepFirst() {
+		return isProfileInfoStepFirst;
+	}
+
+	public void setProfileInfoStepFirst(boolean isProfileInfoStepFirst) {
+		this.isProfileInfoStepFirst = isProfileInfoStepFirst;
+	}
+
+	public boolean isAadharInfoStepSecond() {
+		return isAadharInfoStepSecond;
+	}
+
+	public void setAadharInfoStepSecond(boolean isAadharInfoStepSecond) {
+		this.isAadharInfoStepSecond = isAadharInfoStepSecond;
+	}
+
+	public boolean isBankInfoStepThird() {
+		return isBankInfoStepThird;
+	}
+
+	public void setBankInfoStepThird(boolean isBankInfoStepThird) {
+		this.isBankInfoStepThird = isBankInfoStepThird;
 	}
 
 	@Override
