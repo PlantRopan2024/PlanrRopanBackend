@@ -99,7 +99,11 @@ public class AgentLoginService {
 				// findMob.setAadharImgFrontSide(Utils.findImgPath(findMob.getAadharImgFrontSide()));
 				// findMob.setAadharImgBackSide(Utils.findImgPath(findMob.getAadharImgBackSide()));
 				// response.put("Object", findMob);
-				response.put("data", null);
+				Map<String, Object> data = Map.of("isProfileCompleted", findMob.isProfileCompleted(),
+						"isProfileInfoStepFirst", findMob.isProfileInfoStepFirst(), "isAadharInfoStepSecond",
+						findMob.isAadharInfoStepSecond(), "isBankInfoStepThird", findMob.isBankInfoStepThird(), "token",
+						findMob.getToken());
+				response.put("data", data);
 				response.put("message", "OTP Verified Successfully");
 			}
 			return ResponseEntity.ok(response);
