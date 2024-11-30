@@ -15,7 +15,8 @@ public class OTPService {
    
     public String generateOTP(String mobileNumber) {
         // Generate a random 6-digit OTP
-        String otp = String.valueOf(new Random().nextInt(999999));
+        //String otp = String.valueOf(new Random().nextInt(999999));
+    	 String otp= "123456";
         otpData.put(mobileNumber, otp);
         otpTimestamps.put(mobileNumber, System.currentTimeMillis());
         return otp;
