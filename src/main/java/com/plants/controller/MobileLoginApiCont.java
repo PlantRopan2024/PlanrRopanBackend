@@ -85,7 +85,7 @@ public class MobileLoginApiCont {
 	
 	@PostMapping(value ="/profileInfoAgent" ,consumes ="multipart/form-data")
 	public ResponseEntity<Map<String, Object>> profileInfoDetails(
-			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestPart("agentPersonalDetails") String agentPersonalDetails,  @RequestPart("selfieImg") MultipartFile selfieImg){
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestPart("agentPersonalDetails") String agentPersonalDetails,  @RequestPart(value="selfieImg" , required = false) MultipartFile selfieImg){
 		
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
@@ -103,8 +103,8 @@ public class MobileLoginApiCont {
 	public ResponseEntity<Map<String, Object>> aadhaarDetailsAgents(
 			@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
 			@RequestPart("agentPersonalDetails") String AadhaardetailsAgents,  
-			@RequestPart("aadharImgFrontSide") MultipartFile aadharImgFrontSide,
-            @RequestPart("aadharImgBackSide") MultipartFile aadharImgBackSide){
+			@RequestPart(value = "aadharImgFrontSide" , required = false) MultipartFile aadharImgFrontSide,
+            @RequestPart(value = "aadharImgBackSide" , required = false) MultipartFile aadharImgBackSide){
 		
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
@@ -122,7 +122,7 @@ public class MobileLoginApiCont {
 	public ResponseEntity<Map<String, Object>> bankDetailAgents(
 			@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
 			@RequestPart("bankDetailsAgent") String bankDetailsAgent,  
-			@RequestPart("bankPassBookImage") MultipartFile bankPassBookImage){
+			@RequestPart(value="bankPassBookImage", required = false) MultipartFile bankPassBookImage){
 		
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
