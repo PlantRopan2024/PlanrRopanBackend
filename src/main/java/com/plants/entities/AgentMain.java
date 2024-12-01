@@ -23,9 +23,9 @@ public class AgentMain {
 	private String emailId;
 	@Column(unique = true)
 	private String mobileNumber;
-	 @Column(name = "agent_verified", nullable = true)
-	boolean AgentVerified;
-	 @Column(name = "is_active_agent", nullable = true)
+	@Column(name = "agent_approved", nullable = true)
+	boolean agentApproved;
+	@Column(name = "is_active_agent", nullable = true)
 	boolean isActiveAgent;
 	private String state;
 	private String city;
@@ -60,7 +60,7 @@ public class AgentMain {
 	}
 
 	public AgentMain(int agentIDPk, String firstName, String lastName, String selfieImg, String emailId,
-			String mobileNumber, boolean agentVerified, boolean isActiveAgent, String state, String city,
+			String mobileNumber, boolean agentApproved, boolean isActiveAgent, String state, String city,
 			String address, String pincode, double latitude, double longitude, String aadhaarNumber,
 			String aadharImgFrontSide, String aadharImgBackSide, String accHolderName, String accNumber,
 			String bankName, String ifscCode, String bankPassBookImage, String fcmTokenAgent , String token , boolean isProfileCompleted, String gender,
@@ -72,7 +72,7 @@ public class AgentMain {
 		this.selfieImg = selfieImg;
 		this.emailId = emailId;
 		this.mobileNumber = mobileNumber;
-		this.AgentVerified = agentVerified;
+		this.agentApproved = agentApproved;
 		this.isActiveAgent = isActiveAgent;
 		this.state = state;
 		this.city = city;
@@ -134,12 +134,15 @@ public class AgentMain {
 	public void setMobileNumber(String mobileNumber) {
 		this.mobileNumber = mobileNumber;
 	}
-	public boolean isAgentVerified() {
-		return AgentVerified;
+	
+	public boolean isAgentApproved() {
+		return agentApproved;
 	}
-	public void setAgentVerified(boolean agentVerified) {
-		AgentVerified = agentVerified;
+
+	public void setAgentApproved(boolean agentApproved) {
+		this.agentApproved = agentApproved;
 	}
+
 	public boolean isActiveAgent() {
 		return isActiveAgent;
 	}
@@ -286,7 +289,7 @@ public class AgentMain {
 	public String toString() {
 		return "AgentMain [AgentIDPk=" + AgentIDPk + ", firstName=" + firstName + ", lastName=" + lastName + ", gender="
 				+ gender + ", selfieImg=" + selfieImg + ", emailId=" + emailId + ", mobileNumber=" + mobileNumber
-				+ ", AgentVerified=" + AgentVerified + ", isActiveAgent=" + isActiveAgent + ", state=" + state
+				+ ", agentApproved=" + agentApproved + ", isActiveAgent=" + isActiveAgent + ", state=" + state
 				+ ", city=" + city + ", address=" + address + ", pincode=" + pincode + ", latitude=" + latitude
 				+ ", longitude=" + longitude + ", aadhaarNumber=" + aadhaarNumber + ", aadharImgFrontSide="
 				+ aadharImgFrontSide + ", aadharImgBackSide=" + aadharImgBackSide + ", token=" + token

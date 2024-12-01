@@ -73,7 +73,7 @@ public class AgentLoginService {
 				agent.setMobileNumber(mobileNumber);
 				agent.setProfileCompleted(false);
 				agent.setActiveAgent(false);
-				agent.setAgentVerified(false);
+				agent.setAgentApproved(false);
 				agent.setProfileInfoStepFirst(false);
 				agent.setAadharInfoStepSecond(false);
 				agent.setBankInfoStepThird(false);
@@ -261,10 +261,10 @@ public class AgentLoginService {
 				getAgent.setSelfieImg(Utils.findImgPath(getAgent.getSelfieImg()));
 				getAgent.setAadharImgFrontSide(Utils.findImgPath(getAgent.getAadharImgFrontSide()));
 				getAgent.setAadharImgBackSide(Utils.findImgPath(getAgent.getAadharImgBackSide()));
-				response.put("Agent", getAgent);
+				
+				response.put("isBankInfoStepThird", getAgent.isBankInfoStepThird());
 				response.put("message", "Bank Account saved successfully!");
 
-				response.remove("token");
 			}
 
 		} catch (Exception e) {

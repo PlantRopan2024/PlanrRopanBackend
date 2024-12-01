@@ -71,12 +71,18 @@ public interface userDao extends CrudRepository<user, Integer>{
     public void updateBankPassBookImg(@Param("bankPassBookImage") String bankPassBookImage, @Param("AgentIDPk") String AgentIDPk);
 	
 	
-	@Query("select e FROM AgentMain e where e.AgentVerified = false")
+	@Query("select e FROM AgentMain e where e.agentApproved = false")
 	public ArrayList<AgentMain> getpendingVerif();
 	
-	@Query("select e FROM AgentMain e where e.AgentVerified = true")
-	public ArrayList<AgentMain> getVerified();
+	@Query("select e FROM AgentMain e where e.agentApproved = true")
+	public ArrayList<AgentMain> getApprovedAgent();
 	
 	@Query("select e FROM AgentMain e where e.isActiveAgent = true")
 	public ArrayList<AgentMain> activeAgent();
+	
+	@Modifying
+	@Transactional
+    @Query("UPDATE AgentMain a SET  a.agentApproved = :agentApproved  WHERE a.AgentIDPk = :AgentIDPk")
+    public void updateAgentApproved(@Param("agentApproved") boolean agentApproved , @Param("AgentIDPk") int AgentIDPk);
+	
 }

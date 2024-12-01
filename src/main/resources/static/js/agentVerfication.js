@@ -3,6 +3,7 @@ var app = angular.module('agentVerfication', ['ui.bootstrap']);
 app.controller('agentController', ['$scope', '$http', '$window', function($scope, $http, $window) {
 
 	$scope.pendingVerification = [];
+	$scope.ApprovedAgent =[];
 	$scope.agentDetails = {};
 	
 	$scope.openAgentDetailPage = function(pk) {
@@ -34,9 +35,51 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 			console.error("Error occurred:", error);
 		});
 	};
+	
+	$scope.approvedAgentRecord = function() {
+			$http({
+				method: 'GET',
+				url: '/getApprovedAgent'
+			}).then(function(response) {
+				$scope.ApprovedAgent = response.data; // Assign response data to scope variable
+			}, function(error) {
+				console.error("Error occurred:", error);
+			});
+		};
+	
+	$scope.handleAction = function(agentIDPk, actionType) {
+	    const endpoint = actionType === 'like' ? '/approvedAgent' : '/disApprovedAgent';
+		
+	    $http.post(endpoint, { agentIDPk: agentIDPk }).then(
+	        function(response) {
+	            // Handle the success response
+	            console.log(`Agent ${actionType}d successfully`, response.data);
+	            Swal.fire({
+	                icon: 'success',
+	                title: 'Success',
+	                text: `Agent ${actionType}d successfully!`,
+	                timer: 2000,
+	            });
+
+	            // Optionally refresh the data
+				$scope.verificationPending();
+				$scope.approvedAgentRecord();
+	        },
+	        function(error) {
+	            // Handle errors
+	            console.error('Error:', error);
+	            Swal.fire({
+	                icon: 'error',
+	                title: 'Error',
+	                text: `Failed to ${actionType} the agent. Please try again.`,
+	            });
+	        }
+	    );
+	};
 
 	// Automatically load data when the controller is initialized
 	$scope.verificationPending();
+	$scope.approvedAgentRecord();
 
 }]);
 
@@ -65,7 +108,7 @@ function displayData(data) {
 	  document.getElementById('lastName').textContent = data.lastName;
 	  document.getElementById('emailId').textContent = data.emailId;
 	  document.getElementById('mobileNumber').textContent = data.mobileNumber;	
-	  document.getElementById('agentVerified').textContent = data.agentVerified;
+	  document.getElementById('agentApproved').textContent = data.agentApproved;
 	  document.getElementById('activeAgent').textContent = data.activeAgent;
 	  document.getElementById('selfiImage').textContent = data.selfiImage;
 	  document.getElementById('state').textContent = data.state;

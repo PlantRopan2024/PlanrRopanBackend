@@ -48,7 +48,7 @@
 							<li class="nav-item" role="presentation">
 								<button class="nav-link " id="recent-loans" data-bs-toggle="tab"
 									data-bs-target="#recent-loans-pane" type="button" role="tab"
-									aria-controls="recent-loans-pane" aria-selected="false">Verified Agent </button>
+									aria-controls="recent-loans-pane" aria-selected="false">Approved Agent </button>
 							</li>
 
 						</ul>
@@ -77,8 +77,11 @@
 												<td>{{ pendingVerifications.emailId }}</td>
 												<td>{{ pendingVerifications.mobileNumber }}</td>
 												<td>
-													<button type="button" class="btn btn-success">
-														<i class="fa-light fa-badge-check"></i> Verify
+													<button type="button" class="btn btn-success" ng-click="handleAction(pendingVerifications.agentIDPk, 'like')">
+													    <img th:src="@{/images/like.png}" alt="Icon" style="width: 16px; height: 16px;">
+													</button>
+													<button type="button" class="btn btn-success" ng-click="handleAction(pendingVerifications.agentIDPk, 'dislike')">
+													    <img th:src="@{/images/dislike.png}" alt="Icon" style="width: 16px; height: 16px;">
 													</button>
 												</td>
 											</tr>
@@ -97,17 +100,19 @@
 												<th scope="col">Last Name</th>
 												<th scope="col">Email Id.</th>
 												<th scope="col">Mobile No.</th>
-												<th scope="col">Action</th>
 											</tr>
 										</thead>
-										<tbody>
-											<tr>
-												<td></td>
-												<td></td>
-												<td></td>
-												<td></td>
-												<td></td>
-											</tr>
+											<tbody>
+												<tr ng-repeat="ApprovedAgents in ApprovedAgent">
+													<td>
+														<a href="agentDetailPage.html?agentIDPk={{ApprovedAgents.agentIDPk}}">{{ApprovedAgents.firstName}}</a>
+
+														<!--<a href="" ng-click="openAgentDetailPage(ApprovedAgents.agentIDPk)">{{ApprovedAgents.firstName }}</a>-->
+													</td>
+													<td>{{ ApprovedAgents.lastName }}</td>
+													<td>{{ ApprovedAgents.emailId }}</td>
+													<td>{{ ApprovedAgents.mobileNumber }}</td>
+												</tr>
 										</tbody>
 									</table>
 								</div>
