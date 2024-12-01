@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "Agent_Main" , uniqueConstraints = {@UniqueConstraint(columnNames = {"mobileNumber","emailId","aadhaarNumber","accNumber","AccMobNumber"})})
+@Table(name = "Agent_Main" , uniqueConstraints = {@UniqueConstraint(columnNames = {"mobileNumber"})})
 public class AgentMain {
 	
 	@Id
@@ -20,7 +20,6 @@ public class AgentMain {
 	private String lastName;
 	private String gender;
 	private String selfieImg;
-	@Column(unique = true)
 	private String emailId;
 	@Column(unique = true)
 	private String mobileNumber;
@@ -35,7 +34,6 @@ public class AgentMain {
 	private double latitude;
 	private double longitude;
 	
-	@Column(unique = true)
 	private String aadhaarNumber;
 	
 	private String aadharImgFrontSide;
@@ -43,7 +41,6 @@ public class AgentMain {
 	
 	private String token;
 	private String accHolderName;
-	@Column(unique = true)
 	private String accNumber;
 	private String bankName;
 	private String ifscCode;
