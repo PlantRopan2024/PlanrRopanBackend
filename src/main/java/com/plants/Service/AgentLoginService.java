@@ -117,7 +117,7 @@ public class AgentLoginService {
 			String agentPersonalDetails, MultipartFile selfieImg) {
 		Map<String, Object> response = new HashMap<>();
 
-		if (selfieImg == null) {
+		if (selfieImg.isEmpty()) {
 			response.put("message", "Please select your selfie image.");
 			return ResponseEntity.badRequest().body(response);
 		}
@@ -183,11 +183,11 @@ public class AgentLoginService {
 			MultipartFile aadharImgFrontSide, MultipartFile aadharImgBackSide) {
 		Map<String, Object> response = new HashMap<>();
 
-		if (aadharImgFrontSide == null) {
+		if (aadharImgFrontSide.isEmpty()) {
 			response.put("message", "Please select your Aadhaar front-side image.");
 			return ResponseEntity.badRequest().body(response);
 		}
-		if (aadharImgBackSide == null) {
+		if (aadharImgBackSide.isEmpty()) {
 			response.put("message", "Please select your Aadhaar back-side image.");
 			return ResponseEntity.badRequest().body(response);
 		}
@@ -229,7 +229,7 @@ public class AgentLoginService {
 			MultipartFile bankPassBookImage) {
 		Map<String, Object> response = new HashMap<>();
 
-		if (bankPassBookImage == null) {
+		if (bankPassBookImage.isEmpty()) {
 			response.put("message", "Please select your Bank Pass book image.");
 			return ResponseEntity.badRequest().body(response);
 		}
