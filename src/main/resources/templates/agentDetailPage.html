@@ -75,9 +75,14 @@
 									aria-labelledby="new-students" tabindex="0">
 									<div class="row1">
 										<div class="field">
-											<span class="label">Selfi Image: </span> <span id="selfiImage"
-												class="data"></span>
-										</div>
+											<span class="label">Profile Image: </span>
+											<img id="selfieImg" 
+											     class="data" 
+											     ng-src="{{agentDetails.selfieImg}}" 
+											     alt="Selfie Image" 
+											     style="max-width: 100px; cursor: pointer;" 
+											     ng-click="openModal(agentDetails.selfieImg)" />
+									    </div>
 
 									</div>
 									<div class="row1">
@@ -130,8 +135,12 @@
 												class="data"></span>
 										</div>
 										<div class="field">
-											<span class="label">Aadhaar Image: </span> <span id="aadharImg"
+											<span class="label">Aadhaar Front side Image: </span> <span id="aadharImgFrontSide"
 												class="data"></span>
+										</div>
+										<div class="field">
+											<span class="label">Aadhaar Back side Image: </span> <span id="aadharImgBackSide"
+											    class="data"></span>
 										</div>
 									</div>
 								</div>
@@ -141,7 +150,7 @@
 									<div class="row1">
 										<div class="field">
 											<span class="label">Bank Pass Book Image: </span> <span
-												id="bankAccPassBookImage" class="data"></span>
+												id="bankPassBookImage" class="data"></span>
 										</div>
 										<div class="field">
 											<span class="label">Account Holder Name: </span> <span id="accHolderName"
@@ -174,6 +183,11 @@
 			</div>
 		</div>
 	</main>
+	
+	<div id="imageModal" class="modal" ng-class="{'show': isModalOpen}" ng-click="closeModal($event)">
+	    <span class="modal-close" ng-click="closeModal($event)">&times;</span>
+	    <img class="modal-content" ng-src="{{modalImageUrl}}" alt="Modal Image" />
+	</div>
 
 </body>
 

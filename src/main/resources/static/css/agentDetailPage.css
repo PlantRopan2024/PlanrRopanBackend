@@ -44,3 +44,40 @@
 .btn:hover {
     opacity: 0.8;
 }
+.modal {
+         display: none;
+         position: fixed;
+         z-index: 1000;
+         left: 0;
+         top: 0;
+         width: 100%;
+         height: 100%;
+         overflow: auto;
+         background-color: rgba(0, 0, 0, 0.8);
+     }
+	
+	 .modal.show {
+	            display: block;
+	        }
+	.modal-content {
+			    margin: auto;
+			    top: 109px;
+			    right: -141px;
+			    display: block;
+			    max-width: 76%;
+			    max-height: 78%;
+     }
+
+     .modal-close {
+		position: absolute;
+		    top: 96px;
+		    right: 47px;
+		    color: white;
+		    font-size: 30px;
+		    font-weight: bold;
+		    cursor: pointer;
+     }
+	 .modal-close:hover {
+	           color: red;
+	           background: rgba(255, 255, 255, 0.8);
+	       }

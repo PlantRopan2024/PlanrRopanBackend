@@ -14,6 +14,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
 import com.plants.Dao.userDao;
+import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
 
 @RestController
@@ -40,13 +41,13 @@ public class VerficationAgent {
 	@ResponseBody
 	public AgentMain findDetailAgent(@RequestBody String AgentIDPk) {
 		AgentMain getdetailRecord = this.userdao.findAgentID(AgentIDPk);
-		System.out.println("aaaaaaa" + getdetailRecord.getSelfieImg());
-
-		String imageUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/images/")
-				.path(getdetailRecord.getSelfieImg()).toUriString();
-
-		System.out.println("imsa" + imageUrl);
-		getdetailRecord.setSelfieImg(imageUrl);
+		
+		
+		getdetailRecord.setBankPassBookImage(Utils.findImgPath(getdetailRecord.getBankPassBookImage()));
+		getdetailRecord.setSelfieImg(Utils.findImgPath(getdetailRecord.getSelfieImg()));
+		getdetailRecord.setAadharImgFrontSide(Utils.findImgPath(getdetailRecord.getAadharImgFrontSide()));
+		getdetailRecord.setAadharImgBackSide(Utils.findImgPath(getdetailRecord.getAadharImgBackSide()));
+		
 		System.out.println(" getdetailRecord   ---  " + getdetailRecord);
 		return getdetailRecord;
 	}

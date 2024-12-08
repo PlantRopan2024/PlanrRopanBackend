@@ -5,6 +5,9 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	$scope.pendingVerification = [];
 	$scope.ApprovedAgent =[];
 	$scope.agentDetails = {};
+	$scope.selfieImageUrl = "http://desktop-5c60dtl:8080/uploadImages/bill.PNG"; // Replace with your image URL
+	        $scope.modalImageUrl = "";
+	        $scope.isModalOpen = false;
 	
 	$scope.openAgentDetailPage = function(pk) {
 		
@@ -76,7 +79,23 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	        }
 	    );
 	};
+	
+	// Open Modal
+	       $scope.openModal = function (imageUrl) {
+	           $scope.modalImageUrl = imageUrl;
+	           $scope.isModalOpen = true;
+	       };
 
+	       // Close Modal
+	       $scope.closeModal = function (event) {
+	           // Close only if the target is the modal itself or the close button
+	           const target = event.target;
+	           if (target.classList.contains("modal") || target.classList.contains("modal-close")) {
+	               $scope.isModalOpen = false;
+	               $scope.$apply(); // Apply scope changes
+	           }
+	       };
+	
 	// Automatically load data when the controller is initialized
 	$scope.verificationPending();
 	$scope.approvedAgentRecord();
@@ -104,22 +123,25 @@ function displayAgentPKRecord() {
 }
 
 function displayData(data) {
+	
+	
 	  document.getElementById('firstName').textContent = data.firstName;
 	  document.getElementById('lastName').textContent = data.lastName;
 	  document.getElementById('emailId').textContent = data.emailId;
 	  document.getElementById('mobileNumber').textContent = data.mobileNumber;	
 	  document.getElementById('agentApproved').textContent = data.agentApproved;
 	  document.getElementById('activeAgent').textContent = data.activeAgent;
-	  document.getElementById('selfiImage').textContent = data.selfiImage;
+	  document.getElementById('selfieImg').textContent = data.selfieImg;
 	  document.getElementById('state').textContent = data.state;
 	  document.getElementById('city').textContent = data.city;
 	  document.getElementById('address').textContent = data.address;
-	  document.getElementById('aadharImg').textContent = data.aadharImg;
+	  document.getElementById('aadharImgFrontSide').textContent = data.aadharImgFrontSide;
+	  document.getElementById('aadharImgBackSide').textContent = data.aadharImgBackSide;
 	  document.getElementById('aadhaarNumber').textContent = data.aadhaarNumber;
 	  document.getElementById('accHolderName').textContent = data.accHolderName;
 	  document.getElementById('accNumber').textContent = data.accNumber;
 	  document.getElementById('bankName').textContent = data.bankName;
-	  document.getElementById('bankAccPassBookImage').textContent = data.bankAccPassBookImage;
+	  document.getElementById('bankPassBookImage').textContent = data.bankPassBookImage;
 	  document.getElementById('accMobNumber').textContent = data.accMobNumber;
 	  document.getElementById('ifsccode').textContent = data.ifsccode; 
 }
