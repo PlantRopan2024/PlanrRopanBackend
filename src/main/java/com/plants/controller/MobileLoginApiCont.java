@@ -137,50 +137,29 @@ public class MobileLoginApiCont {
 	}
 
 	@PostMapping("/getliveLocationLatiAndLong")
-	public ResponseEntity<Map<String, String>> getliveLocationLatiAndLong(@RequestBody Map<String, String> request) {
-		Map<String, String> response = new HashMap<>();
-		String AgentIDPk = request.get("AgentIDPk");
-		String Agentlatitude = request.get("Agentlatitude");
-		String AgentLongtitude = request.get("AgentLongtitude");
-
-		AgentMain getActiveRecord = this.userdao.findAgentID(AgentIDPk);
-
-		if (getActiveRecord != null) {
-			if (getActiveRecord.isActiveAgent() == true) {
-				System.out.println("---AgentIDPk--- " + AgentIDPk);
-				System.out.println("---Agentlatitude--- " + Agentlatitude);
-				System.out.println("---AgentLongtitude--- " + AgentLongtitude);
-				this.userdao.updateliveLocation(Agentlatitude, AgentLongtitude, AgentIDPk);
-				response.put("message", "Location Updated.");
-			} else {
-				response.put("message", "Agent is Not Active");
-			}
-
-		} else {
-			response.put("message", "No Record Found Agent");
-		}
-		return ResponseEntity.ok(response);
+	public ResponseEntity<Map<String, String>> getliveLocationLatiAndLong(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,@RequestBody Map<String, String> request) {		
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+		
+	    if (Objects.isNull(agentRecords)   || !jwtToken.equals(agentRecords.getToken())) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+	    }
+	    ResponseEntity<Map<String, String>> getupdatedLoc = agentLoginService.getUpdateLiveLocation(agentRecords, request);
+		return ResponseEntity.ok(getupdatedLoc.getBody());
 	}
 
 	@PostMapping("/getActiveAgentToggle")
-	public ResponseEntity<Map<String, String>> getActiveAgentToggle(@RequestBody Map<String, String> request) {
-		Map<String, String> response = new HashMap<>();
-		String AgentIDPk = request.get("AgentIDPk");
-		boolean isActiveAgent = request.get("isActiveAgent") != null;
+	public ResponseEntity<Map<String, String>> getActiveAgentToggle(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,@RequestBody Map<String, String> request) {		
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
 
-		AgentMain getagentRecord = this.userdao.findAgentID(AgentIDPk);
-
-		if (getagentRecord != null) {
-			System.out.println("---AgentIDPk--- " + AgentIDPk);
-			System.out.println("---isActiveAgent--- " + isActiveAgent);
-
-			this.userdao.UpdateagentActive(isActiveAgent, getagentRecord.getAgentIDPk());
-			response.put("message", "Agent Active.");
-		} else {
-			response.put("message", "No Record Found Agent");
-		}
-
-		return ResponseEntity.ok(response);
+	    if (Objects.isNull(agentRecords)   || !jwtToken.equals(agentRecords.getToken())) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+	    }
+	    ResponseEntity<Map<String, String>> activeAgent = agentLoginService.activeAgentToggle(agentRecords, request);
+		return ResponseEntity.ok(activeAgent.getBody());
 	}
 	
 }

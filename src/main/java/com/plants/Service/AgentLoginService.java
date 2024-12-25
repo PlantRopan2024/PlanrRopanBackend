@@ -272,5 +272,44 @@ public class AgentLoginService {
 		}
 		return ResponseEntity.ok(response);
 	}
+	public ResponseEntity<Map<String, String>> getUpdateLiveLocation(AgentMain existingAgent,Map<String, String> request) {
+		Map<String, String> response = new HashMap<>();
+		String Agentlatitude = request.get("Agentlatitude");
+		String AgentLongtitude = request.get("AgentLongtitude");		
+		if (Objects.nonNull(existingAgent)) {
+			AgentMain agentMain = null;
+			agentMain = existingAgent; // Update existing agent
+			
+			if (agentMain.isActiveAgent() == true) {
+				agentMain.setLatitude(Double.parseDouble(Agentlatitude));
+				agentMain.setLongitude(Double.parseDouble(AgentLongtitude));
+				this.userdao.save(agentMain);
+				response.put("message", "Location Updated.");
+			} else {
+				response.put("message", "Agent is Not Active");
+			}
+		}else {
+			response.put("message", "No Record Found Agent");
+		}
+		return ResponseEntity.ok(response);
+	}
 
+	public ResponseEntity<Map<String, String>> activeAgentToggle(AgentMain existingAgent, Map<String, String> request) {
+		Map<String, String> response = new HashMap<>();
+		boolean isActiveAgent = Boolean.parseBoolean(request.get("isActiveAgent"));		
+		String Agentlatitude = request.get("Agentlatitude");
+		String AgentLongtitude = request.get("AgentLongtitude");
+		if (Objects.nonNull(existingAgent)) {
+			AgentMain agentMain = null;
+			agentMain = existingAgent; // Update existing agent
+			agentMain.setActiveAgent(isActiveAgent);
+			agentMain.setLatitude(Double.parseDouble(Agentlatitude));
+			agentMain.setLongitude(Double.parseDouble(AgentLongtitude));
+			this.userdao.save(agentMain);
+			response.put("message", "Agent Active.");
+		} else {
+			response.put("message", "No Record Found Agent");
+		}
+		return ResponseEntity.ok(response);
+	}
 }
