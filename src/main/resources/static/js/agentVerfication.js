@@ -5,12 +5,43 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	$scope.pendingVerification = [];
 	$scope.ApprovedAgent =[];
 	$scope.agentDetails = {};
-	$scope.selfieImageUrl = "http://desktop-5c60dtl:8080/uploadImages/bill.PNG"; // Replace with your image URL
-	        $scope.modalImageUrl = "";
-	        $scope.isModalOpen = false;
+	$scope.modalImageUrl = "";
+	$scope.isModalOpen = false;
+	$scope.selfieImg = '';
+	$scope.aadharImgFrontSide ='';
+	$scope.aadharImgBackSide ='';
+	$scope.bankPassBookImage ='';
+
+    $scope.displayData = function(data) {
+	    if(data) {
+			$scope.selfieImg = data.selfieImg;
+		    $scope.aadharImgFrontSide = data.aadharImgFrontSide;
+		    $scope.aadharImgBackSide = data.aadharImgBackSide; 
+			$scope.bankPassBookImage = data.bankPassBookImage;
+		 }else {
+			console.error('selfieImg not found in the response data');
+		}
+		document.getElementById('firstName').textContent = data.firstName;
+		document.getElementById('lastName').textContent = data.lastName;
+		document.getElementById('emailId').textContent = data.emailId;
+		document.getElementById('mobileNumber').textContent = data.mobileNumber;
+		document.getElementById('agentApproved').textContent = data.agentApproved;
+		document.getElementById('activeAgent').textContent = data.activeAgent;
+		document.getElementById('state').textContent = data.state;
+		document.getElementById('city').textContent = data.city;
+		document.getElementById('address').textContent = data.address;
+		document.getElementById('aadharImgFrontSide').textContent = data.aadharImgFrontSide;
+		document.getElementById('aadharImgBackSide').textContent = data.aadharImgBackSide;
+		document.getElementById('aadhaarNumber').textContent = data.aadhaarNumber;
+		document.getElementById('accHolderName').textContent = data.accHolderName;
+		document.getElementById('accNumber').textContent = data.accNumber;
+	    document.getElementById('bankName').textContent = data.bankName;
+		document.getElementById('bankPassBookImage').textContent = data.bankPassBookImage;
+		document.getElementById('accMobNumber').textContent = data.accMobNumber;
+		document.getElementById('ifsccode').textContent = data.ifsccode;
+    };
 	
 	$scope.openAgentDetailPage = function(pk) {
-		
 		$http({
 			method: 'POST',
 			url: 'findDetailAgent',
@@ -18,8 +49,6 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 		}).then(function(response) {
 			console.log("response: " + response.data);
 			$scope.agentDetails = response.data;
-
-			// Once the response is received, redirect the user to the new page
 			var url = 'agentDetailPage.html?pk=' + pk;
 			$window.location.href = url;
 		}, function(error) {
@@ -116,22 +145,29 @@ function displayAgentPKRecord() {
 		data: agentIDPk,
 		contentType: 'application/json',
 		processData: false,
-		success: function(response) {
-			displayData(response);
+		success: function(response) {			        
+			        if (response){
+			            var scope = angular.element(document.querySelector('[ng-controller="agentController"]')).scope();
+			            scope.displayData(response);
+			            scope.$apply(); 
+			        } else {
+			            console.error('Invalid response data:', response);
+			        }
 		}
 	});
 }
 
-function displayData(data) {
+/*function displayData(data) {
 	
-	
+	$scope.selfieImg = data.selfieImg;
 	  document.getElementById('firstName').textContent = data.firstName;
 	  document.getElementById('lastName').textContent = data.lastName;
 	  document.getElementById('emailId').textContent = data.emailId;
 	  document.getElementById('mobileNumber').textContent = data.mobileNumber;	
 	  document.getElementById('agentApproved').textContent = data.agentApproved;
 	  document.getElementById('activeAgent').textContent = data.activeAgent;
-	  document.getElementById('selfieImg').textContent = data.selfieImg;
+	 // document.getElementById('selfieImg').textContent = data.selfieImg;
+	// document.getElementById('selfieImg').src = data.selfieImg;
 	  document.getElementById('state').textContent = data.state;
 	  document.getElementById('city').textContent = data.city;
 	  document.getElementById('address').textContent = data.address;
@@ -144,7 +180,7 @@ function displayData(data) {
 	  document.getElementById('bankPassBookImage').textContent = data.bankPassBookImage;
 	  document.getElementById('accMobNumber').textContent = data.accMobNumber;
 	  document.getElementById('ifsccode').textContent = data.ifsccode; 
-}
+}*/
 
 window.onload = displayAgentPKRecord;
 

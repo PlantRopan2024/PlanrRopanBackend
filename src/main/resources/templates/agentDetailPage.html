@@ -76,14 +76,9 @@
 									<div class="row1">
 										<div class="field">
 											<span class="label">Profile Image: </span>
-											<img id="selfieImg" 
-											     class="data" 
-											     ng-src="{{agentDetails.selfieImg}}" 
-											     alt="Selfie Image" 
-											     style="max-width: 100px; cursor: pointer;" 
-											     ng-click="openModal(agentDetails.selfieImg)" />
+											<img id="selfieImg" class="data" ng-src="{{selfieImg}}"  alt="Selfie Image" 
+											     style="max-width: 100px; cursor: pointer;"  ng-click="openModal(selfieImg)" />
 									    </div>
-
 									</div>
 									<div class="row1">
 										<div class="field">
@@ -135,12 +130,14 @@
 												class="data"></span>
 										</div>
 										<div class="field">
-											<span class="label">Aadhaar Front side Image: </span> <span id="aadharImgFrontSide"
-												class="data"></span>
+											<span class="label">Aadhaar Front side Image: </span> 											
+											<img id="aadharImgFrontSide" class="data" ng-src="{{aadharImgFrontSide}}" 
+												alt="Aadhar image Front side" style="max-width: 100px; cursor: pointer;"  ng-click="openModal(aadharImgFrontSide)" />
 										</div>
 										<div class="field">
-											<span class="label">Aadhaar Back side Image: </span> <span id="aadharImgBackSide"
-											    class="data"></span>
+											<span class="label">Aadhaar Back side Image: </span>											
+											<img id="aadharImgBackSide" class="data" ng-src="{{aadharImgBackSide}}"  alt="Aadhar Image Back side" 
+												style="max-width: 100px; cursor: pointer;"  ng-click="openModal(aadharImgBackSide)" />
 										</div>
 									</div>
 								</div>
@@ -149,8 +146,9 @@
 
 									<div class="row1">
 										<div class="field">
-											<span class="label">Bank Pass Book Image: </span> <span
-												id="bankPassBookImage" class="data"></span>
+											<span class="label">Bank Pass Book Image: </span> 
+												<img id="bankPassBookImage" class="data"  ng-src="{{bankPassBookImage}}" 
+													 alt="Bank Pass Book" style="max-width: 100px; cursor: pointer;" ng-click="openModal(bankPassBookImage)" />
 										</div>
 										<div class="field">
 											<span class="label">Account Holder Name: </span> <span id="accHolderName"

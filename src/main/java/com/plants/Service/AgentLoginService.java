@@ -310,8 +310,6 @@ public class AgentLoginService {
 				response.put("message", "Agent Active.");
 			}else {
 				agentMain.setActiveAgent(isActiveAgent);
-				//agentMain.setLatitude(Double.parseDouble(Agentlatitude));
-			//	agentMain.setLongitude(Double.parseDouble(AgentLongtitude));
 				this.userdao.save(agentMain);
 				response.put("message", "Agent Deactive");
 			}
