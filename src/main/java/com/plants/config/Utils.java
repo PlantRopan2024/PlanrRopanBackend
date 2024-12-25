@@ -63,6 +63,6 @@ public class Utils {
 	}
 
 	public static String findImgPath(String file) {
-		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/uploadImages/").path(file).toUriString();
+		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/uploadImages/compressed_").path(file).toUriString();
 	}
 }
