@@ -149,6 +149,7 @@ public class MobileLoginApiCont {
 		return ResponseEntity.ok(getupdatedLoc.getBody());
 	}
 
+	
 	@PostMapping("/getActiveAgentToggle")
 	public ResponseEntity<Map<String, String>> getActiveAgentToggle(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,@RequestBody Map<String, String> request) {		
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
