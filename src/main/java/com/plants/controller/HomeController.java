@@ -52,6 +52,10 @@ public class HomeController {
 		return "test";
 	}
 	
+	@GetMapping("/ImageUpload")
+	public String ImageUpload() {
+		return "ImageUpload";
+	}
 	@GetMapping("/logoutUser")
     public String logout(HttpServletRequest request) {
 	 System.out.println(" logout");

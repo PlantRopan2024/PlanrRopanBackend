@@ -59,7 +59,7 @@ public class Utils {
 		// file.getInputStream().close();
 
 		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/uploadImages/")
-				.path(file.getOriginalFilename()).toUriString();
+				.path("compressed_"+file.getOriginalFilename()).toUriString();
 	}
 
 	public static String findImgPath(String file) {

@@ -163,4 +163,17 @@ public class MobileLoginApiCont {
 		return ResponseEntity.ok(activeAgent.getBody());
 	}
 	
+	@PostMapping("/getFirebaseTokenDevice")
+	public ResponseEntity<Map<String, String>> getFirebaseTokenDevice(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,@RequestBody Map<String, String> request) {		
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+
+	    if (Objects.isNull(agentRecords)   || !jwtToken.equals(agentRecords.getToken())) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+	    }
+	    ResponseEntity<Map<String, String>> activeAgent = agentLoginService.getFirebaseDeviceToken(agentRecords, request);
+		return ResponseEntity.ok(activeAgent.getBody());
+	}
+	
 }

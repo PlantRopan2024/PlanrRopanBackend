@@ -319,4 +319,19 @@ public class AgentLoginService {
 		}
 		return ResponseEntity.ok(response);
 	}
+	
+	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(AgentMain existingAgent, Map<String, String> request) {
+		Map<String, String> response = new HashMap<>();
+		String firebaseDeviceToken =  request.get("firebaseDeviceToken");		
+		if (Objects.nonNull(existingAgent)) {
+			AgentMain agentMain = null;
+			agentMain = existingAgent; // Update existing agent
+				agentMain.setFcmTokenAgent(firebaseDeviceToken);
+				this.userdao.save(agentMain);
+				response.put("message", "Firebase Device Token Store");
+		} else {
+			response.put("message", "No Record Found Agent");
+		}
+		return ResponseEntity.ok(response);
+	}
 }

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="UploadimageController">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+	<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+	<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
+	<link rel="stylesheet" href="css/ImageUpload.css" th:href="@{/css/ImageUpload.css}" />
+	<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/1c26fb5c51.js" th:src="@{js/1c26fb5c51.js}"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>
+	<script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
+	<script type="text/javascript" href="/js/ImageUpload.js" th:src="@{js/ImageUpload.js}"></script>
+	<title>Welcome to Plant Ropan</title>
+</head>
+
+<body ng-controller="UploadController">
+	<!--  header.html  -->
+	<div th:include="header :: nav-bar"></div>
+
+	<!--  side nav bar  -->
+	<div th:include="sideNavbar :: sidenav-bar"></div>
+
+	
+	<div class="container mt-4">
+	        <h1>Image Upload</h1>
+	        <div class="Neon Neon-theme-dragdropbox">
+	            <input type="file" id="fileInput" name="file" onchange="angular.element(this).scope().uploadFile(this.files)" 
+	                   style="opacity: 0; position: absolute; z-index: 999; width: 100%; height: 200px;">
+	            <div class="Neon-input-dragDrop">
+	                <div class="Neon-input-inner">
+	                    <div class="Neon-input-text">
+	                        <h3>Drag &amp; Drop files here</h3>
+	                        <span>or</span>
+	                    </div>
+	                    <a class="Neon-input-choose-btn blue">Browse Files</a>
+	                </div>
+	            </div>
+	        </div>
+	        <h2>Uploaded Images</h2>
+	        <div class="row mt-4">
+	            <div class="col-md-3" ng-repeat="image in imageArray">
+	                <div class="card">
+	                    <img class="card-img-top" ng-src="{{image}}" alt="Uploaded Image" ng-click="openModal(image)">
+	                    <div class="card-body">
+	                        <p class="card-text text-center">Preview Image</p>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	        <!-- Modal -->
+	        <div class="modal" ng-show="isModalOpen" ng-click="closeModal($event)">
+	            <div class="modal-dialog modal-dialog-centered">
+	                <div class="modal-content">
+	                    <button type="button" class="close" aria-label="Close" ng-click="closeModal($event)">
+	                        <span>&times;</span>
+	                    </button>
+	                    <img ng-src="{{modalImageUrl}}" class="img-fluid" alt="Preview Image">
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+
+</body>
+
+</html>
