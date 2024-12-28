@@ -65,4 +65,8 @@ public class HomeController {
         }
         return "redirect:/login";
     }
+	@GetMapping("/addOffers")
+	public  String addOffers() {
+		return "addOffers";
+	}
 }
