@@ -21,7 +21,7 @@ public class FirebaseConfig {
         try {
         	 System.out.println(" run meyhod  ----");
             // Option 1: Load serviceAccountKey.json from the resources folder
-            InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("plantroopan-firebase-adminsdk-d6hiw-c9d0e23f6b.json");
+            InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("plant-ropan-firebase-adminsdk-i3dx7-ec21f2cf28.json");
             
             
             if (serviceAccount == null) {
