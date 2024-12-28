@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="addOffers">
+
+<head>
+	<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+		<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+		<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
+		<link rel="stylesheet" href="css/addOffers.css" th:href="@{/css/addOffers.css}" />
+		<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+			href="js/1c26fb5c51.js" th:src="@{js/1c26fb5c51.js}"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+			href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>\
+		<script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
+		<script src="/js/addOffers.js" th:src="@{js/addOffers.js}"></script>
+		<title>Welcome to Plant Ropan</title>
+</head>
+
+<body ng-controller="addOffersController">
+    <!-- Main content start -->
+	<!--  header.html  -->
+		 <div th:include="header :: nav-bar"></div>
+		
+		<!--  side nav bar  -->
+		 <div th:include="sideNavbar :: sidenav-bar"></div>
+	  <main class="mt-5 pt-3">
+        <div class="container-fluid">
+            <!-- Cards -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            Add Offers
+                        </div>
+                        <div class="card-body">
+                            <!-- AngularJS ng-submit -->
+                            <form name="myOffersForm" ng-submit="submitOffers()">
+                                <div class="row">
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Offer Tittle</label>
+                                            <input type="text" class="form-control" name="title" ng-model="offer.title" placeholder="Plan Rs e.g. 249"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Offer Description </label>
+                                            <input type="text" class="form-control" name="description" ng-model="offer.description" placeholder="e.g 45 min to 1Hr" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label"> Offer Validity</label>
+                                            <input type="text" class="form-control" name="validity" ng-model="offer.validity" placeholder="Upto 50 Pot" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label"> Offer Discounts</label>
+                                            <input type="text" class="form-control" name="discount" ng-model="offer.discount" placeholder="Gudai/katai/Ropai" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Offer TypeID</label>
+                                            <input type="text" class="form-control" name="TypeID" ng-model="offer.TypeID" placeholder="4 Visit/Month"/>
+                                        </div>
+                                    </div>
+                                     <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Offer Conditions</label>
+                                            <input type="text" class="form-control" name="conditions" ng-model="offer.conditions" placeholder="4 Visit/Month"/>
+                                        </div>
+                                    </div>
+									
+									<div class="col-md-6">
+									    <div class="mb-3">
+									        <label class="form-label">Is Active</label>
+									        <select  class="form-control" name="isActive" ng-model="offer.isActive">
+									            <option value="true">Yes</option>
+									            <option value="false">No</option>
+									        </select>
+									    </div>
+									</div>
+									
+                                    <div class="col-md-12">
+                                        <button id="myButton" type="submit" name="submit" class="btn btn-success">
+                                            Add Offers
+                                        </button>
+                                        <button type="reset" class="btn btn-secondary">Cancel</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
