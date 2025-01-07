@@ -2,8 +2,12 @@ package com.plants.entities;
 
 import java.util.Arrays;
 
+import org.hibernate.annotations.Type;
+
+import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,8 +27,13 @@ public class ImageData {
     private String type;
     
     @Lob
-    @Column(name = "imagedata",length = 1000)
-    private byte[] imageData;
+    @Basic(fetch=FetchType.LAZY, optional=true)
+    @Column(name = "imagedata")
+    byte[] imageData;
+
+	public ImageData() {
+		super();
+	}
 
 	public ImageData(Long id, String name, String type, byte[] imageData) {
 		super();

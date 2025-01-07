@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 import com.plants.Dao.MobileApiDao;
 import com.plants.Dao.userDao;
@@ -57,13 +58,54 @@ public class MobileLoginApiCont {
 	            response.put("error", "Invalid or expired token");
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 	        }
-	        agentRecords.setBankPassBookImage(Utils.findImgPath(agentRecords.getBankPassBookImage()));
-	        agentRecords.setSelfieImg(Utils.findImgPath(agentRecords.getSelfieImg()));
-	        agentRecords.setAadharImgFrontSide(Utils.findImgPath(agentRecords.getAadharImgFrontSide()));
-	        agentRecords.setAadharImgBackSide(Utils.findImgPath(agentRecords.getAadharImgBackSide()));
-	        response.put("data", agentRecords); // Ensure AgentMain is serializable or convert to DTO
+	       // agentRecords.setBankPassBookImage(Utils.resolveImage(agentRecords.getBankPassBookImageImageData()));
+	        
+	        
+	           // byte[] images = Utils.decompressImage(agentRecords.getSelfieImg_imageData());
+	    	    //MediaType fileExtensionName = Utils.getFileExtensionName(agentRecords.getSelfieImg());
+	            //agentRecords.setSelfieImg_imageData(images);
+	        
+		    
+	        Map<String, Object> data = new HashMap<>();
+	            data.put("agentIDPk", agentRecords.getAgentIDPk());
+	            data.put("firstName", agentRecords.getFirstName());
+	            data.put("lastName", agentRecords.getLastName());
+	            data.put("gender", agentRecords.getGender());
+	            data.put("selfieImg", agentRecords.getSelfieImg());
+	            data.put("selfieImg_type", agentRecords.getSelfieImg_type());
+	           // data.put("selfieImg_imageData", agentRecords.getSelfieImg_imageData());
+	            data.put("emailId", agentRecords.getEmailId());
+	            data.put("mobileNumber", agentRecords.getMobileNumber());
+	            data.put("agentApproved", agentRecords.isAgentApproved());
+	            data.put("activeAgent", agentRecords.isActiveAgent());
+	            data.put("state", agentRecords.getState());
+	            data.put("city", agentRecords.getCity());
+	            data.put("address", agentRecords.getAddress());
+	            data.put("pincode", agentRecords.getPincode());
+	            data.put("latitude", agentRecords.getLatitude());
+	            data.put("longitude", agentRecords.getLongitude());
+	            data.put("aadhaarNumber", agentRecords.getAadhaarNumber());
+	            data.put("aadharImgFrontSide", agentRecords.getAadharImgFrontSide());
+	            data.put("aadharImgFrontSide_type", agentRecords.getAadharImgFrontSide_type());
+	         //   data.put("aadharImgFrontSide_imageData", agentRecords.getAadharImgFrontSideimageData());
+	            data.put("aadharImgBackSide", agentRecords.getAadharImgBackSide());
+	            data.put("aadharImgBackSide_type", agentRecords.getAadharImgBackSide_type());
+	        //    data.put("aadharImgBackSide_imageData", agentRecords.getAadharImgBackSideimageData());
+	            data.put("token", agentRecords.getToken());
+	            data.put("accHolderName", agentRecords.getAccHolderName());
+	            data.put("accNumber", agentRecords.getAccNumber());
+	            data.put("bankName", agentRecords.getBankName());
+	            data.put("ifscCode", agentRecords.getIfscCode());
+	            data.put("bankPassBookImage", agentRecords.getBankPassBookImage());
+	            data.put("bankPassBookImage_type", agentRecords.getBankPassBookImage_type());
+	       //     data.put("bankPassBookImageImageData", agentRecords.getBankPassBookImageImageData());
+	            data.put("profileCompleted", agentRecords.isProfileCompleted());
+	            data.put("fcmTokenAgent", agentRecords.getFcmTokenAgent());
+	            data.put("profileInfoStepFirst", agentRecords.isProfileInfoStepFirst());
+	            data.put("aadharInfoStepSecond", agentRecords.isAadharInfoStepSecond());
+	            data.put("bankInfoStepThird", agentRecords.isBankInfoStepThird());
+	        response.put("data", data);
 	        return ResponseEntity.ok(response);
-
 	    } catch (Exception e) {
 	        response.put("error", "An unexpected error occurred");
 	        response.put("details", e.getMessage());
@@ -105,7 +147,6 @@ public class MobileLoginApiCont {
 			@RequestPart("agentPersonalDetails") String AadhaardetailsAgents,  
 			@RequestPart(value = "aadharImgFrontSide" , required = false) MultipartFile aadharImgFrontSide,
             @RequestPart(value = "aadharImgBackSide" , required = false) MultipartFile aadharImgBackSide){
-		
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
 		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
@@ -113,7 +154,7 @@ public class MobileLoginApiCont {
 	    if (Objects.isNull(agentRecords)   || !jwtToken.equals(agentRecords.getToken())) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 	    }
-		
+
 		ResponseEntity<Map<String, Object>> getprofileDetails = agentLoginService.AadhaarDetailFill(agentRecords,AadhaardetailsAgents, aadharImgFrontSide , aadharImgBackSide);
 		return ResponseEntity.ok(getprofileDetails.getBody());
 	}

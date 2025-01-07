@@ -3,15 +3,20 @@ package com.plants.config;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Base64;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -65,4 +70,74 @@ public class Utils {
 	public static String findImgPath(String file) {
 		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/uploadImages/compressed_").path(file).toUriString();
 	}
+	
+	public static MediaType getFileExtensionName(String fileName) {
+		String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+	    MediaType mediaType;
+	    switch (fileExtension) {
+	        case "png":
+	        case "jpg":
+	        case "jpeg":
+	            mediaType = MediaType.IMAGE_PNG; // Defaulting to PNG; adjust if needed for JPG
+	            break;
+	        case "pdf":
+	            mediaType = MediaType.APPLICATION_PDF;
+	            break;
+	        default:
+	            mediaType = MediaType.APPLICATION_OCTET_STREAM; // Generic binary stream for unknown types
+	    }
+		return mediaType;
+	}
+	
+	public static String resolveImage(byte[] imageDataName) {
+	    try {
+	        // Fetch the image data from the database
+
+	        // Optionally, convert image data to Base64 or serve it as a downloadable URL
+	        String base64Image = Base64.getEncoder().encodeToString(imageDataName);
+	        return "data:image/png;base64," + base64Image;
+
+	        // Alternatively, return a downloadable URL
+	        // return "/download/" + imageName;
+	    } catch (Exception e) {
+	        // Log the exception and return a placeholder or error message
+	        return "Error resolving image: " + e.getMessage();
+	    }
+	}
+	
+	public static byte[] compressImage(byte[] data) {
+        Deflater deflater = new Deflater();
+        deflater.setLevel(Deflater.BEST_COMPRESSION);
+        deflater.setInput(data);
+        deflater.finish();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] tmp = new byte[4*1024];
+        while (!deflater.finished()) {
+            int size = deflater.deflate(tmp);
+            outputStream.write(tmp, 0, size);
+        }
+        try {
+            outputStream.close();
+        } catch (Exception ignored) {
+        }
+        return outputStream.toByteArray();
+    }
+
+    public static byte[] decompressImage(byte[] data) {
+        Inflater inflater = new Inflater();
+        inflater.setInput(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] tmp = new byte[4*1024];
+        try {
+            while (!inflater.finished()) {
+                int count = inflater.inflate(tmp);
+                outputStream.write(tmp, 0, count);
+            }
+            outputStream.close();
+        } catch (Exception ignored) {
+        }
+        return outputStream.toByteArray();
+    }
+
 }

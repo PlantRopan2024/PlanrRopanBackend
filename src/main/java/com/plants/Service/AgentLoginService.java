@@ -20,6 +20,8 @@ import com.plants.config.Utils;
 import com.plants.entities.AgentJsonRequest;
 import com.plants.entities.AgentMain;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class AgentLoginService {
 
@@ -125,30 +127,14 @@ public class AgentLoginService {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			AgentJsonRequest agentJsonRequest = objectMapper.readValue(agentPersonalDetails, AgentJsonRequest.class);
-			// AgentMain existingAgent =
-			// this.UserDao.findEmailAndMobileAg(agentJsonRequest.getAgentPersonalDetails().getEmailId(),agentJsonRequest.getAgentPersonalDetails().getMobileNumber());
 
 			if (Objects.nonNull(existingAgent)) {
-
-				// if
-				// (agentJsonRequest.getAgentPersonalDetails().getEmailId().equals(existingAgent.getEmailId()))
-				// {
-				// response.put("message", "Email Already Exit !!");
-				// return ResponseEntity.ok(response);
-				// }
-				// if
-				// (agentJsonRequest.getAgentPersonalDetails().getMobileNumber().equals(existingAgent.getMobileNumber()))
-				// {
-				// response.put("message", "Mobile Number Exit !!");
-				// return ResponseEntity.ok(response);
-				// }
-
 				AgentMain agentMain = null;
-
 				agentMain = existingAgent; // Update existing agent
 
 				// upload seli image path folder
-				String selfieImageUrl = Utils.saveImgFile(selfieImg);
+				
+				//String selfieImageUrl = Utils.saveImgFile(selfieImg);
 				// Utils.saveImgFile(selfieImg);
 
 				agentMain.setFirstName(agentJsonRequest.getAgentPersonalDetails().getFirstName());
@@ -164,11 +150,11 @@ public class AgentLoginService {
 				agentMain.setLongitude(agentJsonRequest.getAgentPersonalDetails().getLongitude());
 				agentMain.setFcmTokenAgent(agentJsonRequest.getAgentPersonalDetails().getFcmtoken());
 				agentMain.setSelfieImg(selfieImg.getOriginalFilename());
+				agentMain.setSelfieImg_imageData(Utils.compressImage(selfieImg.getBytes()));
+				agentMain.setSelfieImg_type(selfieImg.getContentType());
 				agentMain.setProfileInfoStepFirst(true);
 				AgentMain getid = this.UserDao.save(agentMain);
-				// getid.setSelfieImg(selfieImageUrl);
 				response.put("isProfileInfoStepFirst", getid.isProfileInfoStepFirst());
-				// response.put("AgentIdPk", getid.getAgentIDPk());
 				response.put("message", "Agent profile saved successfully!");
 			}
 
@@ -178,7 +164,8 @@ public class AgentLoginService {
 
 		return ResponseEntity.ok(response);
 	}
-
+	
+	@Transactional
 	public ResponseEntity<Map<String, Object>> AadhaarDetailFill(AgentMain existingAgent, String AadhaardetailsAgents,
 			MultipartFile aadharImgFrontSide, MultipartFile aadharImgBackSide) {
 		Map<String, Object> response = new HashMap<>();
@@ -206,11 +193,19 @@ public class AgentLoginService {
 				agentMain = existingAgent; // Update existing agent
 
 				// upload seli image path folder
-				Utils.saveImgFile(aadharImgFrontSide);
-				Utils.saveImgFile(aadharImgBackSide);
+			//	Utils.saveImgFile(aadharImgFrontSide);
+				//Utils.saveImgFile(aadharImgBackSide);
 				agentMain.setAadhaarNumber(agentJsonRequest.getAadharIdentityDetail().getAadhaarNumber());
+				
 				agentMain.setAadharImgFrontSide(aadharImgFrontSide.getOriginalFilename());
+				agentMain.setAadharImgFrontSideimageData(Utils.compressImage(aadharImgFrontSide.getBytes()));
+
+				agentMain.setSelfieImg_type(aadharImgFrontSide.getContentType());
+				
 				agentMain.setAadharImgBackSide(aadharImgBackSide.getOriginalFilename());
+				agentMain.setAadharImgBackSideimageData(Utils.compressImage(aadharImgBackSide.getBytes()));
+				agentMain.setAadharImgBackSide_type(aadharImgBackSide.getContentType());
+				
 				agentMain.setAadharInfoStepSecond(true);
 				AgentMain getid = this.UserDao.save(agentMain);
 
@@ -248,19 +243,23 @@ public class AgentLoginService {
 				agentMain = existingAgent; // Update existing agent
 
 				// upload seli image path folder
-				String pathbankimg = Utils.saveImgFile(bankPassBookImage);
+				//String pathbankimg = Utils.saveImgFile(bankPassBookImage);
 				agentMain.setAccHolderName(agentJsonRequest.getAccountDetail().getAccHolderName());
 				agentMain.setAccNumber(agentJsonRequest.getAccountDetail().getAccNumber());
 				agentMain.setBankName(agentJsonRequest.getAccountDetail().getBankName());
 				agentMain.setIfscCode(agentJsonRequest.getAccountDetail().getIfscCode());
+				
 				agentMain.setBankPassBookImage(bankPassBookImage.getOriginalFilename());
+				agentMain.setBankPassBookImageImageData(Utils.compressImage(bankPassBookImage.getBytes()));
+				agentMain.setBankPassBookImage_type(bankPassBookImage.getContentType());
+				
 				agentMain.setProfileCompleted(true);
 				agentMain.setBankInfoStepThird(true);
 				AgentMain getAgent = this.UserDao.save(agentMain);
-				getAgent.setBankPassBookImage(Utils.findImgPath(getAgent.getBankPassBookImage()));
-				getAgent.setSelfieImg(Utils.findImgPath(getAgent.getSelfieImg()));
-				getAgent.setAadharImgFrontSide(Utils.findImgPath(getAgent.getAadharImgFrontSide()));
-				getAgent.setAadharImgBackSide(Utils.findImgPath(getAgent.getAadharImgBackSide()));
+			//	getAgent.setBankPassBookImage(Utils.findImgPath(getAgent.getBankPassBookImage()));
+				//getAgent.setSelfieImg(Utils.findImgPath(getAgent.getSelfieImg()));
+				//getAgent.setAadharImgFrontSide(Utils.findImgPath(getAgent.getAadharImgFrontSide()));
+				//getAgent.setAadharImgBackSide(Utils.findImgPath(getAgent.getAadharImgBackSide()));
 				
 				response.put("isBankInfoStepThird", getAgent.isBankInfoStepThird());
 				response.put("message", "Bank Account saved successfully!");
