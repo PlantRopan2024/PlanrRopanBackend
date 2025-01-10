@@ -4,85 +4,86 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.plants.Dao.CustomerDao;
 import com.plants.Service.OTPService;
 import com.plants.Service.SmsService;
+import com.plants.config.JwtUtil;
+import com.plants.customer.Service.CustomerService;
+import com.plants.entities.AgentMain;
 import com.plants.entities.CustomerMain;
 import com.plants.entities.Plans;
 
 @RestController
 @RequestMapping("/CusMobLoginApi")
 public class CusMobLoginApi {
-	@Autowired
-	private OTPService otpService;
 
-	@Autowired
-	private SmsService smsService;
 	@Autowired
 	private CustomerDao customerDao;
-	 @PostMapping("/sendOTP")
-	 public ResponseEntity<Map<String, String>> sendOTP(@RequestBody Map<String, String> request) {     
-		 Map<String, String> response = new HashMap<>();  
-		 String mobileNumber = request.get("mobileNumber");
-	        
-	     if (mobileNumber == null || mobileNumber.isEmpty()) {
-	         return ResponseEntity.badRequest().body(Map.of("error", "Mobile number is required"));
-	     }
-	     String otp = otpService.generateOTP(mobileNumber);
 
-	     smsService.sendOtp(mobileNumber, otp);
-	    
-	     response.put("message", "OTP sent successfully!");
-	    
-	     return ResponseEntity.ok(response);
-	 }
-	 @PostMapping("/verifyOTP")
-	    public ResponseEntity<Map<String, Object>> verifyOTP(@RequestBody Map<String, String> request) {
-		 Map<String, Object> response = new HashMap<>();  
-	        String mobileNumber = request.get("mobileNumber");
-	        String otp = request.get("otp");
-	        List<CustomerMain>findMob=customerDao.findMobileNumber(mobileNumber);
-
-	        if (mobileNumber == null || mobileNumber.isEmpty() || otp == null || otp.isEmpty()) {
-	            return ResponseEntity.badRequest().body(Map.of("error","Mobile number and OTP are required"));
+	@Autowired
+	private CustomerService customerService;
+	
+	@Autowired
+    private JwtUtil jwtUtil;
+	
+	@GetMapping("/getallDetailCustomer")
+	public ResponseEntity<Map<String, Object>> getAllDetailAgent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+	        String mobileNumber = jwtUtil.extractUsername(jwtToken);
+			CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
+	        // Validate token
+	        if (exitsCustomer == null || !jwtToken.equals(exitsCustomer.getToken())) {
+	            response.put("error", "Invalid or expired token");
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 	        }
-
-	        boolean isOtpValid = otpService.verifyOtp(mobileNumber, otp);
-	        
-	        List<Plans> getPlans = this.customerDao.getallPlans();
-		    List<Plans> activePlans = new ArrayList<>();
-		    for (Plans pl : getPlans) {
-		        if (pl.getIsActive().equals("Yes")) {
-		            activePlans.add(pl);
-		        }
-		    }
-		   
-	        
-	        
-	        if (isOtpValid) {
-	        	if(findMob.isEmpty()) {
-	        		response.put("CustomerExit", "false");
-	        		response.put("message", "OTP Verified Successfully");
-	        	}
-	        	else {
-	        		response.put("Object", findMob);
-	        		response.put("All Plans", activePlans);
-	        		response.put("CustomerExit", "true");
-	        		response.put("message", "OTP Verified Successfully");
-	        	}
-	            return ResponseEntity.ok(response);
-	        } else {
-	        	response.put("message", "Invalid or Expired OTP");
-	        	return ResponseEntity.ok(response);
-	        }
+	        response.put("data", exitsCustomer);
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        response.put("error", "An unexpected error occurred");
+	        response.put("details", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	    }
+	}
 
+	@PostMapping("/sendOTP")
+	public ResponseEntity<Map<String, String>> sendOtp(@RequestBody Map<String, String> request) {
+		ResponseEntity<Map<String, String>> otpResponse = this.customerService.sentOtpCus(request.get("mobileNumber"));
+		return otpResponse;
+	}
+	
+	@PostMapping("/verifyOTP")
+	public ResponseEntity<Map<String, Object>> verifyOTP(@RequestBody Map<String, String> request) {
+		ResponseEntity<Map<String, Object>> validVerify = this.customerService.verifiedOtpDetailCustomer(request.get("mobileNumber") ,request.get("otp") );
+		return validVerify;
+	}
+	
+	@PostMapping(value ="/profileInfoCustomer")
+	public ResponseEntity<Map<String, Object>> profileInfoDetailsCust(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody CustomerMain RequestcustomerMain){
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);		
+		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
+	    if (Objects.isNull(exitsCustomer)   || !jwtToken.equals(exitsCustomer.getToken())) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+	    }
+		ResponseEntity<Map<String, Object>> getprofileDetails = customerService.ProfileInfoSaveCustomer(exitsCustomer ,RequestcustomerMain);
+		return ResponseEntity.ok(getprofileDetails.getBody());
+	}
 }

@@ -9,14 +9,31 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "Customer_Main" , uniqueConstraints = {@UniqueConstraint(columnNames = {"mobileNumber" , "emailId"})})
+@Table(name = "Customer_Main" , uniqueConstraints = {@UniqueConstraint(columnNames = {"mobileNumber"})})
 public class CustomerMain {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int primarykey;
+	private String firstName;
+	private String lastName;
+	private String emailId;
+	@Column(unique = true)
+	private String mobileNumber;
+	private String address;
+	private double latitude;
+	private double loggitude;
+	private String token;
+	private String firebasetokenCus;
+	@Column(name = "is_profile_completed")
+	private boolean isProfileCompleted;
 	
-	public CustomerMain(String firstName, String lastName, String emailId, String mobileNumber ,String address,  double latitude, double loggitude) {
+	public CustomerMain() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public CustomerMain(String firstName, String lastName, String emailId, String mobileNumber ,String address,  double latitude, double loggitude,String token, boolean isProfileCompleted, String firebasetokenCus) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -25,9 +42,16 @@ public class CustomerMain {
 		this.mobileNumber = mobileNumber;
 		this.latitude=latitude;
 		this.loggitude=loggitude;
+		this.token=token;
+		this.isProfileCompleted= isProfileCompleted;
+		this.firebasetokenCus = firebasetokenCus;
 	}
-	public CustomerMain () {
-		
+	
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
 	}
 	public int getPrimarykey() {
 		return primarykey;
@@ -59,17 +83,7 @@ public class CustomerMain {
 	public void setMobileNumber(String mobileNumber) {
 		this.mobileNumber = mobileNumber;
 	}
-	@Column(unique = true)
-	private String firstName;
-	private String lastName;
-	@Column(unique = true)
-	private String emailId;
-	@Column(unique = true)
-	private String mobileNumber;
-	private String address;
-	private double latitude;
-	private double loggitude;
-
+	
 	public double getLatitude() {
 		return latitude;
 	}
@@ -88,5 +102,22 @@ public class CustomerMain {
 	public void setAddress(String address) {
 		this.address = address;
 	}
+
+	public boolean isProfileCompleted() {
+		return isProfileCompleted;
+	}
+
+	public void setProfileCompleted(boolean isProfileCompleted) {
+		this.isProfileCompleted = isProfileCompleted;
+	}
+
+	public String getFirebasetokenCus() {
+		return firebasetokenCus;
+	}
+
+	public void setFirebasetokenCus(String firebasetokenCus) {
+		this.firebasetokenCus = firebasetokenCus;
+	}
+	
 	
 }
