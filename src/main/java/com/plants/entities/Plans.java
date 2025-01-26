@@ -1,9 +1,12 @@
 package com.plants.entities;
 
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Plans {
@@ -18,6 +21,11 @@ public class Plans {
 	private String planType;
 	private String planPacks;
 	private String isActive;
+	
+	@ManyToOne
+	@JoinColumn(name = "FK_SERVICE_NAME_ID")
+	private serviceName serviceName;
+	    
 	public Plans() {
 		super();
 		// TODO Auto-generated constructor stub

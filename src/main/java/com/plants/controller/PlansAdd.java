@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plants.Dao.CustomerDao;
+import com.plants.Dao.serviceNameDao;
 import com.plants.Dao.userDao;
 import com.plants.entities.AgentMain;
 import com.plants.entities.Plans;
+import com.plants.entities.serviceName;
 
 @RestController
 @RequestMapping("/ShowPlans")
@@ -29,6 +32,11 @@ public class PlansAdd {
 	 
 	 @Autowired
 	 private CustomerDao customerDao;
+	 
+	 @Autowired
+	 private serviceNameDao serviceNameDao;
+	 
+	 String serviceKey;
 	 
 	 @PostMapping("/addPlans")
 	 @ResponseBody
@@ -44,20 +52,22 @@ public class PlansAdd {
 	     return response;
 	 }
 	
-	 
-	   @GetMapping("/getPlans")
-		public ResponseEntity<HashMap<String, Object>> getAllPlans() {
-		    HashMap<String, Object> response = new HashMap<>();
-		    List<Plans> getPlans = this.customerDao.getallPlans();
-		    List<Plans> activePlans = new ArrayList<>();
-		    for (Plans pl : getPlans) {
-		        if (pl.getIsActive().equals("Yes")) {
-		            activePlans.add(pl);
-		        }
-		    }
-		    response.put("All Plans", activePlans);
-		    return ResponseEntity.ok(response);
-		}
+	  @GetMapping("/getPlans")
+	   public ResponseEntity<HashMap<String, Object>> getAllPlans() {
+	       HashMap<String, Object> response = new HashMap<>();
+	       List<serviceName> getPlans = this.serviceNameDao.getallPlans();
+	       for (serviceName s : getPlans) {
+	           List<Plans> activePlans = new ArrayList<>();
+	           for (Plans p : s.getPlans()) {
+	               if (p.getIsActive().equals("Yes")) {
+	                   activePlans.add(p);
+	               }
+	           }
+	           response.put(s.getName(), activePlans);
+	       }
+
+	       return ResponseEntity.ok(response);
+	   }
 		
 		@GetMapping("/monthWiseRecordFetch")
 		@ResponseBody
