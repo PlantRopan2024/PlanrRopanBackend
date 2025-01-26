@@ -85,16 +85,15 @@
                                             <input type="text" class="form-control" name="conditions" ng-model="offer.conditions" placeholder="4 Visit/Month"/>
                                         </div>
                                     </div>
-									
-									<div class="col-md-6">
-									    <div class="mb-3">
-									        <label class="form-label">Is Active</label>
-									        <select  class="form-control" name="isActive" ng-model="offer.isActive">
-									            <option value="true">Yes</option>
-									            <option value="false">No</option>
+                                      <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">is Active</label>
+                                          <select  class="form-control" name="isNewActive" ng-model="offer.isNewActive">
+									            <option value="true" ng-value="true">True</option>
+                                                <option value="false" ng-value="false">False</option>
 									        </select>
-									    </div>
-									</div>
+                                        </div>
+                                    </div>
 									
                                     <div class="col-md-12">
                                         <button id="myButton" type="submit" name="submit" class="btn btn-success">
