@@ -15,8 +15,7 @@ app.controller('addOffersController', ['$scope', '$http', function($scope, $http
         formData.append('discount', $scope.offer.discount); 
         formData.append('conditions', $scope.offer.conditions);
         formData.append('TypeID', $scope.offer.TypeID);
-        formData.append('isActive', $scope.offer.isActive);
-   console.log(isActive);
+        formData.append('isNewActive', $scope.offer.isNewActive);
         $http({
             method: 'POST',
             url: '/offerApi/addOffer',
