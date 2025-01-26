@@ -88,8 +88,7 @@ public class Offers {
 	@Override
 	public String toString() {
 		return "Offers [primarykey=" + primaryKey + ", title=" + title + ", description=" + description + ", validity="
-				+ validity + ", discount=" + discount + ", conditions=" + conditions + ", isActive=" + isActive
-				+ ", TypeID=" + TypeID + "]";
+				+ validity + ", discount=" + discount + ", conditions=" + conditions +  ", TypeID=" + TypeID + "]";
 	}
 	
 	
