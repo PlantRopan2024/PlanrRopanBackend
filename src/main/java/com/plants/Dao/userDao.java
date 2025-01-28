@@ -26,6 +26,7 @@ public interface userDao extends CrudRepository<user, Integer>{
 	@Query("select e FROM AgentMain e WHERE e.emailId = :emailId OR e.mobileNumber = :mobileNumber")
 	public AgentMain findEmailAndMobileAg(@Param("emailId") String emailId , @Param("mobileNumber") String mobileNumber);
 	
+	@Transactional
 	@Query("select e FROM AgentMain e WHERE e.AgentIDPk = :AgentIDPk ")
 	public AgentMain findAgentID(@Param("AgentIDPk") String AgentIDPk);
 	
@@ -70,10 +71,11 @@ public interface userDao extends CrudRepository<user, Integer>{
     @Query("UPDATE AgentMain a SET a.bankPassBookImage = :bankPassBookImage  WHERE a.AgentIDPk = :AgentIDPk")
     public void updateBankPassBookImg(@Param("bankPassBookImage") String bankPassBookImage, @Param("AgentIDPk") String AgentIDPk);
 	
-	
+	@Transactional
 	@Query("select e FROM AgentMain e where e.agentApproved = false")
 	public ArrayList<AgentMain> getpendingVerif();
 	
+	@Transactional
 	@Query("select e FROM AgentMain e where e.agentApproved = true")
 	public ArrayList<AgentMain> getApprovedAgent();
 	

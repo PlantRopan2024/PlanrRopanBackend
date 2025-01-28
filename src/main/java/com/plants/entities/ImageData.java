@@ -26,6 +26,8 @@ public class ImageData {
     
     private String type;
     
+    private String first_Name;
+    
     @Lob
     @Basic(fetch=FetchType.LAZY, optional=true)
     @Column(name = "imagedata")
@@ -35,12 +37,13 @@ public class ImageData {
 		super();
 	}
 
-	public ImageData(Long id, String name, String type, byte[] imageData) {
+	public ImageData(Long id, String name, String type, byte[] imageData ,String first_Name) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.type = type;
 		this.imageData = imageData;
+		this.first_Name= first_Name;
 	}
 
 	public Long getId() {
@@ -75,10 +78,18 @@ public class ImageData {
 		this.imageData = imageData;
 	}
 
+	public String getFirst_Name() {
+		return first_Name;
+	}
+
+	public void setFirst_Name(String first_Name) {
+		this.first_Name = first_Name;
+	}
+
 	@Override
 	public String toString() {
-		return "ImageData [id=" + id + ", name=" + name + ", type=" + type + ", imageData=" + Arrays.toString(imageData)
-				+ "]";
+		return "ImageData [id=" + id + ", name=" + name + ", type=" + type + ", first_Name=" + first_Name
+				+ ", imageData=" + Arrays.toString(imageData) + "]";
 	}
     
     

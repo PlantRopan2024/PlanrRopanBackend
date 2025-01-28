@@ -72,22 +72,22 @@ public class Utils {
 	}
 	
 	public static MediaType getFileExtensionName(String fileName) {
-		String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
-	    MediaType mediaType;
+	    String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
 	    switch (fileExtension) {
 	        case "png":
+	            return MediaType.IMAGE_PNG;
 	        case "jpg":
 	        case "jpeg":
-	            mediaType = MediaType.IMAGE_PNG; // Defaulting to PNG; adjust if needed for JPG
-	            break;
+	            return MediaType.IMAGE_JPEG;
+	        case "gif":
+	            return MediaType.IMAGE_GIF;
 	        case "pdf":
-	            mediaType = MediaType.APPLICATION_PDF;
-	            break;
+	            return MediaType.APPLICATION_PDF;
 	        default:
-	            mediaType = MediaType.APPLICATION_OCTET_STREAM; // Generic binary stream for unknown types
+	            return MediaType.APPLICATION_OCTET_STREAM; // Generic binary stream for unknown types
 	    }
-		return mediaType;
 	}
+
 	
 	public static String resolveImage(byte[] imageDataName) {
 	    try {
@@ -139,5 +139,10 @@ public class Utils {
         }
         return outputStream.toByteArray();
     }
+    
+    public static String imageToBase64(byte[] imageData) {
+        return Base64.getEncoder().encodeToString(imageData);
+    }
+
 
 }

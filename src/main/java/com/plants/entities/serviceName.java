@@ -12,13 +12,13 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "SERVICE_NAME")
-public class serviceName { // Renamed to PascalCase
+public class serviceName {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int primaryKey;
 
-    private String isActive;
+    private boolean isActive;
 
     private String name;
 
@@ -34,11 +34,11 @@ public class serviceName { // Renamed to PascalCase
         this.primaryKey = primaryKey;
     }
 
-    public String isActive() {
+    public boolean isActive() {
         return isActive;
     }
 
-    public void setActive(String isActive) {
+    public void setActive(boolean isActive) {
         this.isActive = isActive;
     }
 

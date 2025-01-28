@@ -2,7 +2,10 @@ package com.plants.customer.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,35 +35,58 @@ public class ImageUploadController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File is empty!");
         }
 
+        // Validate file type and size
+        String fileType = file.getContentType();
+		/*
+		 * if (!List.of("image/jpeg", "image/png").contains(fileType)) { return
+		 * ResponseEntity.status(HttpStatus.BAD_REQUEST).
+		 * body("Only JPEG and PNG files are allowed!"); }
+		 */
+		/*
+		 * if (file.getSize() > 5 * 1024 * 1024) { // 5MB size limit return
+		 * ResponseEntity.status(HttpStatus.BAD_REQUEST).
+		 * body("File size exceeds the 5MB limit!"); }
+		 */
+
         try {
-            // Save image and get URL
-            String selfieImageUrl = Utils.saveImgFile(file);
-
-            // Save to the database
-            ImageUpload image = new ImageUpload();
-            image.setFileName(file.getOriginalFilename());
-            image.setActive(true);
-            this.imageUploadRepo.save(image);
-
-            return ResponseEntity.status(HttpStatus.OK).body("Image uploaded successfully ");
+            // Call the service to handle the file upload
+            String uploadMessage = service.uploadImageUI(file);
+            return ResponseEntity.ok(uploadMessage);
         } catch (IOException e) {
-            e.printStackTrace();
+            // Log the exception
+           // logger.error("Error while uploading image: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while uploading the image!");
         }
     }
 
-    @GetMapping("/getImage")
-    public ResponseEntity<List<String>> getImages() {
+
+	/*
+	 * @GetMapping("/getImage") public ResponseEntity<List<String>> getImages() {
+	 * List<ImageUpload> images = imageUploadRepo.findAll(); List<String>
+	 * updatedImages = new ArrayList<>(); for (ImageUpload image : images) { String
+	 * imgPath = Utils.findImgPath(image.getFileName()); updatedImages.add(imgPath);
+	 * // Add resolved image path to the response } return
+	 * ResponseEntity.status(HttpStatus.OK).body(updatedImages); }
+	 */
+    
+    @GetMapping("/getImagelist")
+    public ResponseEntity<List<String>> getImageList() {
         List<ImageUpload> images = imageUploadRepo.findAll();
-        List<String> updatedImages = new ArrayList<>();
 
-        for (ImageUpload image : images) {
-            String imgPath = Utils.findImgPath(image.getFileName());
-            updatedImages.add(imgPath); // Add resolved image path to the response
+        if (images.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Collections.emptyList());
         }
+        // Convert images to Base64 strings
+        List<String> imageDataList = images.stream()
+            .map(image -> Utils.decompressImage(image.getImageData()))
+            .filter(Objects::nonNull)
+            .map(Base64.getEncoder()::encodeToString) // Convert byte array to Base64
+            .toList();
 
-        return ResponseEntity.status(HttpStatus.OK).body(updatedImages);
+        return ResponseEntity.ok(imageDataList);
     }
+
+
     
     @Autowired
 	private StorageService service;
@@ -76,7 +102,6 @@ public class ImageUploadController {
 	public ResponseEntity<?> downloadFile(@PathVariable String fileName) {
 	    byte[] fileData = service.downloadImage(fileName);
 
-	    // Determine the media type based on the file extension
 	    MediaType fileExtensionName = Utils.getFileExtensionName(fileName);
 	    
 

@@ -11,35 +11,42 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	$scope.aadharImgFrontSide ='';
 	$scope.aadharImgBackSide ='';
 	$scope.bankPassBookImage ='';
+	
+	$scope.seeImageDisplayId = function(data){
+		
+		console.log("agent ===="+ data.agentIDPk);
+	}
+	$scope.displayData = function(data) {
+	    if (!data) {
+	        console.error("No data found in the response");
+	        return;
+	    }
 
-    $scope.displayData = function(data) {
-	    if(data) {
-			$scope.selfieImg = data.selfieImg;
-		    $scope.aadharImgFrontSide = data.aadharImgFrontSide;
-		    $scope.aadharImgBackSide = data.aadharImgBackSide; 
-			$scope.bankPassBookImage = data.bankPassBookImage;
-		 }else {
-			console.error('selfieImg not found in the response data');
-		}
-		document.getElementById('firstName').textContent = data.firstName;
-		document.getElementById('lastName').textContent = data.lastName;
-		document.getElementById('emailId').textContent = data.emailId;
-		document.getElementById('mobileNumber').textContent = data.mobileNumber;
-		document.getElementById('agentApproved').textContent = data.agentApproved;
-		document.getElementById('activeAgent').textContent = data.activeAgent;
-		document.getElementById('state').textContent = data.state;
-		document.getElementById('city').textContent = data.city;
-		document.getElementById('address').textContent = data.address;
-		document.getElementById('aadharImgFrontSide').textContent = data.aadharImgFrontSide;
-		document.getElementById('aadharImgBackSide').textContent = data.aadharImgBackSide;
-		document.getElementById('aadhaarNumber').textContent = data.aadhaarNumber;
-		document.getElementById('accHolderName').textContent = data.accHolderName;
-		document.getElementById('accNumber').textContent = data.accNumber;
-	    document.getElementById('bankName').textContent = data.bankName;
-		document.getElementById('bankPassBookImage').textContent = data.bankPassBookImage;
-		document.getElementById('accMobNumber').textContent = data.accMobNumber;
-		document.getElementById('ifsccode').textContent = data.ifsccode;
-    };
+	    // Image base64 data
+	    $scope.selfieImg = `data:image/jpeg;base64,${data.selfieImg_imageData}`;
+		console.log("selfieImg  ---  " + $scope.selfieImg)
+	    $scope.aadharImgFrontSide = `data:image/jpeg;base64,${data.aadharImgFrontSideimageData}`;
+	    $scope.aadharImgBackSide = `data:image/jpeg;base64,${data.aadharImgBackSideimageData}`;
+	    $scope.bankPassBookImage = `data:image/jpeg;base64,${data.bankPassBookImageImageData}`;
+
+	    // Assign other data values directly to $scope for AngularJS binding
+	    $scope.firstName = data.firstName;
+	    $scope.lastName = data.lastName;
+	    $scope.emailId = data.emailId;
+	    $scope.mobileNumber = data.mobileNumber;
+	    $scope.agentApproved = data.agentApproved;
+	    $scope.activeAgent = data.activeAgent;
+	    $scope.state = data.state;
+	    $scope.city = data.city;
+	    $scope.address = data.address;
+	    $scope.aadhaarNumber = data.aadhaarNumber;
+	    $scope.accHolderName = data.accHolderName;
+	    $scope.accNumber = data.accNumber;
+	    $scope.bankName = data.bankName;
+	    $scope.accMobNumber = data.accMobNumber;
+	    $scope.ifsccode = data.ifsccode;
+	};
+
 	
 	$scope.openAgentDetailPage = function(pk) {
 		$http({
@@ -149,6 +156,7 @@ function displayAgentPKRecord() {
 			        if (response){
 			            var scope = angular.element(document.querySelector('[ng-controller="agentController"]')).scope();
 			            scope.displayData(response);
+						scope.seeImageDisplayId(response);
 			            scope.$apply(); 
 			        } else {
 			            console.error('Invalid response data:', response);
