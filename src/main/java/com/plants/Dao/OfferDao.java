@@ -10,7 +10,7 @@ import com.plants.entities.Offers;
 @Repository
 public interface OfferDao extends JpaRepository<Offers, Integer> {
 	
-	@Query("select e FROM Offers e where e.isActive = true")
+	@Query("select e FROM Offers e where e.isNewActive = true")
 	public ArrayList<Offers> getAllActiveOffer();
 
 }
