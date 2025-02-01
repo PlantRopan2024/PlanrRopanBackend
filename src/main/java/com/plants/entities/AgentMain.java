@@ -18,18 +18,13 @@ public class AgentMain {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int AgentIDPk;
-	
 	private String firstName;
 	private String lastName;
 	private String gender;
 	private String selfieImg;
-	
+	@Column(columnDefinition = "TEXT")
+	private String selfieImagePath;
 	private String selfieImg_type;    
-	@Lob
-	@Basic(fetch=FetchType.LAZY, optional=true)
-	@Column(name = "selfieImg_imageData")
-	byte[] selfieImg_imageData;
-	
 	private String emailId;
 	@Column(unique = true)
 	private String mobileNumber;
@@ -43,36 +38,24 @@ public class AgentMain {
 	private String pincode;
 	private double latitude;
 	private double longitude;
-	
 	private String aadhaarNumber;
-	
 	private String aadharImgFrontSide;
 	private String aadharImgFrontSide_type;    
-	@Lob
-	@Basic(fetch=FetchType.LAZY, optional=true)
-	@Column(name = "aadharImgFrontSide_imageData")
-	byte[] aadharImgFrontSideimageData;
-	
+	@Column(columnDefinition = "TEXT")
+	private String aadharImagFrontSidePath;
 	private String aadharImgBackSide;
-	private String aadharImgBackSide_type;    
-	@Lob
-	@Basic(fetch=FetchType.LAZY, optional=true)
-	@Column(name = "aadharImgBackSide_imageData")
-	byte[] aadharImgBackSideimageData;
-	
+	private String aadharImgBackSide_type;
+	@Column(columnDefinition = "TEXT")
+	private String aadharImagBackSidePath;
 	private String token;
 	private String accHolderName;
 	private String accNumber;
 	private String bankName;
 	private String ifscCode;
 	private String bankPassBookImage;
-	
 	private String bankPassBookImage_type;    
-	@Lob
-	@Basic(fetch=FetchType.LAZY, optional=true)
-	@Column(name = "bankPassBookImage_imageData")
-	byte[] bankPassBookImageImageData;
-	
+	@Column(columnDefinition = "TEXT")
+	private String bankPassBookImagePath;
 	@Column(name = "is_profile_completed", nullable = true)
 	private boolean isProfileCompleted;
 	private String fcmTokenAgent;
@@ -86,16 +69,14 @@ public class AgentMain {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
-	
 	public AgentMain(int agentIDPk, String firstName, String lastName, String gender, String selfieImg,
-			String selfieImg_type, byte[] selfieImg_imageData, String emailId, String mobileNumber,
+			String selfieImg_type, String selfieImagePath, String emailId, String mobileNumber,
 			boolean agentApproved, boolean isActiveAgent, String state, String city, String address, String pincode,
 			double latitude, double longitude, String aadhaarNumber, String aadharImgFrontSide,
-			String aadharImgFrontSide_type, byte[] aadharImgFrontSideimageData, String aadharImgBackSide,
-			String aadharImgBackSide_type, byte[] aadharImgBackSideimageData, String token, String accHolderName,
+			String aadharImgFrontSide_type, String aadharImagFrontSidePath, String aadharImgBackSide,
+			String aadharImgBackSide_type, String aadharImagBackSidePath, String token, String accHolderName,
 			String accNumber, String bankName, String ifscCode, String bankPassBookImage, String bankPassBookImage_type,
-			byte[] bankPassBookImageImageData, boolean isProfileCompleted, String fcmTokenAgent,
+			String bankPassBookImagePath, boolean isProfileCompleted, String fcmTokenAgent,
 			boolean isProfileInfoStepFirst, boolean isAadharInfoStepSecond, boolean isBankInfoStepThird) {
 		super();
 		AgentIDPk = agentIDPk;
@@ -104,7 +85,7 @@ public class AgentMain {
 		this.gender = gender;
 		this.selfieImg = selfieImg;
 		this.selfieImg_type = selfieImg_type;
-		this.selfieImg_imageData = selfieImg_imageData;
+		this.selfieImagePath = selfieImagePath;
 		this.emailId = emailId;
 		this.mobileNumber = mobileNumber;
 		this.agentApproved = agentApproved;
@@ -118,10 +99,10 @@ public class AgentMain {
 		this.aadhaarNumber = aadhaarNumber;
 		this.aadharImgFrontSide = aadharImgFrontSide;
 		this.aadharImgFrontSide_type = aadharImgFrontSide_type;
-		this.aadharImgFrontSideimageData = aadharImgFrontSideimageData;
+		this.aadharImagFrontSidePath = aadharImagFrontSidePath;
 		this.aadharImgBackSide = aadharImgBackSide;
 		this.aadharImgBackSide_type = aadharImgBackSide_type;
-		this.aadharImgBackSideimageData = aadharImgBackSideimageData;
+		this.aadharImagBackSidePath = aadharImagBackSidePath;
 		this.token = token;
 		this.accHolderName = accHolderName;
 		this.accNumber = accNumber;
@@ -129,14 +110,13 @@ public class AgentMain {
 		this.ifscCode = ifscCode;
 		this.bankPassBookImage = bankPassBookImage;
 		this.bankPassBookImage_type = bankPassBookImage_type;
-		this.bankPassBookImageImageData = bankPassBookImageImageData;
+		this.bankPassBookImagePath = bankPassBookImagePath;
 		this.isProfileCompleted = isProfileCompleted;
 		this.fcmTokenAgent = fcmTokenAgent;
 		this.isProfileInfoStepFirst = isProfileInfoStepFirst;
 		this.isAadharInfoStepSecond = isAadharInfoStepSecond;
 		this.isBankInfoStepThird = isBankInfoStepThird;
 	}
-
 	public int getAgentIDPk() {
 		return AgentIDPk;
 	}
@@ -155,11 +135,29 @@ public class AgentMain {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
 	public String getSelfieImg() {
 		return selfieImg;
 	}
 	public void setSelfieImg(String selfieImg) {
 		this.selfieImg = selfieImg;
+	}
+	public String getSelfieImagePath() {
+		return selfieImagePath;
+	}
+	public void setSelfieImagePath(String selfieImagePath) {
+		this.selfieImagePath = selfieImagePath;
+	}
+	public String getSelfieImg_type() {
+		return selfieImg_type;
+	}
+	public void setSelfieImg_type(String selfieImg_type) {
+		this.selfieImg_type = selfieImg_type;
 	}
 	public String getEmailId() {
 		return emailId;
@@ -173,15 +171,12 @@ public class AgentMain {
 	public void setMobileNumber(String mobileNumber) {
 		this.mobileNumber = mobileNumber;
 	}
-	
 	public boolean isAgentApproved() {
 		return agentApproved;
 	}
-
 	public void setAgentApproved(boolean agentApproved) {
 		this.agentApproved = agentApproved;
 	}
-
 	public boolean isActiveAgent() {
 		return isActiveAgent;
 	}
@@ -236,11 +231,41 @@ public class AgentMain {
 	public void setAadharImgFrontSide(String aadharImgFrontSide) {
 		this.aadharImgFrontSide = aadharImgFrontSide;
 	}
+	public String getAadharImgFrontSide_type() {
+		return aadharImgFrontSide_type;
+	}
+	public void setAadharImgFrontSide_type(String aadharImgFrontSide_type) {
+		this.aadharImgFrontSide_type = aadharImgFrontSide_type;
+	}
+	public String getAadharImagFrontSidePath() {
+		return aadharImagFrontSidePath;
+	}
+	public void setAadharImagFrontSidePath(String aadharImagFrontSidePath) {
+		this.aadharImagFrontSidePath = aadharImagFrontSidePath;
+	}
 	public String getAadharImgBackSide() {
 		return aadharImgBackSide;
 	}
 	public void setAadharImgBackSide(String aadharImgBackSide) {
 		this.aadharImgBackSide = aadharImgBackSide;
+	}
+	public String getAadharImgBackSide_type() {
+		return aadharImgBackSide_type;
+	}
+	public void setAadharImgBackSide_type(String aadharImgBackSide_type) {
+		this.aadharImgBackSide_type = aadharImgBackSide_type;
+	}
+	public String getAadharImagBackSidePath() {
+		return aadharImagBackSidePath;
+	}
+	public void setAadharImagBackSidePath(String aadharImagBackSidePath) {
+		this.aadharImagBackSidePath = aadharImagBackSidePath;
+	}
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
 	}
 	public String getAccHolderName() {
 		return accHolderName;
@@ -272,17 +297,17 @@ public class AgentMain {
 	public void setBankPassBookImage(String bankPassBookImage) {
 		this.bankPassBookImage = bankPassBookImage;
 	}
-	public String getFcmTokenAgent() {
-		return fcmTokenAgent;
+	public String getBankPassBookImage_type() {
+		return bankPassBookImage_type;
 	}
-	public void setFcmTokenAgent(String fcmTokenAgent) {
-		this.fcmTokenAgent = fcmTokenAgent;
+	public void setBankPassBookImage_type(String bankPassBookImage_type) {
+		this.bankPassBookImage_type = bankPassBookImage_type;
 	}
-	public String getToken() {
-		return token;
+	public String getBankPassBookImagePath() {
+		return bankPassBookImagePath;
 	}
-	public void setToken(String token) {
-		this.token = token;
+	public void setBankPassBookImagePath(String bankPassBookImagePath) {
+		this.bankPassBookImagePath = bankPassBookImagePath;
 	}
 	public boolean isProfileCompleted() {
 		return isProfileCompleted;
@@ -290,131 +315,47 @@ public class AgentMain {
 	public void setProfileCompleted(boolean isProfileCompleted) {
 		this.isProfileCompleted = isProfileCompleted;
 	}
-
-	public String getGender() {
-		return gender;
+	public String getFcmTokenAgent() {
+		return fcmTokenAgent;
 	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
+	public void setFcmTokenAgent(String fcmTokenAgent) {
+		this.fcmTokenAgent = fcmTokenAgent;
 	}
-	
-
 	public boolean isProfileInfoStepFirst() {
 		return isProfileInfoStepFirst;
 	}
-
 	public void setProfileInfoStepFirst(boolean isProfileInfoStepFirst) {
 		this.isProfileInfoStepFirst = isProfileInfoStepFirst;
 	}
-
 	public boolean isAadharInfoStepSecond() {
 		return isAadharInfoStepSecond;
 	}
-
 	public void setAadharInfoStepSecond(boolean isAadharInfoStepSecond) {
 		this.isAadharInfoStepSecond = isAadharInfoStepSecond;
 	}
-
 	public boolean isBankInfoStepThird() {
 		return isBankInfoStepThird;
 	}
-
 	public void setBankInfoStepThird(boolean isBankInfoStepThird) {
 		this.isBankInfoStepThird = isBankInfoStepThird;
 	}
-	
-
-	public String getSelfieImg_type() {
-		return selfieImg_type;
-	}
-
-
-	public void setSelfieImg_type(String selfieImg_type) {
-		this.selfieImg_type = selfieImg_type;
-	}
-
-
-	public byte[] getSelfieImg_imageData() {
-		return selfieImg_imageData;
-	}
-
-
-	public void setSelfieImg_imageData(byte[] selfieImg_imageData) {
-		this.selfieImg_imageData = selfieImg_imageData;
-	}
-
-
-	public String getAadharImgFrontSide_type() {
-		return aadharImgFrontSide_type;
-	}
-
-
-	public void setAadharImgFrontSide_type(String aadharImgFrontSide_type) {
-		this.aadharImgFrontSide_type = aadharImgFrontSide_type;
-	}
-
-
-	public byte[] getAadharImgFrontSideimageData() {
-		return aadharImgFrontSideimageData;
-	}
-
-
-	public void setAadharImgFrontSideimageData(byte[] aadharImgFrontSideimageData) {
-		this.aadharImgFrontSideimageData = aadharImgFrontSideimageData;
-	}
-
-
-	public String getAadharImgBackSide_type() {
-		return aadharImgBackSide_type;
-	}
-
-
-	public void setAadharImgBackSide_type(String aadharImgBackSide_type) {
-		this.aadharImgBackSide_type = aadharImgBackSide_type;
-	}
-
-
-	public byte[] getAadharImgBackSideimageData() {
-		return aadharImgBackSideimageData;
-	}
-
-
-	public void setAadharImgBackSideimageData(byte[] aadharImgBackSideimageData) {
-		this.aadharImgBackSideimageData = aadharImgBackSideimageData;
-	}
-
-
-	public String getBankPassBookImage_type() {
-		return bankPassBookImage_type;
-	}
-
-
-	public void setBankPassBookImage_type(String bankPassBookImage_type) {
-		this.bankPassBookImage_type = bankPassBookImage_type;
-	}
-
-
-	public byte[] getBankPassBookImageImageData() {
-		return bankPassBookImageImageData;
-	}
-
-
-	public void setBankPassBookImageImageData(byte[] bankPassBookImageImageData) {
-		this.bankPassBookImageImageData = bankPassBookImageImageData;
-	}
-
 
 	@Override
 	public String toString() {
 		return "AgentMain [AgentIDPk=" + AgentIDPk + ", firstName=" + firstName + ", lastName=" + lastName + ", gender="
-				+ gender + ", selfieImg=" + selfieImg + ", emailId=" + emailId + ", mobileNumber=" + mobileNumber
-				+ ", agentApproved=" + agentApproved + ", isActiveAgent=" + isActiveAgent + ", state=" + state
-				+ ", city=" + city + ", address=" + address + ", pincode=" + pincode + ", latitude=" + latitude
-				+ ", longitude=" + longitude + ", aadhaarNumber=" + aadhaarNumber + ", aadharImgFrontSide="
-				+ aadharImgFrontSide + ", aadharImgBackSide=" + aadharImgBackSide + ", token=" + token
+				+ gender + ", selfieImg=" + selfieImg + ", selfieImagePath=" + selfieImagePath + ", selfieImg_type="
+				+ selfieImg_type + ", emailId=" + emailId + ", mobileNumber=" + mobileNumber + ", agentApproved="
+				+ agentApproved + ", isActiveAgent=" + isActiveAgent + ", state=" + state + ", city=" + city
+				+ ", address=" + address + ", pincode=" + pincode + ", latitude=" + latitude + ", longitude="
+				+ longitude + ", aadhaarNumber=" + aadhaarNumber + ", aadharImgFrontSide=" + aadharImgFrontSide
+				+ ", aadharImgFrontSide_type=" + aadharImgFrontSide_type + ", aadharImagFrontSidePath="
+				+ aadharImagFrontSidePath + ", aadharImgBackSide=" + aadharImgBackSide + ", aadharImgBackSide_type="
+				+ aadharImgBackSide_type + ", aadharImagBackSidePath=" + aadharImagBackSidePath + ", token=" + token
 				+ ", accHolderName=" + accHolderName + ", accNumber=" + accNumber + ", bankName=" + bankName
-				+ ", ifscCode=" + ifscCode + ", bankPassBookImage=" + bankPassBookImage + ", isProfileCompleted="
-				+ isProfileCompleted + ", fcmTokenAgent=" + fcmTokenAgent + "]";
+				+ ", ifscCode=" + ifscCode + ", bankPassBookImage=" + bankPassBookImage + ", bankPassBookImage_type="
+				+ bankPassBookImage_type + ", bankPassBookImagePath=" + bankPassBookImagePath + ", isProfileCompleted="
+				+ isProfileCompleted + ", fcmTokenAgent=" + fcmTokenAgent + ", isProfileInfoStepFirst="
+				+ isProfileInfoStepFirst + ", isAadharInfoStepSecond=" + isAadharInfoStepSecond
+				+ ", isBankInfoStepThird=" + isBankInfoStepThird + "]";
 	}
 }

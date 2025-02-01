@@ -98,17 +98,17 @@ public class ImageUploadController {
 				.body(uploadImage);
 	}
 
-	@GetMapping("/{fileName}")
-	public ResponseEntity<?> downloadFile(@PathVariable String fileName) {
-	    byte[] fileData = service.downloadImage(fileName);
-
-	    MediaType fileExtensionName = Utils.getFileExtensionName(fileName);
-	    
-
-	    return ResponseEntity.status(HttpStatus.OK)
-	            .contentType(fileExtensionName)
-	            .body(fileData);
-	}
+	/*
+	 * @GetMapping("/{fileName}") public ResponseEntity<?>
+	 * downloadFile(@PathVariable String fileName) { byte[] fileData =
+	 * service.downloadImage(fileName);
+	 * 
+	 * MediaType fileExtensionName = Utils.getFileExtensionName(fileName);
+	 * 
+	 * 
+	 * return ResponseEntity.status(HttpStatus.OK) .contentType(fileExtensionName)
+	 * .body(fileData); }
+	 */
 
 
 }

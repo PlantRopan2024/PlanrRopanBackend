@@ -43,6 +43,7 @@ public class AgentLoginService {
 	userDao userdao;
 	    @Autowired
 	    private S3Service s3Service;
+		
 
 	public ResponseEntity<Map<String, String>> sentOtp(String mobileNumber) {
 		Map<String, String> response = new HashMap<>();
@@ -117,28 +118,19 @@ public class AgentLoginService {
 		}
 	}
 
-	public ResponseEntity<Map<String, Object>> profileInfoDetailsAgent(AgentMain existingAgent,
-			String agentPersonalDetails, MultipartFile selfieImg) {
+	public ResponseEntity<Map<String, Object>> profileInfoDetailsAgent(AgentMain existingAgent,String agentPersonalDetails, MultipartFile selfieImg) {
 		Map<String, Object> response = new HashMap<>();
-
 		if (selfieImg.isEmpty()) {
 			response.put("message", "Please select your selfie image.");
 			return ResponseEntity.badRequest().body(response);
 		}
-
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			AgentJsonRequest agentJsonRequest = objectMapper.readValue(agentPersonalDetails, AgentJsonRequest.class);
-
 			if (Objects.nonNull(existingAgent)) {
-				AgentMain agentMain = null;
-				agentMain = existingAgent; // Update existing agent
-
-				// upload seli image path folder
-				
+				AgentMain agentMain = existingAgent;
 				//String selfieImageUrl = Utils.saveImgFile(selfieImg);
 				// Utils.saveImgFile(selfieImg);
-
 				agentMain.setFirstName(agentJsonRequest.getAgentPersonalDetails().getFirstName());
 				agentMain.setLastName(agentJsonRequest.getAgentPersonalDetails().getLastName());
 				agentMain.setGender(agentJsonRequest.getAgentPersonalDetails().getGender());
@@ -151,31 +143,27 @@ public class AgentLoginService {
 				agentMain.setLatitude(agentJsonRequest.getAgentPersonalDetails().getLatitude());
 				agentMain.setLongitude(agentJsonRequest.getAgentPersonalDetails().getLongitude());
 				agentMain.setFcmTokenAgent(agentJsonRequest.getAgentPersonalDetails().getFcmtoken());
-				
+				//set image Name
+		        String fileName = agentJsonRequest.getAgentPersonalDetails().getMobileNumber() + System.currentTimeMillis() + "_" + selfieImg.getOriginalFilename();
 				// upload  file Amazone s3
-				s3Service.uploadFile(selfieImg);
-				
-				agentMain.setSelfieImg(selfieImg.getOriginalFilename());
-				agentMain.setSelfieImg_imageData(Utils.compressImage(selfieImg.getBytes()));
+				String urlName = s3Service.uploadFile(selfieImg,fileName);
+				agentMain.setSelfieImg(fileName);
+				agentMain.setSelfieImagePath(urlName);
 				agentMain.setSelfieImg_type(selfieImg.getContentType());
 				agentMain.setProfileInfoStepFirst(true);
 				AgentMain getid = this.UserDao.save(agentMain);
 				response.put("isProfileInfoStepFirst", getid.isProfileInfoStepFirst());
 				response.put("message", "Agent profile saved successfully!");
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		return ResponseEntity.ok(response);
 	}
 	
-	@Transactional
 	public ResponseEntity<Map<String, Object>> AadhaarDetailFill(AgentMain existingAgent, String AadhaardetailsAgents,
 			MultipartFile aadharImgFrontSide, MultipartFile aadharImgBackSide) {
 		Map<String, Object> response = new HashMap<>();
-
 		if (aadharImgFrontSide.isEmpty()) {
 			response.put("message", "Please select your Aadhaar front-side image.");
 			return ResponseEntity.badRequest().body(response);
@@ -184,42 +172,33 @@ public class AgentLoginService {
 			response.put("message", "Please select your Aadhaar back-side image.");
 			return ResponseEntity.badRequest().body(response);
 		}
-
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			AgentJsonRequest agentJsonRequest = objectMapper.readValue(AadhaardetailsAgents, AgentJsonRequest.class);
-
-			// AgentMain existingAgent =
-			// this.UserDao.findAgentID(agentJsonRequest.getAadharIdentityDetail().getAgentIdPk());
-
 			if (Objects.nonNull(existingAgent)) {
-
-				AgentMain agentMain = null;
-
-				agentMain = existingAgent; // Update existing agent
-
+				AgentMain agentMain = existingAgent;
 				// upload seli image path folder
 			//	Utils.saveImgFile(aadharImgFrontSide);
 				//Utils.saveImgFile(aadharImgBackSide);
 				agentMain.setAadhaarNumber(agentJsonRequest.getAadharIdentityDetail().getAadhaarNumber());
-				
-				agentMain.setAadharImgFrontSide(aadharImgFrontSide.getOriginalFilename());
-				agentMain.setAadharImgFrontSideimageData(Utils.compressImage(aadharImgFrontSide.getBytes()));
-
+				//set image Name
+		        String fileName = existingAgent.getMobileNumber() + System.currentTimeMillis() + "_" + aadharImgFrontSide.getOriginalFilename();
+				// upload  file Amazone s3
+				String urlName = s3Service.uploadFile(aadharImgFrontSide,fileName);
+				agentMain.setAadharImgFrontSide(fileName);
+				agentMain.setAadharImagFrontSidePath(urlName);
 				agentMain.setSelfieImg_type(aadharImgFrontSide.getContentType());
-				
-				agentMain.setAadharImgBackSide(aadharImgBackSide.getOriginalFilename());
-				agentMain.setAadharImgBackSideimageData(Utils.compressImage(aadharImgBackSide.getBytes()));
+				String fileNameBackImage = existingAgent.getMobileNumber() + System.currentTimeMillis() + "_" + aadharImgBackSide.getOriginalFilename();
+				// upload  file Amazone s3
+				String urlNamefileNameBackImage = s3Service.uploadFile(aadharImgBackSide,fileName);
+				agentMain.setAadharImgBackSide(fileNameBackImage);
+				agentMain.setAadharImagBackSidePath(urlNamefileNameBackImage);
 				agentMain.setAadharImgBackSide_type(aadharImgBackSide.getContentType());
-				
 				agentMain.setAadharInfoStepSecond(true);
 				AgentMain getid = this.UserDao.save(agentMain);
-
 				response.put("isAadharInfoStepSecond", getid.isAadharInfoStepSecond());
-				// response.put("AgentIdPk", getid.getAgentIDPk());
 				response.put("message", "Agent Aadhaar saved successfully!");
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -229,54 +208,39 @@ public class AgentLoginService {
 	public ResponseEntity<Map<String, Object>> bankDetailFill(AgentMain existingAgent, String bankDetailsAgent,
 			MultipartFile bankPassBookImage) {
 		Map<String, Object> response = new HashMap<>();
-
 		if (bankPassBookImage.isEmpty()) {
 			response.put("message", "Please select your Bank Pass book image.");
 			return ResponseEntity.badRequest().body(response);
 		}
-
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			AgentJsonRequest agentJsonRequest = objectMapper.readValue(bankDetailsAgent, AgentJsonRequest.class);
-
-			// AgentMain existingAgent =
-			// this.UserDao.findAgentID(agentJsonRequest.getAccountDetail().getAgentIdPk());
-
 			if (Objects.nonNull(existingAgent)) {
-
-				AgentMain agentMain = null;
-
-				agentMain = existingAgent; // Update existing agent
-
+				AgentMain agentMain = existingAgent;
 				// upload seli image path folder
 				//String pathbankimg = Utils.saveImgFile(bankPassBookImage);
 				agentMain.setAccHolderName(agentJsonRequest.getAccountDetail().getAccHolderName());
 				agentMain.setAccNumber(agentJsonRequest.getAccountDetail().getAccNumber());
 				agentMain.setBankName(agentJsonRequest.getAccountDetail().getBankName());
 				agentMain.setIfscCode(agentJsonRequest.getAccountDetail().getIfscCode());
-				
-				agentMain.setBankPassBookImage(bankPassBookImage.getOriginalFilename());
-				agentMain.setBankPassBookImageImageData(Utils.compressImage(bankPassBookImage.getBytes()));
+				String fileName = existingAgent.getMobileNumber() + System.currentTimeMillis() + "_" + bankPassBookImage.getOriginalFilename();
+				// upload  file Amazone s3
+				String urlName = s3Service.uploadFile(bankPassBookImage,fileName);
+				agentMain.setBankPassBookImage(fileName);
+				agentMain.setBankPassBookImagePath(urlName);
 				agentMain.setBankPassBookImage_type(bankPassBookImage.getContentType());
-				
 				agentMain.setProfileCompleted(true);
 				agentMain.setBankInfoStepThird(true);
 				AgentMain getAgent = this.UserDao.save(agentMain);
-			//	getAgent.setBankPassBookImage(Utils.findImgPath(getAgent.getBankPassBookImage()));
-				//getAgent.setSelfieImg(Utils.findImgPath(getAgent.getSelfieImg()));
-				//getAgent.setAadharImgFrontSide(Utils.findImgPath(getAgent.getAadharImgFrontSide()));
-				//getAgent.setAadharImgBackSide(Utils.findImgPath(getAgent.getAadharImgBackSide()));
-				
 				response.put("isBankInfoStepThird", getAgent.isBankInfoStepThird());
 				response.put("message", "Bank Account saved successfully!");
-
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return ResponseEntity.ok(response);
 	}
+	
 	public ResponseEntity<Map<String, String>> getUpdateLiveLocation(AgentMain existingAgent,Map<String, String> request) {
 		Map<String, String> response = new HashMap<>();
 		String Agentlatitude = request.get("Agentlatitude");

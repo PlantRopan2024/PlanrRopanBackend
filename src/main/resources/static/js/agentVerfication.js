@@ -22,14 +22,10 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	        return;
 	    }
 
-	    // Image base64 data
-	    $scope.selfieImg = `data:image/jpeg;base64,${data.selfieImg_imageData}`;
-		console.log("selfieImg  ---  " + $scope.selfieImg)
-	    $scope.aadharImgFrontSide = `data:image/jpeg;base64,${data.aadharImgFrontSideimageData}`;
-	    $scope.aadharImgBackSide = `data:image/jpeg;base64,${data.aadharImgBackSideimageData}`;
-	    $scope.bankPassBookImage = `data:image/jpeg;base64,${data.bankPassBookImageImageData}`;
-
-	    // Assign other data values directly to $scope for AngularJS binding
+	    $scope.selfieImg = data.selfieImagePath;
+	    $scope.aadharImagFrontSidePath  = data.aadharImagFrontSidePath;
+	    $scope.aadharImagBackSidePath = data.aadharImagBackSidePath;
+	    $scope.bankPassBookImagePath = data.bankPassBookImagePath;
 	    $scope.firstName = data.firstName;
 	    $scope.lastName = data.lastName;
 	    $scope.emailId = data.emailId;
@@ -123,14 +119,13 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	       };
 
 	       // Close Modal
-	       $scope.closeModal = function (event) {
-	           // Close only if the target is the modal itself or the close button
-	           const target = event.target;
-	           if (target.classList.contains("modal") || target.classList.contains("modal-close")) {
-	               $scope.isModalOpen = false;
-	               $scope.$apply(); // Apply scope changes
-	           }
-	       };
+		   $scope.closeModal = function (event) {
+		       const target = event.target;
+		       if (target.classList.contains("modal") || target.classList.contains("modal-close")) {
+		           $scope.isModalOpen = false;
+		           $scope.$evalAsync(); // Ensures changes are applied in the next digest cycle
+		       }
+		   };
 	
 	// Automatically load data when the controller is initialized
 	$scope.verificationPending();

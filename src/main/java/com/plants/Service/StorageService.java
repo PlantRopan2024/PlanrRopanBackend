@@ -48,10 +48,9 @@ public class StorageService {
 		return null;
 	}
 
-	public byte[] downloadImage(String fileName) {
-		Optional<ImageData> dbImageData = repository.findByName(fileName);
-		byte[] images = Utils.decompressImage(dbImageData.get().getImageData());
-		return images;
-	}
-
+	/*
+	 * public byte[] downloadImage(String fileName) { Optional<ImageData>
+	 * dbImageData = repository.findByName(fileName); byte[] images =
+	 * Utils.decompressImage(dbImageData.get().getImageData()); return images; }
+	 */
 }
