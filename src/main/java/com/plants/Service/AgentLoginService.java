@@ -41,6 +41,8 @@ public class AgentLoginService {
 
 	@Autowired
 	userDao userdao;
+	    @Autowired
+	    private S3Service s3Service;
 
 	public ResponseEntity<Map<String, String>> sentOtp(String mobileNumber) {
 		Map<String, String> response = new HashMap<>();
@@ -149,6 +151,10 @@ public class AgentLoginService {
 				agentMain.setLatitude(agentJsonRequest.getAgentPersonalDetails().getLatitude());
 				agentMain.setLongitude(agentJsonRequest.getAgentPersonalDetails().getLongitude());
 				agentMain.setFcmTokenAgent(agentJsonRequest.getAgentPersonalDetails().getFcmtoken());
+				
+				// upload  file Amazone s3
+				s3Service.uploadFile(selfieImg);
+				
 				agentMain.setSelfieImg(selfieImg.getOriginalFilename());
 				agentMain.setSelfieImg_imageData(Utils.compressImage(selfieImg.getBytes()));
 				agentMain.setSelfieImg_type(selfieImg.getContentType());
