@@ -50,7 +50,7 @@ public class CusMobCreateProfApi {
 		List<Plans> getPlans = this.customerDao.getallPlans();
 	    List<Plans> activePlans = new ArrayList<>();
 	    for (Plans pl : getPlans) {
-	        if (pl.getIsActive().equals("Yes")) {
+	        if (pl.getIsActive()) {
 	            activePlans.add(pl);
 	        }
 	    }

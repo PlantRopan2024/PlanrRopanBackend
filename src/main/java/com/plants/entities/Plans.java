@@ -20,7 +20,7 @@ public class Plans {
 	private String servicesName;
 	private String planType;
 	private String planPacks;
-	private String isActive;
+	private boolean isActive;
 	
 	@ManyToOne
 	@JoinColumn(name = "FK_SERVICE_NAME_ID")
@@ -31,7 +31,7 @@ public class Plans {
 		// TODO Auto-generated constructor stub
 	}
 	public Plans(int primaryKey, String plansRs, String timeDuration,String planPacks, String uptoPots, String servicesName,
-			String planType, String isActive) {
+			String planType, boolean isActive) {
 		super();
 		this.primaryKey = primaryKey;
 		this.plansRs = plansRs;
@@ -84,10 +84,10 @@ public class Plans {
 	public void setPlanPacks(String planPacks) {
 		this.planPacks = planPacks;
 	}
-	public String getIsActive() {
+	public boolean getIsActive() {
 		return isActive;
 	}
-	public void setIsActive(String isActive) {
+	public void setIsActive(boolean isActive) {
 		this.isActive = isActive;
 	}
 	@Override

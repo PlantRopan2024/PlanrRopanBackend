@@ -10,10 +10,9 @@ import com.plants.entities.serviceName;
 public interface serviceNameDao extends JpaRepository<serviceName, Integer>{
 	
 	@Query("select e FROM serviceName e" )
-	//@Query("SELECT e FROM serviceName e JOIN e.plans p WHERE e.isActive = 'true' AND p.isActive = 'true'")
-
 	public List<serviceName> getallPlans();
 	
-	
+	@Query("select e FROM serviceName e WHERE e.isActive = true")
+	public List<serviceName> getallService();
 
 }
