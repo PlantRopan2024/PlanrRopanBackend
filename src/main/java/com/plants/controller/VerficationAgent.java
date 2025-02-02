@@ -43,10 +43,10 @@ public class VerficationAgent {
 		AgentMain getdetailRecord = this.userdao.findAgentID(AgentIDPk);
 		
 		
-		getdetailRecord.setBankPassBookImage(Utils.findImgPath(getdetailRecord.getBankPassBookImage()));
-		getdetailRecord.setSelfieImg(Utils.findImgPath(getdetailRecord.getSelfieImg()));
-		getdetailRecord.setAadharImgFrontSide(Utils.findImgPath(getdetailRecord.getAadharImgFrontSide()));
-		getdetailRecord.setAadharImgBackSide(Utils.findImgPath(getdetailRecord.getAadharImgBackSide()));
+		//getdetailRecord.setBankPassBookImage(Utils.findImgPath(getdetailRecord.getBankPassBookImage()));
+		//getdetailRecord.setSelfieImg(Utils.findImgPath(getdetailRecord.getSelfieImg()));
+		//getdetailRecord.setAadharImgFrontSide(Utils.findImgPath(getdetailRecord.getAadharImgFrontSide()));
+		//getdetailRecord.setAadharImgBackSide(Utils.findImgPath(getdetailRecord.getAadharImgBackSide()));
 		
 		System.out.println(" getdetailRecord   ---  " + getdetailRecord);
 		return getdetailRecord;

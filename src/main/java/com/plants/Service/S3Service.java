@@ -42,8 +42,8 @@ public class S3Service {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
         s3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
-        //return s3Client.getUrl(bucketName, fileName).toString();  // Return public URL
-        return this.preSignedUrl(fileName);
+       return s3Client.getUrl(bucketName, fileName).toString();  // Return public URL
+        //return this.preSignedUrl(fileName);
     }
     
     public String preSignedUrl(String fileName) {
@@ -68,9 +68,13 @@ public class S3Service {
     }
     
     public String getFileNameImage(String fileName) {
-    	S3Object object = this.s3Client.getObject(bucketName , fileName);
-    	String url = preSignedUrl(object.getKey());
-    	return url;
+    	//S3Object object = this.s3Client.getObject(bucketName , fileName);
+    
+    	String string = s3Client.getUrl(bucketName, fileName).toString();  // Return public URL
+    	
+    	 return string;  // Return public URL
+    	//String url = preSignedUrl(object.getKey());
+    	//return url;
     }
 
 }
