@@ -1,6 +1,7 @@
 package com.plants.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plants.Dao.CustomerDao;
+import com.plants.Dao.OfferDao;
 import com.plants.Dao.serviceNameDao;
 import com.plants.Dao.userDao;
 import com.plants.entities.AgentMain;
+import com.plants.entities.Offers;
 import com.plants.entities.Plans;
 import com.plants.entities.serviceName;
 
@@ -37,6 +40,9 @@ public class PlansAdd {
 
 	@Autowired
 	private serviceNameDao serviceNameDao;
+	
+	@Autowired
+	private OfferDao offerdao;
 
 	String serviceKey;
 
@@ -63,6 +69,25 @@ public class PlansAdd {
 			return ResponseEntity.ok(getListServiceName);
 		}
 	}
+	
+	@GetMapping("/getDashboardDataUser")
+	public ResponseEntity<Map<String, Object>> getDashboardDataUser() {
+	    Map<String, Object> response = new HashMap<>();
+
+	    List<serviceName> getListServiceName = this.serviceNameDao.getallService();
+	    List<Offers> getofferData = this.offerdao.getListActiveOffer();
+
+	    response.put("serviceName", getListServiceName);
+	    response.put("offerData", getofferData);
+
+	    if (getListServiceName.isEmpty()) {
+	        return ResponseEntity.ok(Collections.singletonMap("message", "No Data Found"));
+	    } else {
+	        return ResponseEntity.ok(response);
+	    }
+	}
+
+	
 	
 	@GetMapping("/getServiceIdPlan/{id}") 
 	public ResponseEntity<?> getServiceIdPlan(@PathVariable String id) {
