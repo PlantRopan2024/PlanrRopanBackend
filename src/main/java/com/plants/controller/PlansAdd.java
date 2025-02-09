@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -74,30 +75,54 @@ public class PlansAdd {
 	public ResponseEntity<Map<String, Object>> getDashboardDataUser() {
 	    Map<String, Object> response = new HashMap<>();
 
-	    List<serviceName> getListServiceName = this.serviceNameDao.getallService();
-	    List<Offers> getofferData = this.offerdao.getListActiveOffer();
+	    List<serviceName> serviceList = this.serviceNameDao.getallService();
+	    List<Offers> offerList = this.offerdao.getListActiveOffer();
 
-	    response.put("serviceName", getListServiceName);
-	    response.put("offerData", getofferData);
+	    List<Map<String, Object>> filteredServices = serviceList.stream().map(service -> {
+	        Map<String, Object> serviceMap = new HashMap<>();
+	        serviceMap.put("primaryKey", service.getPrimaryKey());
+	        serviceMap.put("name", service.getName());
+	        serviceMap.put("active", service.isActive());
+	        return serviceMap;
+	    }).collect(Collectors.toList());
 
-	    if (getListServiceName.isEmpty()) {
+	    response.put("serviceName", filteredServices);
+	    response.put("offerData", offerList);
+
+	    if (filteredServices.isEmpty()) {
 	        return ResponseEntity.ok(Collections.singletonMap("message", "No Data Found"));
 	    } else {
 	        return ResponseEntity.ok(response);
 	    }
 	}
 
+
 	
 	
 	@GetMapping("/getServiceIdPlan/{id}") 
-	public ResponseEntity<?> getServiceIdPlan(@PathVariable String id) {
-		List<Plans> getPlanId = this.customerDao.getPlansListId(id);
-		if(getPlanId.isEmpty()) {
-			return ResponseEntity.ok("No Plans Found");
-		}else {
-			return ResponseEntity.ok(getPlanId);
-		}
+	public ResponseEntity<Map<String, Object>> getServiceIdPlan(@PathVariable String id) {
+	    List<Plans> getPlanId = this.customerDao.getPlansListId(id);
+
+	    Map<String, Object> response = new HashMap<>();
+	    List<Plans> dailyPlans = getPlanId.stream()
+	        .filter(plan -> "DAILY".equalsIgnoreCase(plan.getPlanPacks()))
+	        .collect(Collectors.toList());
+
+	    List<Plans> monthlyPlans = getPlanId.stream()
+	        .filter(plan -> "MONTHLY".equalsIgnoreCase(plan.getPlanPacks()))
+	        .collect(Collectors.toList());
+	    
+	    response.put("AllPlans", getPlanId);
+	    response.put("DailyPlan", dailyPlans);
+	    response.put("Monthly", monthlyPlans);
+
+	    if (dailyPlans.isEmpty() && monthlyPlans.isEmpty()) {
+	        return ResponseEntity.ok(Collections.singletonMap("message", "No Plans Found"));
+	    } else {
+	        return ResponseEntity.ok(response);
+	    }
 	}
+
 	
 	@GetMapping("/getPlanID/{id}") 
 	public ResponseEntity<?> getPlanID(@PathVariable String id) {
