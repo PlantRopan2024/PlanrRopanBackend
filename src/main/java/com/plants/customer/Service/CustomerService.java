@@ -74,17 +74,18 @@ public class CustomerService {
 		}
 	}
 
-	public ResponseEntity<Map<String, Object>> ProfileInfoSaveCustomer(CustomerMain exitsCustomer, CustomerMain RequestcustomerMain) {
+	public ResponseEntity<Map<String, Object>> ProfileInfoSaveCustomer(CustomerMain exitsCustomer,
+			CustomerMain RequestcustomerMain) {
 		Map<String, Object> response = new HashMap<>();
 		try {
 
 			if (Objects.nonNull(exitsCustomer)) {
-				CustomerMain customermain = null;
-				customermain = exitsCustomer; // Update existing customer
+				CustomerMain customermain = exitsCustomer;
 				customermain.setFirstName(RequestcustomerMain.getFirstName());
 				customermain.setLastName(RequestcustomerMain.getLastName());
 				customermain.setEmailId(RequestcustomerMain.getEmailId());
 				customermain.setAddress(RequestcustomerMain.getAddress());
+				customermain.setCity(RequestcustomerMain.getCity());
 				customermain.setLatitude(RequestcustomerMain.getLatitude());
 				customermain.setLoggitude(RequestcustomerMain.getLoggitude());
 				customermain.setProfileCompleted(true);
@@ -102,5 +103,45 @@ public class CustomerService {
 
 	public CustomerMain saveCustomerProfile(CustomerMain customerMain) {
 		return customerDao.save(customerMain);
+	}
+
+	public ResponseEntity<Map<String, Object>> getUpdateLiveLocationCust(CustomerMain exitsCustomer,Map<String, String> request) {
+	    Map<String, Object> response = new HashMap<>();
+	    String custLatitude = request.get("custLatitude");
+	    String custLongtitude = request.get("custLongtitude");
+	    String city = request.get("city");
+	    String address = request.get("address");
+
+	    if (Objects.nonNull(exitsCustomer)) {
+	        exitsCustomer.setLatitude(Double.parseDouble(custLatitude));
+	        exitsCustomer.setLoggitude(Double.parseDouble(custLongtitude));
+	        exitsCustomer.setAddress(address);
+	        exitsCustomer.setCity(city);
+	        CustomerMain save = this.customerDao.save(exitsCustomer);
+	        Map<String, String> data = Map.of(
+	            "address", save.getAddress(),
+	            "city", save.getCity(),
+	            "custLatitude", String.valueOf(save.getLatitude()),
+	            "custLongtitude", String.valueOf(save.getLoggitude())
+	        );
+	        response.put("data", data);
+	        response.put("message", "Location Updated");
+	    } else {
+	        response.put("message", "No Record Found for Customer");
+	    }
+	    return ResponseEntity.ok(response);
+	}
+
+	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(CustomerMain exitsCustomer, Map<String, String> request) {
+		Map<String, String> response = new HashMap<>();
+		String firebaseDeviceToken =  request.get("firebaseDeviceToken");		
+		if (Objects.nonNull(exitsCustomer)) {
+			exitsCustomer.setFirebasetokenCus(firebaseDeviceToken);
+	        this.customerDao.save(exitsCustomer);
+			response.put("message", "Firebase Device Token Store");
+		} else {
+			response.put("message", "No Record Found Agent");
+		}
+		return ResponseEntity.ok(response);
 	}
 }

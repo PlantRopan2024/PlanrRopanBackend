@@ -21,6 +21,7 @@ public class CustomerMain {
 	@Column(unique = true)
 	private String mobileNumber;
 	private String address;
+	private String city;
 	private double latitude;
 	private double loggitude;
 	private String token;
@@ -33,12 +34,13 @@ public class CustomerMain {
 		// TODO Auto-generated constructor stub
 	}
 
-	public CustomerMain(String firstName, String lastName, String emailId, String mobileNumber ,String address,  double latitude, double loggitude,String token, boolean isProfileCompleted, String firebasetokenCus) {
+	public CustomerMain(String firstName, String lastName, String emailId, String mobileNumber ,String address ,String city,  double latitude, double loggitude,String token, boolean isProfileCompleted, String firebasetokenCus) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.emailId = emailId;
 		this.address = address;
+		this.city = city;
 		this.mobileNumber = mobileNumber;
 		this.latitude=latitude;
 		this.loggitude=loggitude;
@@ -117,6 +119,14 @@ public class CustomerMain {
 
 	public void setFirebasetokenCus(String firebasetokenCus) {
 		this.firebasetokenCus = firebasetokenCus;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
 	}
 	
 	

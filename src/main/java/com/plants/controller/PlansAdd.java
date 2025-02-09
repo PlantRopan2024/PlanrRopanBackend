@@ -52,7 +52,8 @@ public class PlansAdd {
 	public Map<String, String> addPlan(@ModelAttribute Plans plans) {
 		Map<String, String> response = new HashMap<>();
 		try {
-			Plans savedPlan = this.userdao.save(plans);
+			System.out.println(" plans -- "+ plans);
+			//Plans savedPlan = this.userdao.save(plans);
 			response.put("message", "Plans Add Successfully");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -62,13 +63,29 @@ public class PlansAdd {
 	}
 	
 	@GetMapping("/getServiceName")
-	public ResponseEntity<?> getServiceNameList() {
-		List<serviceName> getListServiceName = this.serviceNameDao.getallService();
-		if(getListServiceName.isEmpty()) {
-			return ResponseEntity.ok("No Service Found");
-		}else {
-			return ResponseEntity.ok(getListServiceName);
-		}
+	public ResponseEntity<?> getServiceName() {
+	    Map<String, Object> response = new HashMap<>();
+
+	    List<serviceName> serviceList = this.serviceNameDao.getallService();
+
+	    List<Map<String, Object>> filteredServices = serviceList.stream().map(service -> {
+	        Map<String, Object> serviceMap = new HashMap<>();
+	        serviceMap.put("primaryKey", service.getPrimaryKey());
+	        serviceMap.put("name", service.getName());
+	        serviceMap.put("active", service.isActive());
+	        return serviceMap;
+	    }).collect(Collectors.toList());
+
+
+	    if (filteredServices.isEmpty()) {
+	    	response.put("status", "false");
+	    	response.put("message","No Data Found");
+	        return ResponseEntity.ok(response);
+	    } else {
+	    	response.put("status", "true");
+	    	response.put("message", filteredServices);
+	        return ResponseEntity.ok(response);
+	    }
 	}
 	
 	@GetMapping("/getDashboardDataUser")
@@ -88,9 +105,12 @@ public class PlansAdd {
 
 	    response.put("serviceName", filteredServices);
 	    response.put("offerData", offerList);
+    	response.put("status", "true");
 
 	    if (filteredServices.isEmpty()) {
-	        return ResponseEntity.ok(Collections.singletonMap("message", "No Data Found"));
+	    	response.put("status", "false");
+	    	response.put("message","No Data Found");
+	        return ResponseEntity.ok(response);
 	    } else {
 	        return ResponseEntity.ok(response);
 	    }
@@ -111,14 +131,17 @@ public class PlansAdd {
 	    List<Plans> monthlyPlans = getPlanId.stream()
 	        .filter(plan -> "MONTHLY".equalsIgnoreCase(plan.getPlanPacks()))
 	        .collect(Collectors.toList());
-	    
-	    response.put("AllPlans", getPlanId);
-	    response.put("DailyPlan", dailyPlans);
-	    response.put("Monthly", monthlyPlans);
+	   	    
 
 	    if (dailyPlans.isEmpty() && monthlyPlans.isEmpty()) {
-	        return ResponseEntity.ok(Collections.singletonMap("message", "No Plans Found"));
+	    	response.put("status", "false");
+	    	response.put("message","No Data Found");
+	        return ResponseEntity.ok(response);
 	    } else {
+	 	    response.put("AllPlans", getPlanId);
+	    	response.put("DailyPlan", dailyPlans);
+		    response.put("Monthly", monthlyPlans);
+	    	response.put("status", "true");
 	        return ResponseEntity.ok(response);
 	    }
 	}
@@ -126,11 +149,16 @@ public class PlansAdd {
 	
 	@GetMapping("/getPlanID/{id}") 
 	public ResponseEntity<?> getPlanID(@PathVariable String id) {
+	    Map<String, Object> response = new HashMap<>();
 		Plans getPlan = this.customerDao.getPlansId(id);
 		if(Objects.isNull(getPlan)) {
-			return ResponseEntity.ok("No Plans Found");
-		}else {
-			return ResponseEntity.ok(getPlan);
+			response.put("status", "false");
+	    	response.put("message","No Data Found");
+	        return ResponseEntity.ok(response);
+	    }else {
+	    	response.put("Plan", getPlan);
+	     	response.put("status", "true");
+			return ResponseEntity.ok(response);
 		}
 	}
 	
@@ -141,7 +169,7 @@ public class PlansAdd {
 		for (serviceName s : getPlans) {
 			List<Plans> activePlans = new ArrayList<>();
 			for (Plans p : s.getPlans()) {
-				if (p.getIsActive()) {
+				if (p.isActive()) {
 					activePlans.add(p);
 				}
 			}

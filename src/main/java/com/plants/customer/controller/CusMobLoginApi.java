@@ -86,4 +86,32 @@ public class CusMobLoginApi {
 		ResponseEntity<Map<String, Object>> getprofileDetails = customerService.ProfileInfoSaveCustomer(exitsCustomer ,RequestcustomerMain);
 		return ResponseEntity.ok(getprofileDetails.getBody());
 	}
+	
+	@PostMapping("/getliveLocationUpdateCoustomer")
+	public ResponseEntity<Map<String, Object>> getliveLocationLatiAndLong(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, String> request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
+
+		if (Objects.isNull(exitsCustomer) || !jwtToken.equals(exitsCustomer.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		ResponseEntity<Map<String, Object>> response = customerService.getUpdateLiveLocationCust(exitsCustomer ,request);
+		return ResponseEntity.ok(response.getBody());
+	}
+	
+	@PostMapping("/getCusFirebaseTokenDevice")
+	public ResponseEntity<Map<String, String>> getFirebaseTokenDevice(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, String> request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
+
+		if (Objects.isNull(exitsCustomer) || !jwtToken.equals(exitsCustomer.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		ResponseEntity<Map<String, String>> response = customerService.getFirebaseDeviceToken(exitsCustomer,request);
+		return ResponseEntity.ok(response.getBody());
+	}
 }

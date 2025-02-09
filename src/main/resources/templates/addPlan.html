@@ -43,46 +43,55 @@
                         <div class="card-body">
                             <!-- AngularJS ng-submit -->
                             <form name="myPlanForm" ng-submit="submitPlan()">
+								
+								<h4> Select Service Name </h4>
+								<div class="col-md-6">
+								    <div class="mb-3">
+								        <select class="form-control" name="servicesName" ng-model="plan.servicesName"
+								                ng-options="service.name for service in allServiceName track by service.primaryKey">
+								            <option value="" disabled selected>Select Service Name</option>
+								        </select>
+								    </div>
+								</div>
+								<h4> Add Plans </h4>
                                 <div class="row">
-
+									<div class="col-md-6">
+									      <div class="mb-3">
+									        <input type="text" class="form-control" name="plansName" ng-model="plan.plansName" placeholder="Enter the Plan Name"/>
+									      </div>
+									</div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">Plans Rs</label>
-                                            <input type="text" class="form-control" name="plansRs" ng-model="plan.plansRs" placeholder="Plan Rs e.g. 249"/>
+                                            <input type="text" class="form-control" name="plansRs" ng-model="plan.plansRs" placeholder="Enter the Plan Amount"/>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">Time Duration</label>
-                                            <input type="text" class="form-control" name="timeDuration" ng-model="plan.timeDuration" placeholder="e.g 45 min to 1Hr" />
+                                            <input type="text" class="form-control" name="timeDuration" ng-model="plan.timeDuration" placeholder="Enter the Time Duration (e.g 45 min to 1Hr)" />
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">Up to Pots</label>
-                                            <input type="text" class="form-control" name="UptoPots" ng-model="plan.UptoPots" placeholder="Upto 50 Pot" />
+                                            <input type="text" class="form-control" name="UptoPots" ng-model="plan.UptoPots" placeholder="Enter the Pots" />
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">Services Name</label>
-                                            <input type="text" class="form-control" name="servicesName" ng-model="plan.servicesName" placeholder="Gudai/katai/Ropai" />
+                                            <input type="text" class="form-control" name="includingServicesName" ng-model="plan.includingServicesName" placeholder="Enter the including Service (Gudai/katai/Ropai)" />
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">Plan Type</label>
-                                            <input type="text" class="form-control" name="planType" ng-model="plan.planType" placeholder="4 Visit/Month"/>
+                                            <input type="text" class="form-control" name="planType" ng-model="plan.planType" placeholder="Enter the Plan Type (4 Visit/Month)"/>
                                         </div>
                                     </div>
 									
 									<div class="col-md-6">
 									    <div class="mb-3">
-									        <label class="form-label">Plan Packs</label>
 									        <select class="form-control" name="planPacks" ng-model="plan.planPacks">
 									            <option value="" disabled selected>Select Plan Pack</option>
 									            <option value="DAILY">Daily</option>
@@ -93,14 +102,41 @@
 									
 									<div class="col-md-6">
 										<div class="mb-3">
-											<label class="form-label">Active Plan</label>
 											<select class="form-control" name="isActive" ng-model="plan.isActive">
-												 <option value="" disabled selected>Select Plan Pack</option>
+												 <option value="" disabled selected>Select Active Plan</option>
 												 <option value="Yes">Yes</option>
 												<option value="No">No</option>
 											 </select>
 										</div>
 									</div>
+									
+									<h4> Add Fertilizer </h4>
+									<div class="col-md-12">
+									    <button type="button" class="btn btn-primary mb-3" ng-click="addFertilizer()">Add</button>
+									</div>
+									<div ng-repeat="fertilizer in plan.fertilizers">
+									    <div class="row">
+									        <div class="col-md-5">
+									            <div class="mb-3">
+									                <input type="text" class="form-control" ng-model="fertilizer.fertilizerName" placeholder="Enter the Fertilizer Name"/>
+									            </div>
+									        </div>
+
+									        <div class="col-md-5">
+									            <div class="mb-3">
+									                <input type="text" class="form-control" ng-model="fertilizer.amount" placeholder="Enter the Fertilizer Amount"/>
+									            </div>
+									        </div>
+
+									        <div class="col-md-2">
+									            <div class="mb-3">
+									                <label class="form-label">&nbsp;</label>
+									                <button type="button" class="btn btn-danger d-block" ng-click="removeFertilizer($index)">Remove</button>
+									            </div>
+									        </div>
+									    </div>
+									</div>
+									
 									
                                     <div class="col-md-12">
                                         <button id="myButton" type="submit" name="submit" class="btn btn-success">
