@@ -22,7 +22,7 @@ public class serviceName {
 
     private String name;
 
-    @OneToMany(mappedBy = "serviceName")
+    @OneToMany(mappedBy = "servicesName")
     private List<Plans> plans = new ArrayList<>();
 
     // Getters and Setters

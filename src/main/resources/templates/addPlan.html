@@ -101,40 +101,43 @@
 									</div>
 									
 									<div class="col-md-6">
-										<div class="mb-3">
-											<select class="form-control" name="isActive" ng-model="plan.isActive">
-												 <option value="" disabled selected>Select Active Plan</option>
-												 <option value="Yes">Yes</option>
-												<option value="No">No</option>
-											 </select>
-										</div>
+									    <div class="mb-3">
+									        <select class="form-control" name="isActive" ng-model="plan.isActive">
+									            <option value="" disabled selected>Select Active Plan</option>
+									            <option ng-value="true">Yes</option>
+									            <option ng-value="false">No</option>
+									        </select>
+									    </div>
 									</div>
 									
 									<h4> Add Fertilizer </h4>
 									<div class="col-md-12">
 									    <button type="button" class="btn btn-primary mb-3" ng-click="addFertilizer()">Add</button>
 									</div>
-									<div ng-repeat="fertilizer in plan.fertilizers">
-									    <div class="row">
-									        <div class="col-md-5">
-									            <div class="mb-3">
-									                <input type="text" class="form-control" ng-model="fertilizer.fertilizerName" placeholder="Enter the Fertilizer Name"/>
-									            </div>
-									        </div>
+									<div ng-repeat="fertilizer in plan.fertilizers track by $index">
+										<div class="row align-items-center">
+										    <div class="col-md-4">
+										        <div class="mb-3">
+										            <input type="text" class="form-control" ng-model="fertilizer.fertilizerName" placeholder="Enter the Fertilizer Name"/>
+										        </div>
+										    </div>
 
-									        <div class="col-md-5">
-									            <div class="mb-3">
-									                <input type="text" class="form-control" ng-model="fertilizer.amount" placeholder="Enter the Fertilizer Amount"/>
-									            </div>
-									        </div>
+										    <div class="col-md-4">
+										        <div class="mb-3">
+										            <input type="text" class="form-control" ng-model="fertilizer.amount" placeholder="Enter the Fertilizer Amount"/>
+										        </div>
+										    </div>
 
-									        <div class="col-md-2">
-									            <div class="mb-3">
-									                <label class="form-label">&nbsp;</label>
-									                <button type="button" class="btn btn-danger d-block" ng-click="removeFertilizer($index)">Remove</button>
-									            </div>
-									        </div>
-									    </div>
+										    <div class="col-md-3">
+										        <div class="mb-3">
+										            <input type="text" class="form-control" ng-model="fertilizer.Kg" placeholder="Enter the Kg"/>
+										        </div>
+										    </div>
+
+										    <div class="col-md-1 text-center">
+										        <button type="button" class="btn btn-danger" ng-click="removeFertilizer($index)">Remove</button>
+										    </div>
+										</div>
 									</div>
 									
 									

@@ -18,16 +18,25 @@ public class Fertilizer {
 	
 	private String fertilizerName;
 	private String amount;
+	private String Kg;
 	
 	@ManyToOne
 	@JoinColumn(name = "fk_plans_id")
 	private Plans plans;
+	
+	
+	
+	public Fertilizer() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
-	public Fertilizer(int primaryKey, String fertilizerName, String amount, Plans plans) {
+	public Fertilizer(int primaryKey, String fertilizerName, String amount,String Kg, Plans plans) {
 		super();
 		this.primaryKey = primaryKey;
 		this.fertilizerName = fertilizerName;
 		this.amount = amount;
+		this.Kg=Kg;
 		this.plans = plans;
 	}
 
@@ -62,10 +71,20 @@ public class Fertilizer {
 	public void setPlans(Plans plans) {
 		this.plans = plans;
 	}
+	
+
+	public String getKg() {
+		return Kg;
+	}
+
+	public void setKg(String kg) {
+		Kg = kg;
+	}
 
 	@Override
 	public String toString() {
 		return "Fertilizer [primaryKey=" + primaryKey + ", fertilizerName=" + fertilizerName + ", amount=" + amount
-				+ ", plans=" + plans + "]";
+				+ ", Kg=" + Kg + ", plans=" + plans + "]";
 	}
+
 }

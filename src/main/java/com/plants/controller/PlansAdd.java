@@ -16,17 +16,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plants.Dao.CustomerDao;
+import com.plants.Dao.FertilizerRepo;
 import com.plants.Dao.OfferDao;
 import com.plants.Dao.serviceNameDao;
 import com.plants.Dao.userDao;
 import com.plants.entities.AgentMain;
+import com.plants.entities.Fertilizer;
 import com.plants.entities.Offers;
 import com.plants.entities.Plans;
+import com.plants.entities.PlansDto;
 import com.plants.entities.serviceName;
 
 @RestController
@@ -46,14 +50,49 @@ public class PlansAdd {
 	private OfferDao offerdao;
 
 	String serviceKey;
-
+	
+	@Autowired
+	FertilizerRepo fertlizerRepo;
+	
 	@PostMapping("/addPlans")
 	@ResponseBody
-	public Map<String, String> addPlan(@ModelAttribute Plans plans) {
+	public Map<String, String> addPlan(@RequestBody PlansDto plans) {
 		Map<String, String> response = new HashMap<>();
 		try {
+		    serviceName serviceList = this.serviceNameDao.getServiceId(plans.getServicesName());
+
+			
 			System.out.println(" plans -- "+ plans);
-			//Plans savedPlan = this.userdao.save(plans);
+			Plans savePlan = new Plans();
+			savePlan.setPlansName(plans.getPlansName());
+			savePlan.setPlanPacks(plans.getPlanPacks());
+			savePlan.setPlansRs(plans.getPlansRs());
+			savePlan.setPlanType(plans.getPlanType());
+			savePlan.setTimeDuration(plans.getTimeDuration());
+			savePlan.setUptoPots(plans.getUptoPots());
+			savePlan.setActive(plans.isActive());
+			savePlan.setIncludingServicesName(plans.getIncludingServicesName());
+			savePlan.setServicesName(serviceList);
+			
+	        List<Fertilizer> fertilizers = plans.getFertilizers().stream().map(fertilizerDto -> {
+	            Fertilizer fertilizer = new Fertilizer();
+	            fertilizer.setFertilizerName(fertilizerDto.getFertilizerName());
+	            fertilizer.setAmount(fertilizerDto.getAmount());
+	            fertilizer.setKg(fertilizerDto.getKg());
+	            return fertilizer;
+	        }).collect(Collectors.toList());
+
+	        savePlan.setFertilizers(fertilizers);
+	        	
+			Plans savedPlan = this.userdao.save(savePlan);
+			
+			for(Fertilizer fera : fertilizers) {
+				fera.setAmount(fera.getAmount());
+				fera.setFertilizerName(fera.getFertilizerName());
+				fera.setKg(fera.getKg());
+				fera.setPlans(savedPlan);
+				this.fertlizerRepo.save(fera);
+			}
 			response.put("message", "Plans Add Successfully");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -64,7 +103,6 @@ public class PlansAdd {
 	
 	@GetMapping("/getServiceName")
 	public ResponseEntity<?> getServiceName() {
-	    Map<String, Object> response = new HashMap<>();
 
 	    List<serviceName> serviceList = this.serviceNameDao.getallService();
 
@@ -75,16 +113,10 @@ public class PlansAdd {
 	        serviceMap.put("active", service.isActive());
 	        return serviceMap;
 	    }).collect(Collectors.toList());
-
-
 	    if (filteredServices.isEmpty()) {
-	    	response.put("status", "false");
-	    	response.put("message","No Data Found");
-	        return ResponseEntity.ok(response);
+	        return ResponseEntity.ok("No Data Found");
 	    } else {
-	    	response.put("status", "true");
-	    	response.put("message", filteredServices);
-	        return ResponseEntity.ok(response);
+	        return ResponseEntity.ok(filteredServices);
 	    }
 	}
 	

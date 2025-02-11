@@ -9,58 +9,53 @@ app.controller('planManageController', ['$scope', '$http', function($scope, $htt
 	$scope.allServiceName= [];
 	
 	$scope.plan = {
-	        fertilizers: []  // Now fertilizers list is initialized
-	    };
+	    fertilizers: [
+	        { fertilizerName: "Vermi Compost", amount: "" ,Kg:""},
+	        { fertilizerName: "Bone Meal", amount: "",Kg:"" },
+	        { fertilizerName: "Neem Khali", amount: "",Kg:"" }
+	    ]
+	};
+		
+		
 	
     // Function to handle form submission
-    $scope.submitPlan = function() {
-        console.log("Submitting form...");
+	$scope.submitPlan = function() {
+	    console.log("Submitting form...");
+		console.log("uptopo" +$scope.plan.UptoPots  )
+	    var planData = {
+	        servicesName: $scope.plan.servicesName.primaryKey,
+	        plansName: $scope.plan.plansName,
+	        plansRs: $scope.plan.plansRs,
+	        timeDuration: $scope.plan.timeDuration,
+	        UptoPots: $scope.plan.UptoPots,
+	        includingServicesName: $scope.plan.includingServicesName,
+	        planType: $scope.plan.planType,
+	        planPacks: $scope.plan.planPacks,
+	        isActive: $scope.plan.isActive,
+	        fertilizers: $scope.plan.fertilizers
+	    };
 
-        // Create a FormData object to send data as multipart
-        var formData = new FormData();
-		formData.append('servicesName', $scope.plan.servicesName);
-		formData.append('plansName', $scope.plan.plansName);
-        formData.append('plansRs', $scope.plan.plansRs);
-        formData.append('timeDuration', $scope.plan.timeDuration);
-        formData.append('UptoPots', $scope.plan.UptoPots);
-        formData.append('includingServicesName', $scope.plan.includingServicesName); 
-        formData.append('planType', $scope.plan.planType);
-        formData.append('planPacks', $scope.plan.planPacks);
-        formData.append('isActive', $scope.plan.isActive);
-		formData.append('fertilizers', JSON.stringify($scope.plan.fertilizers));
-
-        $http({
-            method: 'POST',
-            url: '/ShowPlans/addPlans',
-            data: formData,
-            headers: { 'Content-Type': undefined  }, 
-            transformRequest: angular.identity 
-        }).then(function successCallback(response) {
-            if (response.data.message === 'Plans Add Successfully') {
-                Swal.fire({
-                    title: response.data.message,
-                    text: 'Thanks!!',
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                });
-            } else {
-                Swal.fire({
-                    title: response.data.message,
-                    text: 'Thanks!!',
-                    icon: 'warning',
-                    confirmButtonText: 'OK',
-                });
-            }
-        }, function errorCallback(response) {
-            Swal.fire({
-                title: 'Error',
-                text: 'Something went wrong!',
-                icon: 'error',
-                confirmButtonText: 'OK',
-            });
-        });
-      
-    };
+	    $http({
+	        method: 'POST',
+	        url: '/ShowPlans/addPlans',
+	        data: planData,
+	        headers: { 'Content-Type': 'application/json' } 
+	    }).then(function successCallback(response) {
+	        Swal.fire({
+	            title: response.data.message,
+	            text: 'Thanks!!',
+	            icon: response.data.message === 'Plans Add Successfully' ? 'success' : 'warning',
+	            confirmButtonText: 'OK',
+	        });
+	    }, function errorCallback(response) {
+	        Swal.fire({
+	            title: 'Error',
+	            text: 'Something went wrong!',
+	            icon: 'error',
+	            confirmButtonText: 'OK',
+	        });
+	    });
+	};
     
     $scope.DailyRecordFetch = function() {
 		$http({
@@ -95,13 +90,11 @@ app.controller('planManageController', ['$scope', '$http', function($scope, $htt
 		});
 	}
 	
-	// Function to add a new fertilizer field
-	$scope.addFertilizer = function() {
-	    $scope.plan.fertilizers.push({ name: '', amount: '' });
+	$scope.addFertilizer = function () {
+	    $scope.plan.fertilizers.push({ fertilizerName: "", amount: "",Kg:"" });
 	};
 
-	// Function to remove a specific fertilizer field
-	$scope.removeFertilizer = function(index) {
+	$scope.removeFertilizer = function (index) {
 	    $scope.plan.fertilizers.splice(index, 1);
 	};
 

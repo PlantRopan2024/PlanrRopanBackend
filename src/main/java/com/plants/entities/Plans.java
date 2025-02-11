@@ -32,7 +32,7 @@ public class Plans {
 	@ManyToOne
 	@JsonIgnore
 	@JoinColumn(name = "FK_SERVICE_NAME_ID")
-	private serviceName serviceName;
+	private serviceName servicesName;
 		
 	@OneToMany(mappedBy = "plans")
     private List<Fertilizer> fertilizers = new ArrayList<>();
@@ -43,18 +43,18 @@ public class Plans {
 
 	public Plans(int primaryKey, String plansName, String plansRs, String timeDuration, String uptoPots,
 			String includingServicesName, String planType, String planPacks, boolean isActive,
-			com.plants.entities.serviceName serviceName, List<Fertilizer> fertilizers) {
+			com.plants.entities.serviceName servicesName, List<Fertilizer> fertilizers) {
 		super();
 		this.primaryKey = primaryKey;
 		this.plansName = plansName;
 		this.plansRs = plansRs;
 		this.timeDuration = timeDuration;
-		UptoPots = uptoPots;
+		this.UptoPots = uptoPots;
 		this.includingServicesName = includingServicesName;
 		this.planType = planType;
 		this.planPacks = planPacks;
 		this.isActive = isActive;
-		this.serviceName = serviceName;
+		this.servicesName = servicesName;
 		this.fertilizers = fertilizers;
 	}
 
@@ -94,8 +94,8 @@ public class Plans {
 		return UptoPots;
 	}
 
-	public void setUptoPots(String uptoPots) {
-		UptoPots = uptoPots;
+	public void setUptoPots(String UptoPots) {
+		this.UptoPots = UptoPots;
 	}
 
 	public String getIncludingServicesName() {
@@ -130,28 +130,29 @@ public class Plans {
 		this.isActive = isActive;
 	}
 
-	public serviceName getServiceName() {
-		return serviceName;
+	public serviceName getServicesName() {
+		return servicesName;
 	}
 
-	public void setServiceName(serviceName serviceName) {
-		this.serviceName = serviceName;
+	public void setServicesName(serviceName servicesName) {
+		this.servicesName = servicesName;
 	}
 
-	public List<Fertilizer> getFettilizer() {
+	public List<Fertilizer> getFertilizers() {
 		return fertilizers;
 	}
 
-	public void setFettilizer(List<Fertilizer> fertilizers) {
+	public void setFertilizers(List<Fertilizer> fertilizers) {
 		this.fertilizers = fertilizers;
 	}
+
 
 	@Override
 	public String toString() {
 		return "Plans [primaryKey=" + primaryKey + ", plansName=" + plansName + ", plansRs=" + plansRs
 				+ ", timeDuration=" + timeDuration + ", UptoPots=" + UptoPots + ", includingServicesName="
 				+ includingServicesName + ", planType=" + planType + ", planPacks=" + planPacks + ", isActive="
-				+ isActive + ", serviceName=" + serviceName + ", fettilizer=" + fertilizers + "]";
+				+ isActive + ", servicesName=" + servicesName + ", fertilizers=" + fertilizers + "]";
 	}
 
 }
