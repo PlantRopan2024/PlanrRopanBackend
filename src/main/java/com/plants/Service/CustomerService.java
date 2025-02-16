@@ -1,11 +1,13 @@
 package com.plants.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +15,20 @@ import com.plants.Dao.CustomerDao;
 import com.plants.Dao.userDao;
 import com.plants.config.JwtUtil;
 import com.plants.entities.AgentMain;
+import com.plants.entities.BookingRequest;
 import com.plants.entities.CustomerMain;
+import com.plants.entities.FertilizerRequest;
+import com.plants.entities.Plans;
 
 @Service
 public class CustomerService {
-
+	
+	@Value("${platform.fee}")
+    private String platformFees;
+	
+	@Value("${gst.rate}")
+	private String gstRate;
+	
 	@Autowired
 	private OTPService otpService;
 	
@@ -169,10 +180,28 @@ public class CustomerService {
 		return ResponseEntity.ok(response);
 	}
 	
-	public ResponseEntity<Map<String, String>> orderSummaryCalculation(CustomerMain exitsCustomer, Map<String, String> request) {
-		Map<String, String> response = new HashMap<>();
-		String planId =  request.get("planId");	
-		
-		return ResponseEntity.ok(response);
+	public ResponseEntity<Map<String, Object>> orderSummaryCalculation(CustomerMain exitsCustomer, BookingRequest bookingRequest) { 
+	    Map<String, Object> response = new HashMap<>();
+	    System.out.println("Booking received: " + bookingRequest);
+	    Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
+	    int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
+	    double totalFertilizerCost = 0;
+	    List<String> fertilizerDetails = new ArrayList<>();
+	    for (FertilizerRequest fertilizer : bookingRequest.getFertilizers()) {
+	        fertilizerDetails.add(fertilizer.getName() + " - ₹" + fertilizer.getPrice());
+	        totalFertilizerCost += fertilizer.getPrice() * fertilizer.getQuantity();
+	    }
+	    int platformFee = Integer.parseInt(platformFees);
+	    
+	    double gstAmount = (serviceCharge * Double.parseDouble(gstRate)) / 100.0;
+	    double grandTotal = serviceCharge + totalFertilizerCost + platformFee + gstAmount;
+	    response.put("Service Charge", "₹" + serviceCharge);
+	    response.put("Fertilizer", "₹" + (int) totalFertilizerCost);
+	    response.put("Fertilizer Details", fertilizerDetails);
+	    response.put("Platform Fee", "₹" + platformFee);
+	    response.put("GST 18%", "₹" + String.format("%.2f", gstAmount));
+	    response.put("Grand Total", "₹" + String.format("%.2f", grandTotal));
+	    return ResponseEntity.ok(response);
 	}
+
 }

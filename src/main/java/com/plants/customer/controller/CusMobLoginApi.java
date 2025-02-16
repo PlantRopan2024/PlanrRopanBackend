@@ -25,6 +25,7 @@ import com.plants.Service.OTPService;
 import com.plants.Service.SmsService;
 import com.plants.config.JwtUtil;
 import com.plants.entities.AgentMain;
+import com.plants.entities.BookingRequest;
 import com.plants.entities.CustomerMain;
 import com.plants.entities.Plans;
 
@@ -115,7 +116,7 @@ public class CusMobLoginApi {
 	}
 	
 	@PostMapping("/OrderSummaryPage") 
-	public ResponseEntity<?> OrderSummaryPage(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, String> request) {
+	public ResponseEntity<?> OrderSummaryPage(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody BookingRequest bookingRequest) {
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);
 		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
@@ -124,7 +125,7 @@ public class CusMobLoginApi {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 		}
 		
-		ResponseEntity<Map<String, String>> response = customerService.orderSummaryCalculation(exitsCustomer,request);
+		ResponseEntity<Map<String, Object>> response = customerService.orderSummaryCalculation(exitsCustomer,bookingRequest);
 		return ResponseEntity.ok(response.getBody());
 	}
 }
