@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -188,7 +190,9 @@ public class CustomerService {
 	    double totalFertilizerCost = 0;
 	    List<String> fertilizerDetails = new ArrayList<>();
 	    for (FertilizerRequest fertilizer : bookingRequest.getFertilizers()) {
-	        fertilizerDetails.add(fertilizer.getName() + " - ₹" + fertilizer.getPrice());
+	    	 String name = fertilizer.getName();
+	    	    String cleanedName = removeQuantityFromName(fertilizer.getName()); // Remove quantity
+	    	fertilizerDetails.add(cleanedName +" - ₹" + fertilizer.getPrice() * fertilizer.getQuantity());
 	        totalFertilizerCost += fertilizer.getPrice() * fertilizer.getQuantity();
 	    }
 	    int platformFee = Integer.parseInt(platformFees);
@@ -202,6 +206,20 @@ public class CustomerService {
 	    response.put("GST 18%", "₹" + String.format("%.2f", gstAmount));
 	    response.put("Grand Total", "₹" + String.format("%.2f", grandTotal));
 	    return ResponseEntity.ok(response);
+	}
+	
+	private String extractQuantity(String name) {
+	    Pattern pattern = Pattern.compile("\\((.*?)\\)"); // Match text inside parentheses
+	    Matcher matcher = pattern.matcher(name);
+	    
+	    if (matcher.find()) {
+	        return matcher.group(1); // Extract "5 kg", "1 kg", etc.
+	    }
+	    return ""; // Return empty if no match
+	}
+	
+	private String removeQuantityFromName(String name) {
+	    return name.replaceAll("\\(\\d+ kg\\)", "").trim(); // Remove "(5 kg)" and trim extra spaces
 	}
 
 }
