@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plants.Dao.userDao;
-import com.plants.customer.Service.LocationService;
+import com.plants.Service.LocationService;
 import com.plants.entities.AgentMain;
 import com.plants.entities.CusPersonalDetail;
 import com.plants.entities.CusPlanDetails;

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plants.Dao.CustomerDao;
-import com.plants.customer.Service.CustomerService;
+import com.plants.Service.CustomerService;
 import com.plants.entities.CustomerMain;
 import com.plants.entities.Plans;
 

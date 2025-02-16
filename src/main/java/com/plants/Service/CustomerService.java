@@ -1,6 +1,7 @@
-package com.plants.customer.Service;
+package com.plants.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -9,8 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.plants.Dao.CustomerDao;
-import com.plants.Service.OTPService;
-import com.plants.Service.SmsService;
+import com.plants.Dao.userDao;
 import com.plants.config.JwtUtil;
 import com.plants.entities.AgentMain;
 import com.plants.entities.CustomerMain;
@@ -20,9 +20,15 @@ public class CustomerService {
 
 	@Autowired
 	private OTPService otpService;
-
+	
+	@Autowired
+	userDao userdao;
+	
+	@Autowired
+	 LocationService locationService;
 	@Autowired
 	private SmsService smsService;
+	
 	@Autowired
 	private CustomerDao customerDao;
 
@@ -107,28 +113,44 @@ public class CustomerService {
 
 	public ResponseEntity<Map<String, Object>> getUpdateLiveLocationCust(CustomerMain exitsCustomer,Map<String, String> request) {
 	    Map<String, Object> response = new HashMap<>();
-	    String custLatitude = request.get("custLatitude");
-	    String custLongtitude = request.get("custLongtitude");
+	    double custLatitude = Double.parseDouble(request.get("custLatitude"));
+	    double custLongitude = Double.parseDouble(request.get("custLongtitude"));
 	    String city = request.get("city");
 	    String address = request.get("address");
-
-	    if (Objects.nonNull(exitsCustomer)) {
-	        exitsCustomer.setLatitude(Double.parseDouble(custLatitude));
-	        exitsCustomer.setLoggitude(Double.parseDouble(custLongtitude));
-	        exitsCustomer.setAddress(address);
-	        exitsCustomer.setCity(city);
-	        CustomerMain save = this.customerDao.save(exitsCustomer);
-	        Map<String, String> data = Map.of(
-	            "address", save.getAddress(),
-	            "city", save.getCity(),
-	            "custLatitude", String.valueOf(save.getLatitude()),
-	            "custLongtitude", String.valueOf(save.getLoggitude())
-	        );
-	        response.put("data", data);
-	        response.put("message", "Location Updated");
-	    } else {
-	        response.put("message", "No Record Found for Customer");
-	    }
+	    double speedKmPerHour = 25.0 ;
+	    List<AgentMain> activeAgents = this.userdao.activeAgent();
+	    
+	    if (!activeAgents.isEmpty()) {
+	         for (AgentMain agent : activeAgents) {
+	             if (agent.isActiveAgent()) {
+	            	 double arrivalTime = locationService.estimateArrivalTime(custLatitude, custLongitude, agent.getLatitude(), agent.getLongitude(), speedKmPerHour);
+	            	 int roundedTime = (int) Math.ceil(arrivalTime);
+	            	 if (arrivalTime != -1) {
+	            	    	if (Objects.nonNull(exitsCustomer)) {
+	            		        exitsCustomer.setLatitude(custLatitude);
+	            		        exitsCustomer.setLoggitude(custLongitude);
+	            		        exitsCustomer.setAddress(address);
+	            		        exitsCustomer.setCity(city);
+	            		        CustomerMain save = this.customerDao.save(exitsCustomer);
+	            		        Map<String, String> data = Map.of(
+	            		            "address", save.getAddress(),
+	            		            "city", save.getCity(),
+	            		            "custLatitude", String.valueOf(save.getLatitude()),
+	            		            "custLongtitude", String.valueOf(save.getLoggitude()),
+	            		            "GardenerAvaliable", "Gardener avaliable in " + roundedTime + " minutes"
+	            		        );
+	            		        response.put("data", data);
+	            		    	response.put("status", "true");
+	            		        response.put("message", "Location Updated");
+	            	    	}
+	            	        System.out.println("Gardener avaliable in " + roundedTime + " minutes");
+	            	    } else {
+	            	    	response.put("status", "false");
+            		        response.put("message", "Gardener is not Avaliable for Your Location");
+	            	    }
+	             }
+	         }
+	     }	    	   
 	    return ResponseEntity.ok(response);
 	}
 
@@ -138,10 +160,19 @@ public class CustomerService {
 		if (Objects.nonNull(exitsCustomer)) {
 			exitsCustomer.setFirebasetokenCus(firebaseDeviceToken);
 	        this.customerDao.save(exitsCustomer);
+	    	response.put("status", "true");
 			response.put("message", "Firebase Device Token Store");
 		} else {
+	    	response.put("status", "false");
 			response.put("message", "No Record Found Agent");
 		}
+		return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, String>> orderSummaryCalculation(CustomerMain exitsCustomer, Map<String, String> request) {
+		Map<String, String> response = new HashMap<>();
+		String planId =  request.get("planId");	
+		
 		return ResponseEntity.ok(response);
 	}
 }

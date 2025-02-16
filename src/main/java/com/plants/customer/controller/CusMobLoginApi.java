@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.plants.Dao.CustomerDao;
+import com.plants.Service.CustomerService;
 import com.plants.Service.OTPService;
 import com.plants.Service.SmsService;
 import com.plants.config.JwtUtil;
-import com.plants.customer.Service.CustomerService;
 import com.plants.entities.AgentMain;
 import com.plants.entities.CustomerMain;
 import com.plants.entities.Plans;
@@ -102,8 +102,7 @@ public class CusMobLoginApi {
 	}
 	
 	@PostMapping("/getCusFirebaseTokenDevice")
-	public ResponseEntity<Map<String, String>> getFirebaseTokenDevice(
-			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, String> request) {
+	public ResponseEntity<Map<String, String>> getFirebaseTokenDevice(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, String> request) {
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);
 		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
@@ -112,6 +111,20 @@ public class CusMobLoginApi {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 		}
 		ResponseEntity<Map<String, String>> response = customerService.getFirebaseDeviceToken(exitsCustomer,request);
+		return ResponseEntity.ok(response.getBody());
+	}
+	
+	@PostMapping("/OrderSummaryPage") 
+	public ResponseEntity<?> OrderSummaryPage(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, String> request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
+
+		if (Objects.isNull(exitsCustomer) || !jwtToken.equals(exitsCustomer.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		
+		ResponseEntity<Map<String, String>> response = customerService.orderSummaryCalculation(exitsCustomer,request);
 		return ResponseEntity.ok(response.getBody());
 	}
 }

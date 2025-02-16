@@ -26,6 +26,7 @@ import com.plants.Dao.FertilizerRepo;
 import com.plants.Dao.OfferDao;
 import com.plants.Dao.serviceNameDao;
 import com.plants.Dao.userDao;
+import com.plants.Service.PlansServices;
 import com.plants.entities.AgentMain;
 import com.plants.entities.Fertilizer;
 import com.plants.entities.Offers;
@@ -54,16 +55,16 @@ public class PlansAdd {
 	@Autowired
 	FertilizerRepo fertlizerRepo;
 	
+	@Autowired
+	PlansServices plansServices;
+	
 	@PostMapping("/addPlans")
 	@ResponseBody
 	public Map<String, String> addPlan(@RequestBody PlansDto plans) {
 		Map<String, String> response = new HashMap<>();
 		try {
 		    serviceName serviceList = this.serviceNameDao.getServiceId(plans.getServicesName());
-
-			
-			System.out.println(" plans -- "+ plans);
-			Plans savePlan = new Plans();
+		    Plans savePlan = new Plans();
 			savePlan.setPlansName(plans.getPlansName());
 			savePlan.setPlanPacks(plans.getPlanPacks());
 			savePlan.setPlansRs(plans.getPlansRs());
@@ -83,9 +84,7 @@ public class PlansAdd {
 	        }).collect(Collectors.toList());
 
 	        savePlan.setFertilizers(fertilizers);
-	        	
 			Plans savedPlan = this.userdao.save(savePlan);
-			
 			for(Fertilizer fera : fertilizers) {
 				fera.setAmount(fera.getAmount());
 				fera.setFertilizerName(fera.getFertilizerName());
@@ -105,7 +104,6 @@ public class PlansAdd {
 	public ResponseEntity<?> getServiceName() {
 
 	    List<serviceName> serviceList = this.serviceNameDao.getallService();
-
 	    List<Map<String, Object>> filteredServices = serviceList.stream().map(service -> {
 	        Map<String, Object> serviceMap = new HashMap<>();
 	        serviceMap.put("primaryKey", service.getPrimaryKey());
@@ -147,9 +145,6 @@ public class PlansAdd {
 	        return ResponseEntity.ok(response);
 	    }
 	}
-
-
-	
 	
 	@GetMapping("/getServiceIdPlan/{id}") 
 	public ResponseEntity<Map<String, Object>> getServiceIdPlan(@PathVariable String id) {
@@ -170,9 +165,9 @@ public class PlansAdd {
 	    	response.put("message","No Data Found");
 	        return ResponseEntity.ok(response);
 	    } else {
-	 	    response.put("AllPlans", getPlanId);
+	 	    //response.put("AllPlans", getPlanId);
 	    	response.put("DailyPlan", dailyPlans);
-		    response.put("Monthly", monthlyPlans);
+		    //response.put("Monthly", monthlyPlans);
 	    	response.put("status", "true");
 	        return ResponseEntity.ok(response);
 	    }
@@ -193,6 +188,8 @@ public class PlansAdd {
 			return ResponseEntity.ok(response);
 		}
 	}
+	
+	
 	
 	@GetMapping("/getPlans")
 	public ResponseEntity<HashMap<String, Object>> getAllPlans() {

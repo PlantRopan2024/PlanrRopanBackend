@@ -27,7 +27,11 @@ public class Plans {
 	private String includingServicesName;
 	private String planType;
 	private String planPacks;
+	private String workDone;
+	private String varietiesTrimmed;
 	private boolean isActive;
+	private String reviewsCount;
+	private String ratingStar;
 	
 	@ManyToOne
 	@JsonIgnore
@@ -36,26 +40,34 @@ public class Plans {
 		
 	@OneToMany(mappedBy = "plans")
     private List<Fertilizer> fertilizers = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "plans")
+    private List<Reviews> reviews = new ArrayList<>();
 	    
 	public Plans() {
 		super();
 	}
 
 	public Plans(int primaryKey, String plansName, String plansRs, String timeDuration, String uptoPots,
-			String includingServicesName, String planType, String planPacks, boolean isActive,
-			com.plants.entities.serviceName servicesName, List<Fertilizer> fertilizers) {
+			String includingServicesName, String planType, String planPacks, String workDone, String varietiesTrimmed,
+			boolean isActive, serviceName servicesName,String reviewsCount,String ratingStar, List<Fertilizer> fertilizers, List<Reviews> reviews) {
 		super();
 		this.primaryKey = primaryKey;
 		this.plansName = plansName;
 		this.plansRs = plansRs;
 		this.timeDuration = timeDuration;
-		this.UptoPots = uptoPots;
+		UptoPots = uptoPots;
 		this.includingServicesName = includingServicesName;
 		this.planType = planType;
 		this.planPacks = planPacks;
+		this.workDone = workDone;
+		this.varietiesTrimmed = varietiesTrimmed;
 		this.isActive = isActive;
 		this.servicesName = servicesName;
 		this.fertilizers = fertilizers;
+		this.reviews = reviews;
+		this.reviewsCount=reviewsCount;
+		this.ratingStar=ratingStar;
 	}
 
 	public int getPrimaryKey() {
@@ -94,8 +106,8 @@ public class Plans {
 		return UptoPots;
 	}
 
-	public void setUptoPots(String UptoPots) {
-		this.UptoPots = UptoPots;
+	public void setUptoPots(String uptoPots) {
+		UptoPots = uptoPots;
 	}
 
 	public String getIncludingServicesName() {
@@ -122,6 +134,22 @@ public class Plans {
 		this.planPacks = planPacks;
 	}
 
+	public String getWorkDone() {
+		return workDone;
+	}
+
+	public void setWorkDone(String workDone) {
+		this.workDone = workDone;
+	}
+
+	public String getVarietiesTrimmed() {
+		return varietiesTrimmed;
+	}
+
+	public void setVarietiesTrimmed(String varietiesTrimmed) {
+		this.varietiesTrimmed = varietiesTrimmed;
+	}
+
 	public boolean isActive() {
 		return isActive;
 	}
@@ -146,13 +174,38 @@ public class Plans {
 		this.fertilizers = fertilizers;
 	}
 
+	public List<Reviews> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(List<Reviews> reviews) {
+		this.reviews = reviews;
+	}
+	
+
+	public String getReviewsCount() {
+		return reviewsCount;
+	}
+
+	public void setReviewsCount(String reviewsCount) {
+		this.reviewsCount = reviewsCount;
+	}
+
+	public String getRatingStar() {
+		return ratingStar;
+	}
+
+	public void setRatingStar(String ratingStar) {
+		this.ratingStar = ratingStar;
+	}
 
 	@Override
 	public String toString() {
 		return "Plans [primaryKey=" + primaryKey + ", plansName=" + plansName + ", plansRs=" + plansRs
 				+ ", timeDuration=" + timeDuration + ", UptoPots=" + UptoPots + ", includingServicesName="
-				+ includingServicesName + ", planType=" + planType + ", planPacks=" + planPacks + ", isActive="
-				+ isActive + ", servicesName=" + servicesName + ", fertilizers=" + fertilizers + "]";
+				+ includingServicesName + ", planType=" + planType + ", planPacks=" + planPacks + ", workDone="
+				+ workDone + ", varietiesTrimmed=" + varietiesTrimmed + ", isActive=" + isActive + ", reviewsCount="
+				+ reviewsCount + ", ratingStar=" + ratingStar + ", servicesName=" + servicesName + ", fertilizers="
+				+ fertilizers + ", reviews=" + reviews + "]";
 	}
-
 }

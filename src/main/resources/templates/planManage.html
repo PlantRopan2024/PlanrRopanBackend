@@ -63,10 +63,11 @@
 									<table class="table table-responsive table-striped">
 										<thead class="table-dark">
 											<tr>
+												<th scope="col">Plans Name</th>
 												<th scope="col">Plans Rs</th>
 												<th scope="col">Time Duration</th>
 												<th scope="col">Up to Pots</th>
-												<th scope="col">Service Name</th>
+												<th scope="col"> Including Service Name</th>
 												<th scope="col">Plan Type</th>
 												<th scope="col">Plan Packs</th>
 												<th scope="col">Is Active</th>
@@ -75,11 +76,11 @@
 										</thead>
 										<tbody>
 											<tr ng-repeat="DailyRecords in DailyRecord">
-
+												<td>{{ DailyRecords.plansName }}</td>
 												<td>{{ DailyRecords.plansRs }}</td>
 												<td>{{ DailyRecords.timeDuration }}</td>
 												<td>{{ DailyRecords.uptoPots }}</td>
-												<td>{{ DailyRecords.servicesName }}</td>
+												<td>{{ DailyRecords.includingServicesName }}</td>
 												<td>{{ DailyRecords.planType }}</td>
 												<td>{{ DailyRecords.planPacks }}</td>
 												<td>{{ DailyRecords.isActive }}</td>

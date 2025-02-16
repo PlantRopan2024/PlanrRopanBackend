@@ -31,7 +31,6 @@ public class Fertilizer {
 	
 	public Fertilizer() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public Fertilizer(int primaryKey, String fertilizerName, String amount,String Kg, Plans plans) {

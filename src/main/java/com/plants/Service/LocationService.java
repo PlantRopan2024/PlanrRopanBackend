@@ -1,4 +1,4 @@
-package com.plants.customer.Service;
+package com.plants.Service;
 
 import org.springframework.stereotype.Service;
 
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 public class LocationService {
 	
 	private static final double EARTH_RADIUS_KM = 6371.0;  // Earth's radius in kilometers
-	private static final double RADIUS_KM = 5.0;  // 5 km range for checking proximity
+	private static final double RADIUS_KM = 3.0;  // 3 km range for checking proximity
 
     // Method to calculate distance using the Haversine formula
     public double calculateDistance(double customerLat, double customerLon, double agentLat, double agentLon) {
@@ -20,14 +20,21 @@ public class LocationService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double distance = EARTH_RADIUS_KM * c;
 
-        return distance;  // Distance in kilometers
+        return distance;  
     }
 
     // Method to check if distance is within a certain radius (e.g., 5 km)
     public boolean isWithinRange(double customerLat, double customerLon, double agentLat, double agentLon) {
         double distance = calculateDistance(customerLat, customerLon, agentLat, agentLon);
         System.out.println("Calculated distance: " + distance + " km");
-        return distance <= RADIUS_KM;  // True if within 5 km range
+        return distance <= RADIUS_KM;  // True if within 3 km range
+    }
+    public double estimateArrivalTime(double customerLat, double customerLon, double agentLat, double agentLon, double speedKmPerHour) {
+        double distance = calculateDistance(customerLat, customerLon, agentLat, agentLon); // Get distance in km
+        if (distance > RADIUS_KM) {
+            return -1;
+        }
+        return (distance / speedKmPerHour) * 60; // Convert time to minutes
     }
 }
 
