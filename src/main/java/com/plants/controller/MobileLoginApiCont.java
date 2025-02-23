@@ -114,8 +114,7 @@ public class MobileLoginApiCont {
 
 	@PostMapping("/verifyOTP")
 	public ResponseEntity<Map<String, Object>> verifyOTP(@RequestBody Map<String, String> request) {
-		ResponseEntity<Map<String, Object>> validVerify = this.agentLoginService
-				.verifiedOtpDetailAgent(request.get("mobileNumber"), request.get("otp"));
+		ResponseEntity<Map<String, Object>> validVerify = this.agentLoginService.verifiedOtpDetailAgent(request.get("mobileNumber"), request.get("otp"));
 		return validVerify;
 	}
 

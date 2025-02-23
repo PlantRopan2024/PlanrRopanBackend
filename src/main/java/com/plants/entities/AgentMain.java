@@ -1,5 +1,8 @@
 package com.plants.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -65,27 +69,39 @@ public class AgentMain {
 	private boolean isAadharInfoStepSecond;
 	@Column(name = "is_Bank_Info_Step_Third", nullable = true)
 	private boolean isBankInfoStepThird;
+	
+	@Column(name = "agent_referral_code", unique = true)
+	private String agentReferralCode;
+	
+	@OneToMany(mappedBy = "agentMain")
+    private List<WalletHistory> referralHistory = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "agentMain")
+    private List<Notification> notification = new ArrayList<>();
+	
 	public AgentMain() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
 	public AgentMain(int agentIDPk, String firstName, String lastName, String gender, String selfieImg,
-			String selfieImg_type, String selfieImagePath, String emailId, String mobileNumber,
-			boolean agentApproved, boolean isActiveAgent, String state, String city, String address, String pincode,
-			double latitude, double longitude, String aadhaarNumber, String aadharImgFrontSide,
-			String aadharImgFrontSide_type, String aadharImagFrontSidePath, String aadharImgBackSide,
-			String aadharImgBackSide_type, String aadharImagBackSidePath, String token, String accHolderName,
-			String accNumber, String bankName, String ifscCode, String bankPassBookImage, String bankPassBookImage_type,
-			String bankPassBookImagePath, boolean isProfileCompleted, String fcmTokenAgent,
-			boolean isProfileInfoStepFirst, boolean isAadharInfoStepSecond, boolean isBankInfoStepThird) {
+			String selfieImagePath, String selfieImg_type, String emailId, String mobileNumber, boolean agentApproved,
+			boolean isActiveAgent, String state, String city, String address, String pincode, double latitude,
+			double longitude, String aadhaarNumber, String aadharImgFrontSide, String aadharImgFrontSide_type,
+			String aadharImagFrontSidePath, String aadharImgBackSide, String aadharImgBackSide_type,
+			String aadharImagBackSidePath, String token, String accHolderName, String accNumber, String bankName,
+			String ifscCode, String bankPassBookImage, String bankPassBookImage_type, String bankPassBookImagePath,
+			boolean isProfileCompleted, String fcmTokenAgent, boolean isProfileInfoStepFirst,
+			boolean isAadharInfoStepSecond, boolean isBankInfoStepThird, String agentReferralCode,
+			List<WalletHistory> referralHistory, List<Notification> notification) {
 		super();
 		AgentIDPk = agentIDPk;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.gender = gender;
 		this.selfieImg = selfieImg;
-		this.selfieImg_type = selfieImg_type;
 		this.selfieImagePath = selfieImagePath;
+		this.selfieImg_type = selfieImg_type;
 		this.emailId = emailId;
 		this.mobileNumber = mobileNumber;
 		this.agentApproved = agentApproved;
@@ -116,7 +132,13 @@ public class AgentMain {
 		this.isProfileInfoStepFirst = isProfileInfoStepFirst;
 		this.isAadharInfoStepSecond = isAadharInfoStepSecond;
 		this.isBankInfoStepThird = isBankInfoStepThird;
+		this.agentReferralCode = agentReferralCode;
+		this.referralHistory = referralHistory;
+		this.notification = notification;
 	}
+
+
+
 	public int getAgentIDPk() {
 		return AgentIDPk;
 	}
@@ -339,6 +361,28 @@ public class AgentMain {
 	public void setBankInfoStepThird(boolean isBankInfoStepThird) {
 		this.isBankInfoStepThird = isBankInfoStepThird;
 	}
+	
+	public String getAgentReferralCode() {
+		return agentReferralCode;
+	}
+	public void setAgentReferralCode(String agentReferralCode) {
+		this.agentReferralCode = agentReferralCode;
+	}
+	public List<WalletHistory> getReferralHistory() {
+		return referralHistory;
+	}
+
+	public void setReferralHistory(List<WalletHistory> referralHistory) {
+		this.referralHistory = referralHistory;
+	}
+
+	public List<Notification> getNotification() {
+		return notification;
+	}
+
+	public void setNotification(List<Notification> notification) {
+		this.notification = notification;
+	}
 
 	@Override
 	public String toString() {
@@ -356,6 +400,7 @@ public class AgentMain {
 				+ bankPassBookImage_type + ", bankPassBookImagePath=" + bankPassBookImagePath + ", isProfileCompleted="
 				+ isProfileCompleted + ", fcmTokenAgent=" + fcmTokenAgent + ", isProfileInfoStepFirst="
 				+ isProfileInfoStepFirst + ", isAadharInfoStepSecond=" + isAadharInfoStepSecond
-				+ ", isBankInfoStepThird=" + isBankInfoStepThird + "]";
+				+ ", isBankInfoStepThird=" + isBankInfoStepThird + ", agentReferralCode=" + agentReferralCode
+				+ ", referralHistory=" + referralHistory + ", notification=" + notification + "]";
 	}
 }

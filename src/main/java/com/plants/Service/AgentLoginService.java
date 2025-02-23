@@ -3,6 +3,7 @@ package com.plants.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +58,6 @@ public class AgentLoginService {
 	}
 
 	public ResponseEntity<Map<String, Object>> verifiedOtpDetailAgent(String mobileNumber, String otp){
-
 		Map<String, Object> response = new HashMap<>();
 
 		if (mobileNumber == null || mobileNumber.isEmpty() || otp == null || otp.isEmpty()) {
@@ -82,6 +82,7 @@ public class AgentLoginService {
 				agent.setProfileInfoStepFirst(false);
 				agent.setAadharInfoStepSecond(false);
 				agent.setBankInfoStepThird(false);
+				agent.setAgentReferralCode(generateReferralCode());
 				AgentMain saAgent = this.userdao.save(agent);
 				// response.put("AgentIdPk", saAgent.getAgentIDPk());
 				// response.put("isProfileCompleted", saAgent.isProfileCompleted());
@@ -303,4 +304,8 @@ public class AgentLoginService {
 		}
 		return ResponseEntity.ok(response);
 	}
+	
+	 private String generateReferralCode() {
+	        return "gar50" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+	 }
 }

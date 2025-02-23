@@ -101,8 +101,9 @@ public class PlansAdd {
 	}
 	
 	@GetMapping("/getServiceName")
-	public ResponseEntity<?> getServiceName() {
-
+	public ResponseEntity<Map<String, Object>> getServiceName() {
+	    Map<String, Object> response = new HashMap<>();
+	    
 	    List<serviceName> serviceList = this.serviceNameDao.getallService();
 	    List<Map<String, Object>> filteredServices = serviceList.stream().map(service -> {
 	        Map<String, Object> serviceMap = new HashMap<>();
@@ -111,13 +112,18 @@ public class PlansAdd {
 	        serviceMap.put("active", service.isActive());
 	        return serviceMap;
 	    }).collect(Collectors.toList());
+
 	    if (filteredServices.isEmpty()) {
-	        return ResponseEntity.ok("No Data Found");
+	        response.put("status", "error");
+	        response.put("message", "No Data Found");
 	    } else {
-	        return ResponseEntity.ok(filteredServices);
+	        response.put("status", "success");
+	        response.put("service", filteredServices);
 	    }
+
+	    return ResponseEntity.ok(response);
 	}
-	
+
 	@GetMapping("/getDashboardDataUser")
 	public ResponseEntity<Map<String, Object>> getDashboardDataUser() {
 	    Map<String, Object> response = new HashMap<>();
@@ -151,22 +157,31 @@ public class PlansAdd {
 	    List<Plans> getPlanId = this.customerDao.getPlansListId(id);
 
 	    Map<String, Object> response = new HashMap<>();
-	    List<Plans> dailyPlans = getPlanId.stream()
-	        .filter(plan -> "DAILY".equalsIgnoreCase(plan.getPlanPacks()))
-	        .collect(Collectors.toList());
+	    List<Map<String, Object>> dailyPlansList = getPlanId.stream()
+	            .filter(plan -> "DAILY".equalsIgnoreCase(plan.getPlanPacks()))
+	            .map(plan -> {
+	                Map<String, Object> planDetails = new HashMap<>();
+	                planDetails.put("primaryKey", plan.getPrimaryKey());
+	                planDetails.put("plansName", plan.getPlansName());
+	                planDetails.put("plansRs", plan.getPlansRs());
+	                planDetails.put("ratingStar", plan.getRatingStar());
+	                planDetails.put("uptoPots", plan.getUptoPots());
+	                return planDetails;
+	            })
+	            .collect(Collectors.toList());
 
 	    List<Plans> monthlyPlans = getPlanId.stream()
 	        .filter(plan -> "MONTHLY".equalsIgnoreCase(plan.getPlanPacks()))
 	        .collect(Collectors.toList());
 	   	    
 
-	    if (dailyPlans.isEmpty() && monthlyPlans.isEmpty()) {
+	    if (dailyPlansList.isEmpty() && monthlyPlans.isEmpty()) {
 	    	response.put("status", "false");
 	    	response.put("message","No Data Found");
 	        return ResponseEntity.ok(response);
 	    } else {
 	 	    //response.put("AllPlans", getPlanId);
-	    	response.put("DailyPlan", dailyPlans);
+	    	response.put("DailyPlan", dailyPlansList);
 		    //response.put("Monthly", monthlyPlans);
 	    	response.put("status", "true");
 	        return ResponseEntity.ok(response);
