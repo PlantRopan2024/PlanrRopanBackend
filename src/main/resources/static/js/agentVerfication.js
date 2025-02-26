@@ -13,15 +13,12 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	$scope.bankPassBookImage ='';
 	
 	$scope.seeImageDisplayId = function(data){
-		
-		console.log("agent ===="+ data.agentIDPk);
 	}
 	$scope.displayData = function(data) {
 	    if (!data) {
 	        console.error("No data found in the response");
 	        return;
 	    }
-
 	    $scope.selfieImg = data.selfieImagePath;
 	    $scope.aadharImagFrontSidePath  = data.aadharImagFrontSidePath;
 	    $scope.aadharImagBackSidePath = data.aadharImagBackSidePath;
@@ -63,7 +60,7 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	$scope.verificationPending = function() {
 		$http({
 			method: 'GET',
-			url: '/verificationPendingAgent'
+			url: 'verificationPendingAgent'
 		}).then(function(response) {
 			$scope.pendingVerification = response.data; // Assign response data to scope variable
 		}, function(error) {
@@ -74,7 +71,7 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	$scope.approvedAgentRecord = function() {
 			$http({
 				method: 'GET',
-				url: '/getApprovedAgent'
+				url: 'getApprovedAgent'
 			}).then(function(response) {
 				$scope.ApprovedAgent = response.data; // Assign response data to scope variable
 			}, function(error) {
@@ -83,7 +80,7 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 		};
 	
 	$scope.handleAction = function(agentIDPk, actionType) {
-	    const endpoint = actionType === 'like' ? '/approvedAgent' : '/disApprovedAgent';
+	    const endpoint = actionType === 'like' ? 'approvedAgent' : 'disApprovedAgent';
 		
 	    $http.post(endpoint, { agentIDPk: agentIDPk }).then(
 	        function(response) {
@@ -142,7 +139,7 @@ function displayAgentPKRecord() {
 	const agentIDPk = getQueryParam('agentIDPk');
 	console.log("agentIDPk " + agentIDPk);
 	$.ajax({
-		url: '/findDetailAgent',
+		url: 'findDetailAgent',
 		method: 'POST',
 		data: agentIDPk,
 		contentType: 'application/json',

@@ -37,7 +37,7 @@ app.controller('planManageController', ['$scope', '$http', function($scope, $htt
 
 	    $http({
 	        method: 'POST',
-	        url: '/ShowPlans/addPlans',
+	        url: 'ShowPlans/addPlans',
 	        data: planData,
 	        headers: { 'Content-Type': 'application/json' } 
 	    }).then(function successCallback(response) {
@@ -60,7 +60,7 @@ app.controller('planManageController', ['$scope', '$http', function($scope, $htt
     $scope.DailyRecordFetch = function() {
 		$http({
 			method: 'GET',
-			url: '/ShowPlans/dailyRecordFetch'
+			url: 'ShowPlans/dailyRecordFetch'
 		}).then(function(response) {
 			$scope.DailyRecord = response.data; // Assign response data to scope variable
 		}, function(error) {
@@ -71,7 +71,7 @@ app.controller('planManageController', ['$scope', '$http', function($scope, $htt
     $scope.MonthlyRecordFetch = function() {
 		$http({
 			method: 'GET',
-			url: '/ShowPlans/monthWiseRecordFetch'
+			url: 'ShowPlans/monthWiseRecordFetch'
 		}).then(function(response) {
 			$scope.MontheRecord = response.data; // Assign response data to scope variable
 		}, function(error) {
@@ -80,15 +80,20 @@ app.controller('planManageController', ['$scope', '$http', function($scope, $htt
 	};
 	
 	$scope.getAllServiceName = function() {
-		$http({
-			method: 'GET',
-			url: '/ShowPlans/getServiceName'
-		}).then(function(response) {
-			$scope.allServiceName = response.data;
-		}, function(error) {
-			console.error("Error occurred:", error);
-		});
-	}
+	    $http({
+	        method: 'GET',
+	        url: 'ShowPlans/getServiceName'
+	    }).then(function(response) {
+	        if (response.data && response.data.status === "success") {
+	            $scope.allServiceName = response.data.service;
+	        } else {
+	            console.error("Unexpected response format:", response.data);
+	        }
+	    }, function(error) {
+	        console.error("Error occurred:", error);
+	    });
+	};
+
 	
 	$scope.addFertilizer = function () {
 	    $scope.plan.fertilizers.push({ fertilizerName: "", amount: "",Kg:"" });

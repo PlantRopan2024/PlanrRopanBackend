@@ -18,7 +18,7 @@ app.controller('addOffersController', ['$scope', '$http', function($scope, $http
         formData.append('isNewActive', $scope.offer.isNewActive);
         $http({
             method: 'POST',
-            url: '/offerApi/addOffer',
+            url: 'offerApi/addOffer',
             data: formData,
             headers: { 'Content-Type': undefined  }, 
             transformRequest: angular.identity 

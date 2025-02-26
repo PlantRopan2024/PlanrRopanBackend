@@ -118,8 +118,7 @@ public class WalletHistory {
 	@Override
 	public String toString() {
 		return "WalletHistory [id=" + id + ", description=" + description + ", amount=" + amount + ", transactionType="
-				+ transactionType + ", createdAt=" + createdAt + ", agentReferral=" + agentReferral + ", agentMain="
-				+ agentMain + "]";
+				+ transactionType + ", createdAt=" + createdAt + ", agentReferral=" + agentReferral + "]";
 	}
 	
 }

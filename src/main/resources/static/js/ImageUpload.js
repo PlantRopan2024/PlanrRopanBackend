@@ -7,7 +7,7 @@ app.controller('UploadController', ['$scope', '$http', function($scope, $http) {
 
     // Fetch uploaded images
 	$scope.getImages = function() {
-	    $http.get('/getImagelist')
+	    $http.get('getImagelist')
 	        .then(function(response) {
 	            if (response.data && response.data.length > 0) {
 	                $scope.imageArray = response.data.map(imgBase64 => 'data:image/jpeg;base64,' + imgBase64);
@@ -43,7 +43,7 @@ app.controller('UploadController', ['$scope', '$http', function($scope, $http) {
 	    let formData = new FormData();
 	    formData.append('file', file);
 
-	    $http.post('/Uploadimage', formData, {
+	    $http.post('Uploadimage', formData, {
 	        headers: { 'Content-Type': undefined }
 	    }).then(function(response) {
 	        swal("Success", "File uploaded successfully!", "success");

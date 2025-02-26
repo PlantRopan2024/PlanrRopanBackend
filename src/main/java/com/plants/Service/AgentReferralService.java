@@ -93,7 +93,7 @@ public class AgentReferralService {
 	                "Team Plant Ropan";
 	        
 	        try {
-	           // sendNotificationToAgent(agentMainReferral, "Referral Reward Earned 🎉", message);
+	            sendNotificationToAgent(agentMainReferral, "Referral Reward Earned 🎉", message);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            response.put("notification_status", "failed");
