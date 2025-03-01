@@ -210,18 +210,20 @@ public class CusOrderController {
 	 private String sendNotificationToAgent(AgentMain agent, String title, String message) {
 		    String response = "";
 		    try {
-		        // Create the message to send
+		        String fcmToken = agent.getFcmTokenAgent();
+		        if (fcmToken == null || fcmToken.trim().isEmpty()) {
+		            return "FCM Token is missing";
+		        }
 		        Message firebaseMessage = Message.builder()
-		            .setToken(agent.getFcmTokenAgent())  // Use the agent's FCM token here
+		            .setToken(fcmToken)  
 		            .setNotification(Notification.builder()
 		                .setTitle(title)
 		                .setBody(message)
 		                .build())
-		            .putData("agentId", String.valueOf(agent.getAgentIDPk())) // Add additional data if needed
-		            .putData("action", "ACCEPT_REJECT") // Add action to distinguish the type of notification
+		            .putData("agentId", String.valueOf(agent.getAgentIDPk()))
+		            .putData("action", "ACCEPT_REJECT") // Action type
 		            .build();
 
-		        // Send the message via Firebase
 		        response = FirebaseMessaging.getInstance().send(firebaseMessage);
 		        System.out.println("Successfully sent message: " + response);
 		    } catch (FirebaseMessagingException e) {
@@ -229,4 +231,5 @@ public class CusOrderController {
 		    }
 		    return response;
 		}
+
 }

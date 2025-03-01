@@ -2,6 +2,7 @@ package com.plants.config;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -11,61 +12,136 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.Resource;
 
 public class Utils {
 
-	private static final String UPLOAD_DIR = "src/main/resources/static/uploadImages";
+	public static String saveImgFile(MultipartFile file, String baseDirectory,String subDirectoryFolderName,String fileName) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("File is empty or null");
+        }
+        
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            throw new IOException("Unknown file type");
+        }
+        
+        String originalFileName = file.getOriginalFilename();
+        if (originalFileName == null || originalFileName.trim().isEmpty()) {
+            throw new IOException("Invalid file name");
+        }
+        
+        Path directoryPath = findOrCreateFolder(baseDirectory, subDirectoryFolderName);
+        Path filePath = directoryPath.resolve(fileName);
+        if (contentType.startsWith("image/")) {
+            return processImage(file, filePath);
+        } else if ("application/pdf".equals(contentType)) {
+            return processPDF(file, filePath);
+        } else {
+            throw new IOException("Unsupported file type: " + contentType);
+        }
+    }
 
-	public static String saveImgFile(MultipartFile file) throws IOException {
-		File directory = new File(UPLOAD_DIR);
+    /**
+     * Finds an existing folder or creates a new one based on the image name.
+     *
+     * @param baseDirectory     The main directory where folders are created
+     * @param fileNameWithoutExt The name of the file without an extension (used as folder name)
+     * @return Path of the folder
+     * @throws IOException If folder creation fails
+     */
+    private static Path findOrCreateFolder(String baseDirectory, String subDirectoryFolderName) throws IOException {
+        Path folderPath = Paths.get(baseDirectory, subDirectoryFolderName);
+        File directory = folderPath.toFile();
+        if (!directory.exists()) {
+            boolean created = directory.mkdirs();
+            if (!created) {
+                throw new IOException("Failed to create directory: " + folderPath);
+            }
+        }
+        return folderPath;
+    }
 
-		if (!directory.exists()) {
-			directory.mkdirs();
-		}
+    /**
+     * Processes an image by compressing and saving it.
+     *
+     * @param file     The image file
+     * @param filePath The path where the processed image will be saved
+     * @return The URI of the saved image
+     * @throws IOException If an error occurs during image processing
+     */
+    private static String processImage(MultipartFile file, Path filePath) throws IOException {
+        BufferedImage originalImage = ImageIO.read(file.getInputStream());
+        if (originalImage == null) {
+            throw new IOException("Invalid image file");
+        }
+        int targetWidth = originalImage.getWidth() / 2;
+        int targetHeight = originalImage.getHeight() / 2;
+        BufferedImage compressedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = compressedImage.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.drawImage(originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH), 0, 0, null);
+        g2d.dispose();
 
-		if (file == null || file.isEmpty()) {
-			throw new IOException("File is empty");
-		}
+        File outputFile = filePath.toFile();
+        ImageIO.write(compressedImage, "jpg", outputFile);
 
-		BufferedImage originalImage = ImageIO.read(file.getInputStream());
-		if (originalImage == null) {
-			throw new IOException("Invalid image file");
-		}
+        return filePath.toUri().toString();
+    }
 
-		int targetWidth = originalImage.getWidth() / 2;
-		int targetHeight = originalImage.getHeight() / 2;
-		Image scaledImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+    /**
+     * Saves a PDF file in the given directory.
+     *
+     * @param file     The PDF file
+     * @param filePath The path where the PDF will be saved
+     * @return The URI of the saved PDF
+     * @throws IOException If an error occurs during file saving
+     */
+    private static String processPDF(MultipartFile file, Path filePath) throws IOException {
+        try {
+            Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return filePath.toUri().toString();
+        } catch (IOException e) {
+            throw new IOException("Error saving PDF file", e);
+        }
+    }
+    
+    public static ResponseEntity<Resource> getPathFileResponse(String baseDirectory,String folderName, String fileName) {
+        try {
+            Path filePath = Paths.get(baseDirectory, folderName, fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
 
-		BufferedImage compressedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2d = compressedImage.createGraphics();
-		g2d.drawImage(scaledImage, 0, 0, null);
-		g2d.dispose();
+            if (!resource.exists()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
 
-		String compressedFileName = "compressed_" + file.getOriginalFilename();
-		Path compressedFilePath = Paths.get(UPLOAD_DIR, compressedFileName);
-		File outputFile = compressedFilePath.toFile();
-		ImageIO.write(compressedImage, "jpg", outputFile);
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
 
-		// Create a Path object with the directory path and the file name
-		// Path filePath = Paths.get(externalDirectory, file.getOriginalFilename());
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
+                    .body(resource);
 
-		// Copy the file to the specified location
-		// Files.copy(file.getInputStream(), filePath,
-		// StandardCopyOption.REPLACE_EXISTING);
-
-		// file.getInputStream().close();
-
-		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/uploadImages/")
-				.path("compressed_"+file.getOriginalFilename()).toUriString();
-	}
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 
 	public static String findImgPath(String file) {
 		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/uploadImages/compressed_").path(file).toUriString();
@@ -91,16 +167,9 @@ public class Utils {
 	
 	public static String resolveImage(byte[] imageDataName) {
 	    try {
-	        // Fetch the image data from the database
-
-	        // Optionally, convert image data to Base64 or serve it as a downloadable URL
 	        String base64Image = Base64.getEncoder().encodeToString(imageDataName);
 	        return "data:image/png;base64," + base64Image;
-
-	        // Alternatively, return a downloadable URL
-	        // return "/download/" + imageName;
 	    } catch (Exception e) {
-	        // Log the exception and return a placeholder or error message
 	        return "Error resolving image: " + e.getMessage();
 	    }
 	}

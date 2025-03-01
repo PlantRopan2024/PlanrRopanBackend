@@ -1,7 +1,5 @@
 package com.plants.customer.controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -9,17 +7,14 @@ import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.plants.Dao.ImageUploadRepo;
-import com.plants.Service.StorageService;
 import com.plants.config.Utils;
 import com.plants.entities.ImageUpload;
 
@@ -50,9 +45,10 @@ public class ImageUploadController {
 
         try {
             // Call the service to handle the file upload
-            String uploadMessage = service.uploadImageUI(file);
+        	 String uploadMessage = "";
+           // String uploadMessage = service.uploadImageUI(file);
             return ResponseEntity.ok(uploadMessage);
-        } catch (IOException e) {
+        } catch (Exception e) {
             // Log the exception
            // logger.error("Error while uploading image: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while uploading the image!");
@@ -85,30 +81,6 @@ public class ImageUploadController {
 
         return ResponseEntity.ok(imageDataList);
     }
-
-
-    
-    @Autowired
-	private StorageService service;
-
-	@PostMapping("/uploadImageaa")
-	public ResponseEntity<?> uploadImageaa(@RequestParam("image")MultipartFile file) throws IOException {
-		String uploadImage = service.uploadImage(file);
-		return ResponseEntity.status(HttpStatus.OK)
-				.body(uploadImage);
-	}
-
-	/*
-	 * @GetMapping("/{fileName}") public ResponseEntity<?>
-	 * downloadFile(@PathVariable String fileName) { byte[] fileData =
-	 * service.downloadImage(fileName);
-	 * 
-	 * MediaType fileExtensionName = Utils.getFileExtensionName(fileName);
-	 * 
-	 * 
-	 * return ResponseEntity.status(HttpStatus.OK) .contentType(fileExtensionName)
-	 * .body(fileData); }
-	 */
 
 
 }

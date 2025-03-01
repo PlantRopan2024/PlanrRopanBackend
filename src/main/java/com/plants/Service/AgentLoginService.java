@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,9 +43,12 @@ public class AgentLoginService {
 
 	@Autowired
 	userDao userdao;
-	    @Autowired
-	    private S3Service s3Service;
-		
+
+	@Value("${file.upload-dir}")
+	private String uploadDir;
+	
+	@Autowired
+	private S3Service s3Service;
 
 	public ResponseEntity<Map<String, String>> sentOtp(String mobileNumber) {
 		Map<String, String> response = new HashMap<>();
@@ -52,12 +56,12 @@ public class AgentLoginService {
 			return ResponseEntity.badRequest().body(Map.of("error", "Mobile number is required"));
 		}
 		String otp = otpService.generateOTP(mobileNumber);
-		//smsService.sendOtp(mobileNumber, otp);
+		// smsService.sendOtp(mobileNumber, otp);
 		response.put("message", "OTP sent successfully!");
 		return ResponseEntity.ok(response);
 	}
 
-	public ResponseEntity<Map<String, Object>> verifiedOtpDetailAgent(String mobileNumber, String otp){
+	public ResponseEntity<Map<String, Object>> verifiedOtpDetailAgent(String mobileNumber, String otp) {
 		Map<String, Object> response = new HashMap<>();
 
 		if (mobileNumber == null || mobileNumber.isEmpty() || otp == null || otp.isEmpty()) {
@@ -130,8 +134,6 @@ public class AgentLoginService {
 			AgentJsonRequest agentJsonRequest = objectMapper.readValue(agentPersonalDetails, AgentJsonRequest.class);
 			if (Objects.nonNull(existingAgent)) {
 				AgentMain agentMain = existingAgent;
-				//String selfieImageUrl = Utils.saveImgFile(selfieImg);
-				// Utils.saveImgFile(selfieImg);
 				agentMain.setFirstName(agentJsonRequest.getAgentPersonalDetails().getFirstName());
 				agentMain.setLastName(agentJsonRequest.getAgentPersonalDetails().getLastName());
 				agentMain.setGender(agentJsonRequest.getAgentPersonalDetails().getGender());
@@ -145,11 +147,12 @@ public class AgentLoginService {
 				agentMain.setLongitude(agentJsonRequest.getAgentPersonalDetails().getLongitude());
 				agentMain.setFcmTokenAgent(agentJsonRequest.getAgentPersonalDetails().getFcmtoken());
 				//set image Name
+				String subDirectoryFloderName = agentJsonRequest.getAgentPersonalDetails().getMobileNumber();
 		        String fileName = agentJsonRequest.getAgentPersonalDetails().getMobileNumber() + System.currentTimeMillis() + "_" + selfieImg.getOriginalFilename();
-				// upload  file Amazone s3
-				String urlName = s3Service.uploadFile(selfieImg,fileName);
+				String selfieImageUrl = Utils.saveImgFile(selfieImg,uploadDir,subDirectoryFloderName,fileName);
+				
 				agentMain.setSelfieImg(fileName);
-				agentMain.setSelfieImagePath(urlName);
+				agentMain.setSelfieImagePath(selfieImageUrl);
 				agentMain.setSelfieImg_type(selfieImg.getContentType());
 				agentMain.setProfileInfoStepFirst(true);
 				AgentMain getid = this.UserDao.save(agentMain);
@@ -161,7 +164,7 @@ public class AgentLoginService {
 		}
 		return ResponseEntity.ok(response);
 	}
-	
+
 	public ResponseEntity<Map<String, Object>> AadhaarDetailFill(AgentMain existingAgent, String AadhaardetailsAgents,
 			MultipartFile aadharImgFrontSide, MultipartFile aadharImgBackSide) {
 		Map<String, Object> response = new HashMap<>();
@@ -178,22 +181,24 @@ public class AgentLoginService {
 			AgentJsonRequest agentJsonRequest = objectMapper.readValue(AadhaardetailsAgents, AgentJsonRequest.class);
 			if (Objects.nonNull(existingAgent)) {
 				AgentMain agentMain = existingAgent;
-				// upload seli image path folder
-			//	Utils.saveImgFile(aadharImgFrontSide);
-				//Utils.saveImgFile(aadharImgBackSide);
 				agentMain.setAadhaarNumber(agentJsonRequest.getAadharIdentityDetail().getAadhaarNumber());
-				//set image Name
-		        String fileName = existingAgent.getMobileNumber() + System.currentTimeMillis() + "_" + aadharImgFrontSide.getOriginalFilename();
-				// upload  file Amazone s3
-				String urlName = s3Service.uploadFile(aadharImgFrontSide,fileName);
-				agentMain.setAadharImgFrontSide(fileName);
-				agentMain.setAadharImagFrontSidePath(urlName);
-				agentMain.setSelfieImg_type(aadharImgFrontSide.getContentType());
-				String fileNameBackImage = existingAgent.getMobileNumber() + System.currentTimeMillis() + "_" + aadharImgBackSide.getOriginalFilename();
-				// upload  file Amazone s3
-				String urlNamefileNameBackImage = s3Service.uploadFile(aadharImgBackSide,fileName);
-				agentMain.setAadharImgBackSide(fileNameBackImage);
-				agentMain.setAadharImagBackSidePath(urlNamefileNameBackImage);
+				
+				// set image Name
+				
+				String subDirectoryFloderName = existingAgent.getMobileNumber();
+		        String aadharFrontfileName = existingAgent.getMobileNumber() + System.currentTimeMillis() + "_" + aadharImgFrontSide.getOriginalFilename();
+				String aadharFrontImagePath = Utils.saveImgFile(aadharImgFrontSide,uploadDir,subDirectoryFloderName,aadharFrontfileName);
+				
+				agentMain.setAadharImgFrontSide(aadharFrontfileName);
+				agentMain.setAadharImagFrontSidePath(aadharFrontImagePath);
+				agentMain.setAadharImgFrontSide_type(aadharImgFrontSide.getContentType());;
+				
+				
+				String aadharBackFileName = existingAgent.getMobileNumber() + System.currentTimeMillis() + "_" + aadharImgBackSide.getOriginalFilename();
+				String aadharBackImagePath = Utils.saveImgFile(aadharImgBackSide,uploadDir,subDirectoryFloderName,aadharBackFileName);
+			
+				agentMain.setAadharImgBackSide(aadharBackFileName);
+				agentMain.setAadharImagBackSidePath(aadharBackImagePath);
 				agentMain.setAadharImgBackSide_type(aadharImgBackSide.getContentType());
 				agentMain.setAadharInfoStepSecond(true);
 				AgentMain getid = this.UserDao.save(agentMain);
@@ -219,16 +224,18 @@ public class AgentLoginService {
 			if (Objects.nonNull(existingAgent)) {
 				AgentMain agentMain = existingAgent;
 				// upload seli image path folder
-				//String pathbankimg = Utils.saveImgFile(bankPassBookImage);
+				// String pathbankimg = Utils.saveImgFile(bankPassBookImage);
 				agentMain.setAccHolderName(agentJsonRequest.getAccountDetail().getAccHolderName());
 				agentMain.setAccNumber(agentJsonRequest.getAccountDetail().getAccNumber());
 				agentMain.setBankName(agentJsonRequest.getAccountDetail().getBankName());
 				agentMain.setIfscCode(agentJsonRequest.getAccountDetail().getIfscCode());
-				String fileName = existingAgent.getMobileNumber() + System.currentTimeMillis() + "_" + bankPassBookImage.getOriginalFilename();
-				// upload  file Amazone s3
-				String urlName = s3Service.uploadFile(bankPassBookImage,fileName);
+				
+				String subDirectoryFloderName = existingAgent.getMobileNumber();
+		        String fileName = existingAgent.getMobileNumber() + System.currentTimeMillis() + "_" + bankPassBookImage.getOriginalFilename();
+				String bankPassBookImagePath = Utils.saveImgFile(bankPassBookImage,uploadDir,subDirectoryFloderName,fileName);
+				
 				agentMain.setBankPassBookImage(fileName);
-				agentMain.setBankPassBookImagePath(urlName);
+				agentMain.setBankPassBookImagePath(bankPassBookImagePath);
 				agentMain.setBankPassBookImage_type(bankPassBookImage.getContentType());
 				agentMain.setProfileCompleted(true);
 				agentMain.setBankInfoStepThird(true);
@@ -241,15 +248,16 @@ public class AgentLoginService {
 		}
 		return ResponseEntity.ok(response);
 	}
-	
-	public ResponseEntity<Map<String, String>> getUpdateLiveLocation(AgentMain existingAgent,Map<String, String> request) {
+
+	public ResponseEntity<Map<String, String>> getUpdateLiveLocation(AgentMain existingAgent,
+			Map<String, String> request) {
 		Map<String, String> response = new HashMap<>();
 		String Agentlatitude = request.get("Agentlatitude");
-		String AgentLongtitude = request.get("AgentLongtitude");		
+		String AgentLongtitude = request.get("AgentLongtitude");
 		if (Objects.nonNull(existingAgent)) {
 			AgentMain agentMain = null;
 			agentMain = existingAgent; // Update existing agent
-			
+
 			if (agentMain.isActiveAgent() == true) {
 				agentMain.setLatitude(Double.parseDouble(Agentlatitude));
 				agentMain.setLongitude(Double.parseDouble(AgentLongtitude));
@@ -258,7 +266,7 @@ public class AgentLoginService {
 			} else {
 				response.put("message", "Agent is Not Active");
 			}
-		}else {
+		} else {
 			response.put("message", "No Record Found Agent");
 		}
 		return ResponseEntity.ok(response);
@@ -266,46 +274,47 @@ public class AgentLoginService {
 
 	public ResponseEntity<Map<String, String>> activeAgentToggle(AgentMain existingAgent, Map<String, String> request) {
 		Map<String, String> response = new HashMap<>();
-		boolean isActiveAgent = Boolean.parseBoolean(request.get("isActiveAgent"));		
+		boolean isActiveAgent = Boolean.parseBoolean(request.get("isActiveAgent"));
 		String Agentlatitude = request.get("Agentlatitude");
 		String AgentLongtitude = request.get("AgentLongtitude");
 		if (Objects.nonNull(existingAgent)) {
 			AgentMain agentMain = null;
 			agentMain = existingAgent; // Update existing agent
-			if(isActiveAgent) {
+			if (isActiveAgent) {
 				agentMain.setActiveAgent(isActiveAgent);
 				agentMain.setLatitude(Double.parseDouble(Agentlatitude));
 				agentMain.setLongitude(Double.parseDouble(AgentLongtitude));
 				this.userdao.save(agentMain);
 				response.put("message", "Agent Active.");
-			}else {
+			} else {
 				agentMain.setActiveAgent(isActiveAgent);
 				this.userdao.save(agentMain);
 				response.put("message", "Agent Deactive");
 			}
-			
+
 		} else {
 			response.put("message", "No Record Found Agent");
 		}
 		return ResponseEntity.ok(response);
 	}
-	
-	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(AgentMain existingAgent, Map<String, String> request) {
+
+	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(AgentMain existingAgent,
+			Map<String, String> request) {
 		Map<String, String> response = new HashMap<>();
-		String firebaseDeviceToken =  request.get("firebaseDeviceToken");		
+		String firebaseDeviceToken = request.get("firebaseDeviceToken");
 		if (Objects.nonNull(existingAgent)) {
 			AgentMain agentMain = null;
 			agentMain = existingAgent; // Update existing agent
-				agentMain.setFcmTokenAgent(firebaseDeviceToken);
-				this.userdao.save(agentMain);
-				response.put("message", "Firebase Device Token Store");
+			agentMain.setFcmTokenAgent(firebaseDeviceToken);
+			this.userdao.save(agentMain);
+			response.put("message", "Firebase Device Token Store");
 		} else {
 			response.put("message", "No Record Found Agent");
 		}
 		return ResponseEntity.ok(response);
 	}
-	
-	 private String generateReferralCode() {
-	        return "gar50" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
-	 }
+
+	private String generateReferralCode() {
+		return "gar50" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+	}
 }

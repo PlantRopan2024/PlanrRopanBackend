@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -22,6 +26,9 @@ public class VerficationAgent {
 
 	@Autowired
 	userDao userdao;
+	
+	@Value("${file.upload-dir}")
+    private String uploadDir;
 
 	@GetMapping("/verificationPendingAgent")
 	@ResponseBody
@@ -51,6 +58,11 @@ public class VerficationAgent {
 		System.out.println(" getdetailRecord   ---  " + getdetailRecord);
 		return getdetailRecord;
 	}
+	
+	@GetMapping("/downloadFile/{folderName}/{fileName}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String folderName,@PathVariable String fileName) {
+        return Utils.getPathFileResponse(uploadDir,folderName, fileName);
+    }
 
 	@PostMapping("/approvedAgent")
 	@ResponseBody

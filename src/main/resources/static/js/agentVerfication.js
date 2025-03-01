@@ -1,6 +1,6 @@
 var app = angular.module('agentVerfication', ['ui.bootstrap']);
 
-app.controller('agentController', ['$scope', '$http', '$window', function($scope, $http, $window) {
+app.controller('agentController', ['$scope', '$http', '$window','$timeout', function($scope, $http, $window,$timeout) {
 
 	$scope.pendingVerification = [];
 	$scope.ApprovedAgent =[];
@@ -12,17 +12,32 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	$scope.aadharImgBackSide ='';
 	$scope.bankPassBookImage ='';
 	
-	$scope.seeImageDisplayId = function(data){
-	}
+	$scope.seeImageDisplayId = function(folderName, fileName,imageType) {
+	    $http({
+	        method: 'GET',
+	        url: 'downloadFile/' + encodeURIComponent(folderName) + '/' + encodeURIComponent(fileName),
+	        responseType: 'blob'
+	    }).then(function(response) {
+	        var blob = new Blob([response.data], { type: response.headers('Content-Type') });
+	        var url = URL.createObjectURL(blob);
+			        $timeout(function() {
+			            if (imageType === 'selfie') {
+			                $scope.selfieImg = url;
+			            } else if (imageType === 'aadharFront') {
+			                $scope.aadharImagFrontSidePath = url;
+			            } else if (imageType === 'aadharBack') {
+			                $scope.aadharImagBackSidePath = url;
+			            } else if (imageType === 'bankPassBook') {
+						    $scope.bankPassBookImagePath = url;
+				        }
+			        });
+	    });
+	};
 	$scope.displayData = function(data) {
 	    if (!data) {
 	        console.error("No data found in the response");
 	        return;
 	    }
-	    $scope.selfieImg = data.selfieImagePath;
-	    $scope.aadharImagFrontSidePath  = data.aadharImagFrontSidePath;
-	    $scope.aadharImagBackSidePath = data.aadharImagBackSidePath;
-	    $scope.bankPassBookImagePath = data.bankPassBookImagePath;
 	    $scope.firstName = data.firstName;
 	    $scope.lastName = data.lastName;
 	    $scope.emailId = data.emailId;
@@ -37,7 +52,7 @@ app.controller('agentController', ['$scope', '$http', '$window', function($scope
 	    $scope.accNumber = data.accNumber;
 	    $scope.bankName = data.bankName;
 	    $scope.accMobNumber = data.accMobNumber;
-	    $scope.ifsccode = data.ifsccode;
+	    $scope.ifsccode = data.ifscCode;
 	};
 
 	
@@ -148,7 +163,10 @@ function displayAgentPKRecord() {
 			        if (response){
 			            var scope = angular.element(document.querySelector('[ng-controller="agentController"]')).scope();
 			            scope.displayData(response);
-						scope.seeImageDisplayId(response);
+						scope.seeImageDisplayId(response.mobileNumber, response.selfieImg, 'selfie');
+						scope.seeImageDisplayId(response.mobileNumber, response.aadharImgFrontSide, 'aadharFront');
+						scope.seeImageDisplayId(response.mobileNumber, response.aadharImgBackSide, 'aadharBack');
+						scope.seeImageDisplayId(response.mobileNumber, response.bankPassBookImage,'bankPassBook'); // Bank Passbook Image
 			            scope.$apply(); 
 			        } else {
 			            console.error('Invalid response data:', response);
