@@ -1,10 +1,12 @@
 package com.plants.entities;
 
+import java.time.LocalDate;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 @Entity
 public class Offers {
@@ -15,28 +17,26 @@ public class Offers {
 	
 	private String title;
 	private String description;
-	private String validity;
+	private LocalDate validity;    
+	@Column(unique = true, nullable = false)
+	private String offerCode;
 	private String discount;
+	@Column(columnDefinition = "TEXT")
 	private String conditions;
 	public boolean isNewActive;
 	private String TypeID;
 	
-	public Offers(String title, String description, String validity, String discount, String conditions,
-			 String typeID,boolean isNewActive) {
+	public Offers(String title, String description, LocalDate validity, String discount, String conditions,
+			 String typeID,boolean isNewActive,String offerCode) {
 		super();
 		this.title = title;
 		this.description = description;
 		this.validity = validity;
 		this.discount = discount;
 		this.conditions = conditions;
-		TypeID = typeID;
-		this. isNewActive=isNewActive;
-	}
-	public boolean getIsNewActive() {
-		return isNewActive;
-	}
-	public void setIsNewActive(boolean isNewActive) {
-		this.isNewActive = isNewActive;
+		this.TypeID = typeID;
+		this.isNewActive=isNewActive;
+		this.offerCode=offerCode;
 	}
 	public Offers() {
 		
@@ -60,10 +60,10 @@ public class Offers {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public String getValidity() {
+	public LocalDate getValidity() {
 		return validity;
 	}
-	public void setValidity(String validity) {
+	public void setValidity(LocalDate validity) {
 		this.validity = validity;
 	}
 	public String getDiscount() {
@@ -84,15 +84,18 @@ public class Offers {
 	public void setTypeID(String typeID) {
 		TypeID = typeID;
 	}
-	
+	public String getOfferCode() {
+		return offerCode;
+	}
+	public void setOfferCode(String offerCode) {
+		this.offerCode = offerCode;
+	}
+	public void setNewActive(boolean isNewActive) {
+		this.isNewActive = isNewActive;
+	}
 	@Override
 	public String toString() {
 		return "Offers [primarykey=" + primaryKey + ", title=" + title + ", description=" + description + ", validity="
 				+ validity + ", discount=" + discount + ", conditions=" + conditions +  ", TypeID=" + TypeID + "]";
 	}
-	
-	
-	
-	
-
 }

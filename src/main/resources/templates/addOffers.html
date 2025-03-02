@@ -38,77 +38,248 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            Add Offers
+                           <!-- Add Offers-->
+							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOffersModal">
+									Add Offers
+							</button>
                         </div>
+						
                         <div class="card-body">
-                            <!-- AngularJS ng-submit -->
-                            <form name="myOffersForm" ng-submit="submitOffers()">
-                                <div class="row">
+							<div class="select-container">
+											<div class="row mt-5">
+												<div class="col-md-12">
+													<ul class="nav nav-tabs" id="myTab" role="tablist">
+														<li class="nav-item" role="presentation">
+															<button class="nav-link  active" id="new-students" data-bs-toggle="tab"
+																data-bs-target="#new-students-pane" type="button" role="tab"
+																aria-controls="new-students-pane" aria-selected="true">
+																Agent Offers</button>
+														</li>
+														<li class="nav-item" role="presentation">
+															<button class="nav-link " id="recent-loans" data-bs-toggle="tab"
+																data-bs-target="#recent-loans-pane" type="button" role="tab"
+																aria-controls="recent-loans-pane" aria-selected="false">Customer Offers </button>
+														</li>
 
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Offer Tittle</label>
-                                            <input type="text" class="form-control" name="title" ng-model="offer.title" placeholder="Plan Rs e.g. 249"/>
-                                        </div>
-                                    </div>
+													</ul>
+													<div class="tab-content" id="myTabContent">
+														<div class="tab-pane fade show active" id="new-students-pane" role="tabpanel"
+															aria-labelledby="new-students" tabindex="0">
+															<div class="table-responsive">
+																<table class="table table-responsive table-striped">
+																	<thead class="table-dark">
+																		<tr>
+																			<th scope="col">Offer title </th>
+																			<th scope="col">Offer Description</th>
+																			<th scope="col">Selected Apps</th>
+																			<th scope="col">Offer Active</th>
+																			<th scope="col">Action</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+																		<tr ng-repeat="offersAgentsS in offersAgents">
+																			<td>
+																				<a href="#" ng-click="openOfferModal(offersAgentsS)" data-bs-toggle="modal" data-bs-target="#offerModal">
+																				                    {{ offersAgentsS.title }}
+																				</a>
+																			</td>
+																			<td>{{ offersAgentsS.description }}</td>
+																			<td>{{ offersAgentsS.typeID }}</td>
+																			<td>{{ offersAgentsS.isNewActive }}</td>
+																			<td>
+																				<button type="button" class="btn btn-success" ng-click="handleAction(offersAgentsS.primarykey, 'like')">
+																		            <img th:src="@{/images/like.png}" alt="Icon" style="width: 16px; height: 16px;">
+																				</button>
+																				<button type="button" class="btn btn-success" ng-click="handleAction(offersAgentsS.primarykey, 'dislike')">
+																				   <img th:src="@{/images/dislike.png}" alt="Icon" style="width: 16px; height: 16px;">
+																		        </button>
+																		    </td>
+																		</tr>
+																	</tbody>
+																</table>
+															</div>
+														</div>
 
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Offer Description </label>
-                                            <input type="text" class="form-control" name="description" ng-model="offer.description" placeholder="e.g 45 min to 1Hr" />
-                                        </div>
-                                    </div>
+														<div class="tab-pane fade" id="recent-loans-pane" role="tabpanel"
+															aria-labelledby="recent-loans" tabindex="0">
+															<div class="table-responsive">
+																<table class="table table-responsive table-striped">
+																	<thead class="table-dark">
+																		<tr>
+																			<th scope="col">Offer title </th>
+																            <th scope="col">Offer Description</th>
+																		    <th scope="col">Selected Apps</th>
+																			<th scope="col">Offer Active</th>
+																			<th scope="col">Action</th>
+																		</tr>
+																	</thead>
+																		<tbody>
+																			<tr ng-repeat="offersCusS in offersCus">
+																				<td>
+																					<a href="#" ng-click="openOfferModal(offersCusS)" data-bs-toggle="modal" data-bs-target="#offerModal">
+																						{{ offersCusS.title }}
+																				    </a>
+																				</td>
+																				<td>{{ offersCusS.description }}</td>
+																			    <td>{{ offersCusS.typeID }}</td>
+																				<td>{{ offersCusS.isNewActive }}</td>
+																				<td>
+																					<button type="button" class="btn btn-success" ng-click="handleAction(offersCusS.primarykey, 'like')">
+																						<img th:src="@{/images/like.png}" alt="Icon" style="width: 16px; height: 16px;">
+																					</button>
+																				   <button type="button" class="btn btn-success" ng-click="handleAction(offersCusS.primarykey, 'dislike')">
+																					   <img th:src="@{/images/dislike.png}" alt="Icon" style="width: 16px; height: 16px;">
+																				   </button>   
+																			   </td>
+																			</tr>
+																	</tbody>
+																</table>
+															</div>
+														</div>
 
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label"> Offer Validity</label>
-                                            <input type="text" class="form-control" name="validity" ng-model="offer.validity" placeholder="Upto 50 Pot" />
-                                        </div>
-                                    </div>
 
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label"> Offer Discounts</label>
-                                            <input type="text" class="form-control" name="discount" ng-model="offer.discount" placeholder="Gudai/katai/Ropai" />
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Offer TypeID</label>
-                                            <input type="text" class="form-control" name="TypeID" ng-model="offer.TypeID" placeholder="4 Visit/Month"/>
-                                        </div>
-                                    </div>
-                                     <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Offer Conditions</label>
-                                            <input type="text" class="form-control" name="conditions" ng-model="offer.conditions" placeholder="4 Visit/Month"/>
-                                        </div>
-                                    </div>
-                                      <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">is Active</label>
-                                          <select  class="form-control" name="isNewActive" ng-model="offer.isNewActive">
-									            <option value="true" ng-value="true">True</option>
-                                                <option value="false" ng-value="false">False</option>
-									        </select>
-                                        </div>
-                                    </div>
-									
-                                    <div class="col-md-12">
-                                        <button id="myButton" type="submit" name="submit" class="btn btn-success">
-                                            Add Offers
-                                        </button>
-                                        <button type="reset" class="btn btn-secondary">Cancel</button>
-                                    </div>
-                                </div>
-                            </form>
+													</div>
+												</div>
+											</div>
+										</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+	
+	<div class="modal fade" id="addOffersModal" tabindex="-1" aria-labelledby="addOffersModalLabel" aria-hidden="true">
+	    <div class="modal-dialog modal-lg">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	                <h5 class="modal-title" id="addOffersModalLabel">Add Offers</h5>
+	                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	            </div>
+	            <div class="modal-body">
+	                <form name="myOffersForm" ng-submit="submitOffers()">
+	                    <div class="row">
+	                        <div class="col-md-6">
+	                            <div class="mb-3">
+	                                <input type="text" class="form-control" name="title" ng-model="offer.title"
+	                                    placeholder="Enter the Offer title" />
+	                            </div>
+	                        </div>
+
+	                        <div class="col-md-6">
+	                            <div class="mb-3">
+	                                <input type="text" class="form-control" name="description" ng-model="offer.description"
+	                                    placeholder="Enter the Offer Description" />
+	                            </div>
+	                        </div>
+
+	                        <div class="col-md-6">
+	                            <div class="mb-3">
+	                                <label class="form-label">Offer Validity</label>
+	                                <input type="date" class="form-control date-input" name="validity"
+	                                    ng-model="offer.validity" min="{{ currentDate }}" required />
+	                            </div>
+	                        </div>
+
+	                        <div class="col-md-6">
+	                            <div class="mb-3">
+	                                <input type="text" class="form-control" name="discount" ng-model="offer.discount"
+	                                    placeholder="Enter the Offer Discounts" />
+	                            </div>
+	                        </div>
+
+	                        <div class="col-md-6">
+	                            <div class="mb-3">
+	                                <select class="form-control" name="TypeID" ng-model="offer.TypeID">
+	                                    <option value="" disabled selected>Select Apps</option>
+	                                    <option value="Agent" ng-value="'Agent'">Agent</option>
+	                                    <option value="Customer" ng-value="'Customer'">Customer</option>
+	                                </select>
+	                            </div>
+	                        </div>
+
+	                        <div class="col-md-6">
+	                            <div class="mb-3">
+	                                <input type="text" class="form-control" name="conditions" ng-model="offer.conditions"
+	                                    placeholder="Enter the Offer Conditions" />
+	                            </div>
+	                        </div>
+
+	                        <div class="col-md-6">
+	                            <div class="mb-3">
+	                                <select class="form-control" name="isNewActive" ng-model="offer.isNewActive">
+	                                    <option value="" disabled selected>Select Status</option>
+	                                    <option value="true" ng-value="true">True</option>
+	                                    <option value="false" ng-value="false">False</option>
+	                                </select>
+	                            </div>
+	                        </div>
+
+	                        <div class="col-md-12">
+	                            <button id="myButton" type="submit" name="submit" class="btn btn-success">
+	                                Add Offers
+	                            </button>
+	                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+	                        </div>
+	                    </div>
+	                </form>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+	
+	<!-- Bootstrap Modal -->
+	<div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+	    <div class="modal-dialog">
+	        <div class="modal-offer">
+	            <div class="modal-header">
+	                <h5 class="modal-title" id="offerModalLabel">{{ selectedOffer.title }}</h5>
+	                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	            </div>
+				<div class="modal-body">
+				    <div class="container">
+				        <div class="row">
+				            <div class="col-md-6">
+				                <p><strong>Description:</strong> {{ selectedOffer.description }}</p>
+				            </div>
+				            <div class="col-md-6">
+				                <p><strong>Validity:</strong> {{ selectedOffer.validity }}</p>
+				            </div>
+				        </div>
+				        <div class="row">
+				            <div class="col-md-6">
+				                <p><strong>Discount:</strong> {{ selectedOffer.discount }}</p>
+				            </div>
+				            <div class="col-md-6">
+				                <p><strong>Type:</strong> {{ selectedOffer.typeID }}</p>
+				            </div>
+				        </div>
+				        <div class="row">
+				            <div class="col-md-12">
+				                <p><strong>Conditions:</strong></p>
+				                <p class="text-wrap condition-text">{{ selectedOffer.conditions }}</p>
+				            </div>
+				        </div>
+				        <div class="row">
+				            <div class="col-md-6">
+				                <p><strong>Is Active:</strong> {{ selectedOffer.isNewActive ? 'Yes' : 'No' }}</p>
+				            </div>
+				        </div>
+						<div class="row">
+							<div class="col-md-6">
+								<p><strong>Offer Code :</strong> {{ selectedOffer.offerCode }}</p>
+							</div>
+						</div>
+				    </div>
+				
+				</div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
 </body>
 
 </html>

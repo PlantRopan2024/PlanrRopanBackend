@@ -1,0 +1,39 @@
+.position-relative {
+      position: relative;
+  }
+  .placeholder-text {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      color: gray;
+      pointer-events: none;
+      transition: 0.2s;
+  }
+  .date-input:focus + .placeholder-text,
+  .date-input:valid + .placeholder-text {
+      display: none;
+  }
+ 
+  .modal-offer {
+      position: relative;
+      display: flex
+  ;
+      flex-direction: column;
+      width: 78%;
+      top: 159px;
+      left: 326px;
+      color: var(--bs-modal-color);
+      pointer-events: auto;
+      background-color: var(--bs-modal-bg);
+      background-clip: padding-box;
+      border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
+      border-radius: var(--bs-modal-border-radius);
+      outline: 0;
+  }
+  
+  .condition-text {
+      word-wrap: break-word; 
+      overflow-wrap: break-word; 
+      white-space: normal; 
+      max-width: 100%; 
+  }
