@@ -54,7 +54,8 @@ public class AgentReferralController {
 		if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 		}
-		response.put("ReferralCode", agentRecords.getAgentReferralCode());
+		 response.put("status", true);
+         response.put("ReferralCode", agentRecords.getAgentReferralCode());
 		return ResponseEntity.ok(response);
     }
 	

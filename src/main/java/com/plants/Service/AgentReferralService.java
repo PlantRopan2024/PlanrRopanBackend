@@ -45,13 +45,13 @@ public class AgentReferralService {
 	    String referralCode = request.get("referralCode");
 
 	    if (referralCode.isEmpty() || referralCode == null) {
-	        response.put("status", "error");
+	        response.put("status", true);
 	        response.put("message", "Referral Code is Empty!");
 	        return ResponseEntity.ok(response);
 	    }
 	    try {
 	        if (agentReferralRepository.getUseReferralCode(referralCode, existingAgent.getAgentIDPk()) != null) {
-	            response.put("status", "warning");
+	            response.put("status", true);
 	            response.put("message", "You have already used this code.");
 	            return ResponseEntity.ok(response);
 	        }
@@ -60,7 +60,7 @@ public class AgentReferralService {
 	        System.out.println(" referral code  -- " + referralCode);
 	        AgentMain agentMainReferral = this.agentMainRepo.getReferralCodeAgent(referralCode.trim());
 	        if (agentMainReferral == null) {
-	            response.put("status", "warning");
+	            response.put("status", true);
 	            response.put("message", "Referral Code is Invalid!");
 	            return ResponseEntity.ok(response);
 	        }
@@ -74,16 +74,16 @@ public class AgentReferralService {
 	        agentReferral = agentReferralRepository.save(agentReferral);
 
 	        // Save Wallet Transaction
-			/*
-			 * WalletHistory walletHistory = new WalletHistory();
-			 * walletHistory.setAmount(50.00);
-			 * walletHistory.setDescription("Refer Cashback Received");
-			 * walletHistory.setTransactionType("REWARD");
-			 * walletHistory.setAgentMain(agentMainReferral);
-			 * walletHistory.setCreatedAt(LocalDateTime.now());
-			 * walletHistory.setAgentReferral(agentReferral);
-			 * walletHistoryRepo.save(walletHistory);
-			 */
+			
+			  WalletHistory walletHistory = new WalletHistory();
+			  walletHistory.setAmount(50.00);
+			  walletHistory.setDescription("Refer Cashback Received");
+			  walletHistory.setTransactionType("REWARD");
+			  walletHistory.setAgentMain(agentMainReferral);
+			  walletHistory.setCreatedAt(LocalDateTime.now());
+			  walletHistory.setAgentReferral(agentReferral);
+			  walletHistoryRepo.save(walletHistory);
+			 
 
 	        // Save Notification
 	        String message = "Dear Gardener,\n\n" +
@@ -106,13 +106,13 @@ public class AgentReferralService {
 	        notification.setAgentMain(agentMainReferral);
 	        notificationRepo.save(notification);
 
-	        response.put("status", "success");
+	        response.put("status", true);
 	        response.put("message", "Referral Saved!");
 	        
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	        response.put("status", "error");
-	        response.put("message", "An unexpected error occurred.");
+	        response.put("status", false);
+	        response.put("message", "Something Went Wrong!");
 	    }
 	    
 	    return ResponseEntity.ok(response);
@@ -136,17 +136,20 @@ public class AgentReferralService {
 	            historyList.add(historyEntry);
 	        }
 	        if (historyList.isEmpty()) {
-	            response.put("status", "warning");
+	            response.put("status", true);
 	            response.put("message", "No Wallet found");
+		        response.put("totalWalletBalance", totalAmount);
+	            response.put("data", historyList);
 	        }else {
 	        	response.put("referralHistory", historyList);
 		        response.put("totalWalletBalance", totalAmount);
-		        response.put("status", "success");
+	            response.put("message", "Wallet found");
+		        response.put("status", true);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	        response.put("status", "error");
-	        response.put("message", "Failed to fetch wallet history");
+	        response.put("status", false);
+	        response.put("message", "Something Went Wrong!");
 	    }
 	    return ResponseEntity.ok(response);
 	}
@@ -165,16 +168,18 @@ public class AgentReferralService {
 	            notifyList.add(notifyhist);
 	        }
 	        if (notifyList.isEmpty()) {
-	            response.put("status", "warning");
+	            response.put("status", true);
 	            response.put("message", "No Notifications found");
+	            response.put("notifyHistory", notifyList);
 	        }else {
 	            response.put("notifyHistory", notifyList);
-	            response.put("status", "success");
+	            response.put("message", "Notifications found");
+	            response.put("status", true);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	        response.put("status", "error");
-	        response.put("message", "Failed to fetch Notification history");
+	        response.put("status", false);
+	        response.put("message", "Something Went Wrong!");
 	    }
 	    return ResponseEntity.ok(response);
 	}
