@@ -75,14 +75,14 @@ public class AgentReferralService {
 
 	        // Save Wallet Transaction
 			
-			  WalletHistory walletHistory = new WalletHistory();
-			  walletHistory.setAmount(50.00);
-			  walletHistory.setDescription("Refer Cashback Received");
-			  walletHistory.setTransactionType("REWARD");
-			  walletHistory.setAgentMain(agentMainReferral);
-			  walletHistory.setCreatedAt(LocalDateTime.now());
-			  walletHistory.setAgentReferral(agentReferral);
-			  walletHistoryRepo.save(walletHistory);
+//			  WalletHistory walletHistory = new WalletHistory();
+//			  walletHistory.setAmount(50.00);
+//			  walletHistory.setDescription("Refer Cashback Received");
+//			  walletHistory.setTransactionType("REWARD");
+//			  walletHistory.setAgentMain(agentMainReferral);
+//			  walletHistory.setCreatedAt(LocalDateTime.now());
+//			  walletHistory.setAgentReferral(agentReferral);
+//			  walletHistoryRepo.save(walletHistory);
 			 
 
 	        // Save Notification
@@ -107,7 +107,7 @@ public class AgentReferralService {
 	        notificationRepo.save(notification);
 
 	        response.put("status", true);
-	        response.put("message", "Referral Saved!");
+	        response.put("message", "Your referral has been successfully submitted!");
 	        
 	    } catch (Exception e) {
 	        e.printStackTrace();
