@@ -27,6 +27,11 @@ public class Notification {
 	@JoinColumn(name = "fk_agent_main_id" ,nullable = true)
 	private AgentMain agentMain;
 	
+	@ManyToOne
+	@JsonIgnore
+	@JoinColumn(name = "fk_cust_main_id" ,nullable = true)
+	private CustomerMain customerMain;
+	
 	private boolean isRead = false; // Default to unread
 	private LocalDateTime createdAt = LocalDateTime.now();
 	public Notification() {
@@ -34,7 +39,7 @@ public class Notification {
 		// TODO Auto-generated constructor stub
 	}
 	public Notification(int id, String title, String message, String typeIId, AgentMain agentMain, boolean isRead,
-			LocalDateTime createdAt) {
+			LocalDateTime createdAt,CustomerMain customerMain) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -43,6 +48,7 @@ public class Notification {
 		this.agentMain = agentMain;
 		this.isRead = isRead;
 		this.createdAt = createdAt;
+		this.customerMain= customerMain;
 	}
 	public int getId() {
 		return id;
@@ -86,10 +92,17 @@ public class Notification {
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
+	
+	public CustomerMain getCustomerMain() {
+		return customerMain;
+	}
+	public void setCustomerMain(CustomerMain customerMain) {
+		this.customerMain = customerMain;
+	}
 	@Override
 	public String toString() {
 		return "Notification [id=" + id + ", title=" + title + ", message=" + message + ", typeIId=" + typeIId
-				+ ", agentMain=" + agentMain + ", isRead=" + isRead + ", createdAt=" + createdAt + "]";
+				+ ", isRead=" + isRead + ", createdAt=" + createdAt + "]";
 	}
 	
 	

@@ -1,10 +1,14 @@
 package com.plants.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -29,26 +33,42 @@ public class CustomerMain {
 	@Column(name = "is_profile_completed")
 	private boolean isProfileCompleted;
 	
+	@Column(name = "cus_referral_code", unique = true)
+	private String cusReferralCode;
+	
+	@OneToMany(mappedBy = "customerMain")
+    private List<WalletHistory> referralHistory = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "customerMain")
+    private List<Notification> notification = new ArrayList<>();
+	
 	public CustomerMain() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public CustomerMain(String firstName, String lastName, String emailId, String mobileNumber ,String address ,String city,  double latitude, double loggitude,String token, boolean isProfileCompleted, String firebasetokenCus) {
+	public CustomerMain(int primarykey, String firstName, String lastName, String emailId, String mobileNumber,
+			String address, String city, double latitude, double loggitude, String token, String firebasetokenCus,
+			boolean isProfileCompleted, String cusReferralCode, List<WalletHistory> referralHistory,
+			List<Notification> notification) {
 		super();
+		this.primarykey = primarykey;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.emailId = emailId;
+		this.mobileNumber = mobileNumber;
 		this.address = address;
 		this.city = city;
-		this.mobileNumber = mobileNumber;
-		this.latitude=latitude;
-		this.loggitude=loggitude;
-		this.token=token;
-		this.isProfileCompleted= isProfileCompleted;
+		this.latitude = latitude;
+		this.loggitude = loggitude;
+		this.token = token;
 		this.firebasetokenCus = firebasetokenCus;
+		this.isProfileCompleted = isProfileCompleted;
+		this.cusReferralCode = cusReferralCode;
+		this.referralHistory = referralHistory;
+		this.notification = notification;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
@@ -128,6 +148,31 @@ public class CustomerMain {
 	public void setCity(String city) {
 		this.city = city;
 	}
+
+	public String getCusReferralCode() {
+		return cusReferralCode;
+	}
+
+	public void setCusReferralCode(String cusReferralCode) {
+		this.cusReferralCode = cusReferralCode;
+	}
+
+	public List<WalletHistory> getReferralHistory() {
+		return referralHistory;
+	}
+
+	public void setReferralHistory(List<WalletHistory> referralHistory) {
+		this.referralHistory = referralHistory;
+	}
+
+	public List<Notification> getNotification() {
+		return notification;
+	}
+
+	public void setNotification(List<Notification> notification) {
+		this.notification = notification;
+	}
+	
 	
 	
 }

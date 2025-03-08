@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,33 +21,36 @@ import com.plants.entities.AgentMain;
 import com.plants.entities.BookingRequest;
 import com.plants.entities.CustomerMain;
 import com.plants.entities.FertilizerRequest;
+import com.plants.entities.Offers;
 import com.plants.entities.Plans;
 
 @Service
 public class CustomerService {
-	
+
 	@Value("${platform.fee}")
-    private String platformFees;
-	
+	private String platformFees;
+
 	@Value("${gst.rate}")
 	private String gstRate;
-	
+
 	@Autowired
 	private OTPService otpService;
-	
+
 	@Autowired
 	userDao userdao;
-	
+
 	@Autowired
-	 LocationService locationService;
+	LocationService locationService;
 	@Autowired
 	private SmsService smsService;
-	
+
 	@Autowired
 	private CustomerDao customerDao;
 
 	@Autowired
 	private JwtUtil jwtUtil;
+	
+	@Autowired OfferService offerService;
 
 	public ResponseEntity<Map<String, String>> sentOtpCus(String mobileNumber) {
 		Map<String, String> response = new HashMap<>();
@@ -75,6 +79,7 @@ public class CustomerService {
 				customerMain.setToken(token);
 				customerMain.setMobileNumber(mobileNumber);
 				customerMain.setProfileCompleted(false);
+				customerMain.setCusReferralCode(generateReferralCodeCus());
 				CustomerMain customerSave = this.customerDao.save(customerMain);
 				Map<String, Object> data = Map.of("isProfileCompleted", customerSave.isProfileCompleted(), "token",
 						customerSave.getToken());
@@ -124,102 +129,117 @@ public class CustomerService {
 		return customerDao.save(customerMain);
 	}
 
-	public ResponseEntity<Map<String, Object>> getUpdateLiveLocationCust(CustomerMain exitsCustomer,Map<String, String> request) {
-	    Map<String, Object> response = new HashMap<>();
-	    double custLatitude = Double.parseDouble(request.get("custLatitude"));
-	    double custLongitude = Double.parseDouble(request.get("custLongtitude"));
-	    String city = request.get("city");
-	    String address = request.get("address");
-	    double speedKmPerHour = 25.0 ;
-	    List<AgentMain> activeAgents = this.userdao.activeAgent();
-	    
-	    if (!activeAgents.isEmpty()) {
-	         for (AgentMain agent : activeAgents) {
-	             if (agent.isActiveAgent()) {
-	            	 double arrivalTime = locationService.estimateArrivalTime(custLatitude, custLongitude, agent.getLatitude(), agent.getLongitude(), speedKmPerHour);
-	            	 int roundedTime = (int) Math.ceil(arrivalTime);
-	            	 if (arrivalTime != -1) {
-	            	    	if (Objects.nonNull(exitsCustomer)) {
-	            		        exitsCustomer.setLatitude(custLatitude);
-	            		        exitsCustomer.setLoggitude(custLongitude);
-	            		        exitsCustomer.setAddress(address);
-	            		        exitsCustomer.setCity(city);
-	            		        CustomerMain save = this.customerDao.save(exitsCustomer);
-	            		        Map<String, String> data = Map.of(
-	            		            "address", save.getAddress(),
-	            		            "city", save.getCity(),
-	            		            "custLatitude", String.valueOf(save.getLatitude()),
-	            		            "custLongtitude", String.valueOf(save.getLoggitude()),
-	            		            "GardenerAvaliable", "Gardener avaliable in " + roundedTime + " minutes"
-	            		        );
-	            		        response.put("data", data);
-	            		    	response.put("status", "true");
-	            		        response.put("message", "Location Updated");
-	            	    	}
-	            	        System.out.println("Gardener avaliable in " + roundedTime + " minutes");
-	            	    } else {
-	            	    	response.put("status", "false");
-            		        response.put("message", "Gardener is not Avaliable for Your Location");
-	            	    }
-	             }
-	         }
-	     }	    	   
-	    return ResponseEntity.ok(response);
+	public ResponseEntity<Map<String, Object>> getUpdateLiveLocationCust(CustomerMain exitsCustomer,
+			Map<String, String> request) {
+		Map<String, Object> response = new HashMap<>();
+		double custLatitude = Double.parseDouble(request.get("custLatitude"));
+		double custLongitude = Double.parseDouble(request.get("custLongtitude"));
+		String city = request.get("city");
+		String address = request.get("address");
+		double speedKmPerHour = 25.0;
+		List<AgentMain> activeAgents = this.userdao.activeAgent();
+
+		if (!activeAgents.isEmpty()) {
+			for (AgentMain agent : activeAgents) {
+				if (agent.isActiveAgent()) {
+					double arrivalTime = locationService.estimateArrivalTime(custLatitude, custLongitude,
+							agent.getLatitude(), agent.getLongitude(), speedKmPerHour);
+					int roundedTime = (int) Math.ceil(arrivalTime);
+					if (arrivalTime != -1) {
+						if (Objects.nonNull(exitsCustomer)) {
+							exitsCustomer.setLatitude(custLatitude);
+							exitsCustomer.setLoggitude(custLongitude);
+							exitsCustomer.setAddress(address);
+							exitsCustomer.setCity(city);
+							CustomerMain save = this.customerDao.save(exitsCustomer);
+							Map<String, String> data = Map.of("address", save.getAddress(), "city", save.getCity(),
+									"custLatitude", String.valueOf(save.getLatitude()), "custLongtitude",
+									String.valueOf(save.getLoggitude()), "GardenerAvaliable",
+									"Gardener avaliable in " + roundedTime + " minutes");
+							response.put("data", data);
+							response.put("status", "true");
+							response.put("message", "Location Updated");
+						}
+						System.out.println("Gardener avaliable in " + roundedTime + " minutes");
+					} else {
+						response.put("status", "false");
+						response.put("message", "Gardener is not Avaliable for Your Location");
+					}
+				}
+			}
+		}
+		return ResponseEntity.ok(response);
 	}
 
-	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(CustomerMain exitsCustomer, Map<String, String> request) {
+	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(CustomerMain exitsCustomer,
+			Map<String, String> request) {
 		Map<String, String> response = new HashMap<>();
-		String firebaseDeviceToken =  request.get("firebaseDeviceToken");		
+		String firebaseDeviceToken = request.get("firebaseDeviceToken");
 		if (Objects.nonNull(exitsCustomer)) {
 			exitsCustomer.setFirebasetokenCus(firebaseDeviceToken);
-	        this.customerDao.save(exitsCustomer);
-	    	response.put("status", "true");
+			this.customerDao.save(exitsCustomer);
+			response.put("status", "true");
 			response.put("message", "Firebase Device Token Store");
 		} else {
-	    	response.put("status", "false");
+			response.put("status", "false");
 			response.put("message", "No Record Found Agent");
 		}
 		return ResponseEntity.ok(response);
 	}
-	
-	public ResponseEntity<Map<String, Object>> orderSummaryCalculation(CustomerMain exitsCustomer, BookingRequest bookingRequest) { 
-	    Map<String, Object> response = new HashMap<>();
-	    System.out.println("Booking received: " + bookingRequest);
-	    Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
-	    int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
-	    double totalFertilizerCost = 0;
-	    List<String> fertilizerDetails = new ArrayList<>();
-	    for (FertilizerRequest fertilizer : bookingRequest.getFertilizers()) {
-	    	 String name = fertilizer.getName();
-	    	    String cleanedName = removeQuantityFromName(fertilizer.getName()); // Remove quantity
-	    	fertilizerDetails.add(cleanedName +" - ₹" + fertilizer.getPrice() * fertilizer.getQuantity());
-	        totalFertilizerCost += fertilizer.getPrice() * fertilizer.getQuantity();
-	    }
-	    int platformFee = Integer.parseInt(platformFees);
-	    
-	    double gstAmount = (serviceCharge * Double.parseDouble(gstRate)) / 100.0;
-	    double grandTotal = serviceCharge + totalFertilizerCost + platformFee + gstAmount;
-	    response.put("Service Charge", "₹" + serviceCharge);
-	    response.put("Fertilizer", "₹" + (int) totalFertilizerCost);
-	    response.put("Fertilizer Details", fertilizerDetails);
-	    response.put("Platform Fee", "₹" + platformFee);
-	    response.put("GST 18%", "₹" + String.format("%.2f", gstAmount));
-	    response.put("Grand Total", "₹" + String.format("%.2f", grandTotal));
-	    return ResponseEntity.ok(response);
-	}
-	
-	private String extractQuantity(String name) {
-	    Pattern pattern = Pattern.compile("\\((.*?)\\)"); // Match text inside parentheses
-	    Matcher matcher = pattern.matcher(name);
-	    
-	    if (matcher.find()) {
-	        return matcher.group(1); // Extract "5 kg", "1 kg", etc.
-	    }
-	    return ""; // Return empty if no match
-	}
-	
-	private String removeQuantityFromName(String name) {
-	    return name.replaceAll("\\(\\d+ kg\\)", "").trim(); // Remove "(5 kg)" and trim extra spaces
+
+	public ResponseEntity<Map<String, Object>> orderSummaryCalculation(CustomerMain exitsCustomer,BookingRequest bookingRequest) {
+		System.out.println("Booking received: " + bookingRequest);
+		Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
+		int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
+		double totalFertilizerCost = 0;
+		List<String> fertilizerDetails = new ArrayList<>();
+		for (FertilizerRequest fertilizer : bookingRequest.getFertilizers()) {
+			String name = fertilizer.getName();
+			String cleanedName = removeQuantityFromName(fertilizer.getName()); // Remove quantity
+			fertilizerDetails.add(cleanedName + " - ₹" + fertilizer.getPrice() * fertilizer.getQuantity());
+			totalFertilizerCost += fertilizer.getPrice() * fertilizer.getQuantity();
+		}
+		int platformFee = Integer.parseInt(platformFees);
+
+		double gstAmount = (serviceCharge * Double.parseDouble(gstRate)) / 100.0;
+		double grandTotal = serviceCharge + totalFertilizerCost + platformFee + gstAmount;
+
+		Map<String, Object> data = new HashMap<>();
+		data.put("Service Charge", "₹" + serviceCharge);
+		data.put("Fertilizer", "₹" + (int) totalFertilizerCost);
+		data.put("Fertilizer Details", fertilizerDetails);
+		data.put("Platform Fee", "₹" + platformFee);
+		data.put("GST 18%", "₹" + String.format("%.2f", gstAmount));
+		data.put("Grand Total", "₹" + String.format("%.2f", grandTotal));
+		
+		Map<String, Object> finalResponse = new HashMap<>();
+		
+		finalResponse.put("BillingDetails", data); 
+		
+		// discount offer 
+		
+		//List<Offers> getOffers = this.offerService.get
+		
+		
+
+		return ResponseEntity.ok(finalResponse);
 	}
 
+	private String extractQuantity(String name) {
+		Pattern pattern = Pattern.compile("\\((.*?)\\)"); // Match text inside parentheses
+		Matcher matcher = pattern.matcher(name);
+
+		if (matcher.find()) {
+			return matcher.group(1); // Extract "5 kg", "1 kg", etc.
+		}
+		return ""; // Return empty if no match
+	}
+
+	private String removeQuantityFromName(String name) {
+		return name.replaceAll("\\(\\d+ kg\\)", "").trim(); // Remove "(5 kg)" and trim extra spaces
+	}
+	
+	private String generateReferralCodeCus() {
+		return "cus50" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+	}
 }

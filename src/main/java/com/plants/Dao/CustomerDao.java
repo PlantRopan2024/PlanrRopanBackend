@@ -27,7 +27,8 @@ public interface CustomerDao extends CrudRepository<CustomerMain, Integer> {
 	@Query("select e FROM Plans e where e.planPacks=:planPacks")
 	public ArrayList<Plans> getMonthVSDailyfetch(@Param("planPacks")String planPacks);
 	
-	
+	@Query("SELECT e FROM CustomerMain e WHERE LOWER(e.cusReferralCode) = LOWER(:cusReferralCode)")
+	CustomerMain getReferralCodeCus(@Param("cusReferralCode") String cusReferralCode);
 	
 	@Query("select e FROM Plans e")
 	public List<Plans> getallPlans();

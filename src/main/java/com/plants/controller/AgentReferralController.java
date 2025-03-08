@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plants.Dao.MobileApiDao;
@@ -72,14 +73,14 @@ public class AgentReferralController {
     }
 	
 	@GetMapping("/getNotificationHistoryAgent")
-    public ResponseEntity<Map<String, Object>> getNotificationHistoryAgent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
-		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
-		String mobileNumber = jwtUtil.extractUsername(jwtToken);
-		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
-		if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
-		}
-		ResponseEntity<Map<String, Object>> notify = agentReferralService.getNotificationHistoryAgent(agentRecords);
-		return ResponseEntity.ok(notify.getBody());
-    }
+	public ResponseEntity<Map<String, Object>> getNotificationHistoryAgent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+	    String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+	    String mobileNumber = jwtUtil.extractUsername(jwtToken);
+	    AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+	    if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+	    }
+	    return agentReferralService.getNotificationHistoryAgent(agentRecords);
+	}
+
 }

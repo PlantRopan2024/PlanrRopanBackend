@@ -60,11 +60,21 @@
 									        <input type="text" class="form-control" name="plansName" ng-model="plan.plansName" placeholder="Enter the Plan Name"/>
 									      </div>
 									</div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <input type="text" class="form-control" name="plansRs" ng-model="plan.plansRs" placeholder="Enter the Plan Amount"/>
-                                        </div>
-                                    </div>
+									<form name="myForm">
+									    <div class="col-md-6">
+									        <div class="mb-3">
+									            <input type="text" class="form-control" name="plansRs" 
+									                   ng-model="plan.plansRs" placeholder="Enter the Plan Amount (e.g 249)" 
+									                   ng-pattern="/^[0-9]*$/"
+									                   required />
+									            <span class="text-danger" 
+									                  ng-show="myForm.plansRs.$dirty && myForm.plansRs.$error.pattern">
+									                Only numbers are allowed!
+									            </span>
+									        </div>
+									    </div>
+									</form>
+
 
                                     <div class="col-md-6">
                                         <div class="mb-3">

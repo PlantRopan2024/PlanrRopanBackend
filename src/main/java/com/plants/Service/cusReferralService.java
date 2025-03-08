@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,22 +13,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import com.plants.Dao.AgentMainRepo;
-import com.plants.Dao.AgentReferralRepository;
+import com.plants.Dao.CusReferralDao;
+import com.plants.Dao.CustomerDao;
 import com.plants.Dao.NotificationRepo;
 import com.plants.Dao.WalletHistoryRepo;
 import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
 import com.plants.entities.AgentReferral;
+import com.plants.entities.CusReferral;
+import com.plants.entities.CustomerMain;
 import com.plants.entities.WalletHistory;
 
 @Service
-public class AgentReferralService {
+public class cusReferralService {
 	
 	@Value("${pagination.page}")
 	private int page;
@@ -39,18 +38,18 @@ public class AgentReferralService {
 	private int size;
 	
 	@Autowired
-    private AgentReferralRepository agentReferralRepository;
+	private CustomerDao customerDao;
 	
 	@Autowired
-	private AgentMainRepo agentMainRepo;
+	private CusReferralDao cusReferralDao;
 	
 	@Autowired
 	private WalletHistoryRepo walletHistoryRepo;
 	
 	@Autowired
 	private NotificationRepo notificationRepo;
-
-	public ResponseEntity<Map<String, Object>> assignReferralCode(AgentMain existingAgent, Map<String, String> request) {
+	
+	public ResponseEntity<Map<String, Object>> assignReferralCustomer(CustomerMain exitsCustomer, Map<String, String> request) {
 	    Map<String, Object> response = new HashMap<>();
 	    String referralCode = request.get("referralCode");
 
@@ -60,47 +59,48 @@ public class AgentReferralService {
 	        return ResponseEntity.ok(response);
 	    }
 	    try {
-	        if (agentReferralRepository.getUseReferralCode(referralCode, existingAgent.getAgentIDPk()) != null) {
+	        if (this.cusReferralDao.getUseReferralCodeCus(referralCode, exitsCustomer.getPrimarykey()) != null) {
 	            response.put("status", true);
 	            response.put("message", "You have already used this code.");
 	            return ResponseEntity.ok(response);
 	        }
 
-	        AgentMain agentMainReferral = this.agentMainRepo.getReferralCodeAgent(referralCode.trim());
-	        if (agentMainReferral == null) {
+	        System.out.println(" referral code  -- " + referralCode);
+	        CustomerMain cusMainReferral = this.customerDao.getReferralCodeCus(referralCode.trim());
+	        if (cusMainReferral == null) {
 	            response.put("status", true);
 	            response.put("message", "Referral Code is Invalid!");
 	            return ResponseEntity.ok(response);
 	        }
 
-	        AgentReferral agentReferral = new AgentReferral();
-	        agentReferral.setReferralCode(referralCode);
-	        agentReferral.setReferrerAgentId(agentMainReferral.getAgentIDPk());
-	        agentReferral.setReferredAgentId(existingAgent.getAgentIDPk());
-	        agentReferral.setCreatedAt(LocalDateTime.now());
-	        agentReferral = agentReferralRepository.save(agentReferral);
+	        // Save referral record
+	        CusReferral cusReferral = new CusReferral();
+	        cusReferral.setReferralCode(referralCode);
+	        cusReferral.setReferrerCustId(cusMainReferral.getPrimarykey());
+	        cusReferral.setReferredCustId(exitsCustomer.getPrimarykey());
+	        cusReferral.setCreatedAt(LocalDateTime.now());
+	        cusReferral = cusReferralDao.save(cusReferral);
 
 	        // Save Wallet Transaction
-			
-//			  WalletHistory walletHistory = new WalletHistory();
-//			  walletHistory.setAmount(50.00);
-//			  walletHistory.setDescription("Refer Cashback Received");
-//			  walletHistory.setTransactionType("REWARD");
-//			  walletHistory.setAgentMain(agentMainReferral);
-//			  walletHistory.setCreatedAt(LocalDateTime.now());
-//			  walletHistory.setAgentReferral(agentReferral);
-//			  walletHistoryRepo.save(walletHistory);
+			  WalletHistory walletHistory = new WalletHistory();
+			  walletHistory.setAmount(50.00);
+			  walletHistory.setDescription("Refer Cashback Received");
+			  walletHistory.setTransactionType("REWARD");
+			  walletHistory.setCustomerMain(cusMainReferral);
+			  walletHistory.setCreatedAt(LocalDateTime.now());
+			  walletHistory.setCusReferral(cusReferral);
+			  walletHistoryRepo.save(walletHistory);
 			 
 
 	        // Save Notification
-	        String message = "Dear "+existingAgent.getFirstName()+" "+existingAgent.getLastName()+",\n\n" +
+	        String message = "Dear Customer,\n\n" +
 	                "Your referral code has been successfully applied! ₹50 will be credited to your account after the first service is completed with Plant Ropan.\n\n" +
 	                "Thank you for spreading the greenery!\n\n" +
 	                "Happy Gardening,\n" +
 	                "Team Plant Ropan";
 	        
 	        try {
-	            sendNotificationToAgent(agentMainReferral, "Referral Reward Earned 🎉", message);
+	            sendNotificationToAgent(cusMainReferral, "Referral Reward Earned 🎉", message);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            response.put("notification_status", "failed");
@@ -109,8 +109,8 @@ public class AgentReferralService {
 	        com.plants.entities.Notification notification = new com.plants.entities.Notification();
 	        notification.setMessage(message);
 	        notification.setTitle("Referral Reward Earned 🎉");
-	        notification.setTypeIId("Agent");
-	        notification.setAgentMain(agentMainReferral);
+	        notification.setTypeIId("Customer");
+	        notification.setCustomerMain(cusMainReferral);
 	        notificationRepo.save(notification);
 
 	        response.put("status", true);
@@ -124,16 +124,15 @@ public class AgentReferralService {
 	    
 	    return ResponseEntity.ok(response);
 	}
-
 	
-	public ResponseEntity<Map<String, Object>> walletHistoryAgent(AgentMain existingAgent) {
+	public ResponseEntity<Map<String, Object>> walletHistoryCust(CustomerMain existingCust) {
 	    Map<String, Object> response = new HashMap<>();
-	    double totalAmount = 0.0;
+	    double totalAmount = 0.0; 
 	    List<Map<String, Object>> historyList = new ArrayList<>();
 
 	    try {
-	        List<WalletHistory> referralHistory = existingAgent.getReferralHistory();
-	        
+	        List<WalletHistory> referralHistory = existingCust.getReferralHistory();
+
 	        if (referralHistory == null || referralHistory.isEmpty()) {
 	            response.put("status", true);
 	            response.put("message", "No Wallet found");
@@ -158,7 +157,7 @@ public class AgentReferralService {
 	        }
 
 	        // Implement pagination
-	        int totalElements = referralHistory.size();
+	        int totalElements = historyList.size();
 	        Map<String, Object> pagination = Utils.paganationInApi(size, page, totalElements);
 	        int startIndex = (int) pagination.get("startIndex");
 	        int endIndex = (int) pagination.get("endIndex");
@@ -184,21 +183,24 @@ public class AgentReferralService {
 	}
 
 	
-	public ResponseEntity<Map<String, Object>> getNotificationHistoryAgent(AgentMain existingAgent) {
+	public ResponseEntity<Map<String, Object>> getNotificationHistoryCus(CustomerMain existingCustomer) {
 	    Map<String, Object> response = new HashMap<>();
 	    List<Map<String, Object>> notifyList = new ArrayList<>();
+
 	    try {
-	        List<com.plants.entities.Notification> allNotifications = existingAgent.getNotification()
+	        List<com.plants.entities.Notification> allNotifications = existingCustomer.getNotification()
 	                .stream()
-	                .filter(notification -> "Agent".equals(notification.getTypeIId()))
+	                .filter(notification -> "Customer".equals(notification.getTypeIId()))
 	                .collect(Collectors.toList());
+
 	        int totalElements = allNotifications.size();
+
 	        Map<String, Object> pagination = Utils.paganationInApi(size, page, totalElements);
 	        int startIndex = (int) pagination.get("startIndex");
 	        int endIndex = (int) pagination.get("endIndex");
 	        int totalPages = (int) pagination.get("totalPages");
 	        int currentPage = (int) pagination.get("currentPage");
-	        
+
 	        if (startIndex >= totalElements) {
 	            response.put("status", true);
 	            response.put("message", "No Notifications found");
@@ -208,6 +210,7 @@ public class AgentReferralService {
 	            response.put("totalElements", totalElements);
 	            return ResponseEntity.ok(response);
 	        }
+
 	        List<com.plants.entities.Notification> paginatedList = allNotifications.subList(startIndex, endIndex);
 	        for (com.plants.entities.Notification notification : paginatedList) {
 	            Map<String, Object> notifyHist = new HashMap<>();
@@ -231,25 +234,21 @@ public class AgentReferralService {
 	    }
 	    return ResponseEntity.ok(response);
 	}
-
-	public String sendNotificationToAgent(AgentMain agent, String title, String message) {
+	
+	public String sendNotificationToAgent(CustomerMain customerMain, String title, String message) {
 	    String response = "";
 	    try {
-	    	if (agent.getFcmTokenAgent() == null || agent.getFcmTokenAgent().isEmpty()) {
+	    	if (customerMain.getFirebasetokenCus() == null || customerMain.getFirebasetokenCus().isEmpty()) {
 	            return "FCM Token is missing";
 	        }
-	        // Create the message to send
 	        Message firebaseMessage = Message.builder()
-	            .setToken(agent.getFcmTokenAgent())  // Use the agent's FCM token here
+	            .setToken(customerMain.getFirebasetokenCus()) 
 	            .setNotification(Notification.builder()
 	                .setTitle(title)
 	                .setBody(message)
 	                .build())
-	            .putData("agentId", String.valueOf(agent.getAgentIDPk())) // Add additional data if needed
-	            .putData("action", "ACCEPT_REJECT") // Add action to distinguish the type of notification
 	            .build();
 
-	        // Send the message via Firebase
 	        response = FirebaseMessaging.getInstance().send(firebaseMessage);
 	        System.out.println("Successfully sent message: " + response);
 	    } catch (FirebaseMessagingException e) {

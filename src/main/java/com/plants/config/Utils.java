@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -213,5 +215,22 @@ public class Utils {
         return Base64.getEncoder().encodeToString(imageData);
     }
 
+    public static Map<String, Object> paganationInApi(int size, int page, int totalElements) {
+        if (size <= 0) size = 15;
+        if (page < 0) page = 0;
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        if (page >= totalPages && totalPages > 0) {
+            page = totalPages - 1;
+        }
+        int startIndex = page * size;
+        int endIndex = Math.min(startIndex + size, totalElements);
+
+        Map<String, Object> paginationData = new HashMap<>();
+        paginationData.put("startIndex", startIndex);
+        paginationData.put("endIndex", endIndex);
+        paginationData.put("totalPages", totalPages);
+        paginationData.put("currentPage", page);
+        return paginationData;
+    }
 
 }

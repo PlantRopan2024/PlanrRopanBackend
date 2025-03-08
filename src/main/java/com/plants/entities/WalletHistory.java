@@ -22,6 +22,8 @@ public class WalletHistory {
 	@Column(name = "description")
     private String description;
 	
+	private String appTypeId;
+	
 	@Column(name = "amount", nullable = false)
     private Double amount;
 	
@@ -33,21 +35,31 @@ public class WalletHistory {
 	
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name = "fk_agent_Referral_id")
+	@JoinColumn(name = "fk_agent_Referral_id",nullable = true)
 	private AgentReferral agentReferral;
 	
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name = "fk_agent_main_id")
+	@JoinColumn(name = "fk_Cus_Referral_id",nullable = true)
+	private CusReferral cusReferral;
+	
+	@ManyToOne
+	@JsonIgnore
+	@JoinColumn(name = "fk_agent_main_id",nullable = true)
 	private AgentMain agentMain;
-
+	
+	@ManyToOne
+	@JsonIgnore
+	@JoinColumn(name = "fk_customer_main_id",nullable = true)
+	private CustomerMain customerMain;
+	
 	public WalletHistory() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
 	public WalletHistory(int id, String description, Double amount, String transactionType, LocalDateTime createdAt,
-			AgentReferral agentReferral, AgentMain agentMain) {
+			AgentReferral agentReferral, AgentMain agentMain,String appTypeId,CustomerMain customerMain) {
 		super();
 		this.id = id;
 		this.description = description;
@@ -56,6 +68,8 @@ public class WalletHistory {
 		this.createdAt = createdAt;
 		this.agentReferral = agentReferral;
 		this.agentMain = agentMain;
+		this.appTypeId = appTypeId;
+		this.customerMain= customerMain;
 	}
 
 	public int getId() {
@@ -113,6 +127,31 @@ public class WalletHistory {
 
 	public void setAgentMain(AgentMain agentMain) {
 		this.agentMain = agentMain;
+	}
+	
+
+	public String getAppTypeId() {
+		return appTypeId;
+	}
+
+	public void setAppTypeId(String appTypeId) {
+		this.appTypeId = appTypeId;
+	}
+
+	public CusReferral getCusReferral() {
+		return cusReferral;
+	}
+
+	public void setCusReferral(CusReferral cusReferral) {
+		this.cusReferral = cusReferral;
+	}
+
+	public CustomerMain getCustomerMain() {
+		return customerMain;
+	}
+
+	public void setCustomerMain(CustomerMain customerMain) {
+		this.customerMain = customerMain;
 	}
 
 	@Override
