@@ -153,7 +153,8 @@ public class PlansAdd {
 	}
 	
 	@GetMapping("/getServiceIdPlan/{id}") 
-	public ResponseEntity<Map<String, Object>> getServiceIdPlan(@PathVariable String id) {
+	public ResponseEntity<Map<String, Object>> getServiceIdPlan(@PathVariable Integer id) {
+		serviceName service = this.serviceNameDao.getById(id);
 	    List<Plans> getPlanId = this.customerDao.getPlansListId(id);
 
 	    Map<String, Object> response = new HashMap<>();
@@ -176,14 +177,15 @@ public class PlansAdd {
 	   	    
 
 	    if (dailyPlansList.isEmpty() && monthlyPlans.isEmpty()) {
-	    	response.put("status", "false");
+	    	response.put("status", false);
 	    	response.put("message","No Data Found");
 	        return ResponseEntity.ok(response);
 	    } else {
 	 	    //response.put("AllPlans", getPlanId);
 	    	response.put("DailyPlan", dailyPlansList);
 		    //response.put("Monthly", monthlyPlans);
-	    	response.put("status", "true");
+	    	response.put("service", service.getName());
+	    	response.put("status", true);
 	        return ResponseEntity.ok(response);
 	    }
 	}

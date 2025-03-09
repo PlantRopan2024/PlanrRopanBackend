@@ -42,6 +42,9 @@ public class CustomerMain {
 	@OneToMany(mappedBy = "customerMain")
     private List<Notification> notification = new ArrayList<>();
 	
+	@OneToMany(mappedBy = "customerMain")
+    private List<OffersApplied> offersApplied = new ArrayList<>();
+	
 	public CustomerMain() {
 		super();
 		// TODO Auto-generated constructor stub

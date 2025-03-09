@@ -10,6 +10,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -125,15 +129,14 @@ public class cusReferralService {
 	    return ResponseEntity.ok(response);
 	}
 	
-	public ResponseEntity<Map<String, Object>> walletHistoryCust(CustomerMain existingCust) {
+	public ResponseEntity<Map<String, Object>> walletHistoryCust(CustomerMain existingCust, int page, int size) {
 	    Map<String, Object> response = new HashMap<>();
-	    double totalAmount = 0.0; 
+	    double totalAmount = 0.0;
 	    List<Map<String, Object>> historyList = new ArrayList<>();
-
 	    try {
-	        List<WalletHistory> referralHistory = existingCust.getReferralHistory();
-
-	        if (referralHistory == null || referralHistory.isEmpty()) {
+	        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+	        Page<WalletHistory> walletPage = walletHistoryRepo.findByCustomerMain(existingCust, pageable);
+	        if (walletPage.isEmpty()) {
 	            response.put("status", true);
 	            response.put("message", "No Wallet found");
 	            response.put("totalWalletBalance", totalAmount);
@@ -143,76 +146,55 @@ public class cusReferralService {
 	            response.put("totalElements", 0);
 	            return ResponseEntity.ok(response);
 	        }
-
-	        for (WalletHistory walletHistory : referralHistory) {
+	        for (WalletHistory walletHistory : walletPage.getContent()) {
 	            Map<String, Object> historyEntry = new HashMap<>();
 	            historyEntry.put("id", walletHistory.getId());
 	            historyEntry.put("description", walletHistory.getDescription());
 	            historyEntry.put("amount", walletHistory.getAmount());
 	            historyEntry.put("transactionType", walletHistory.getTransactionType());
 	            historyEntry.put("createdAt", walletHistory.getCreatedAt());
-	            
 	            totalAmount += walletHistory.getAmount();
 	            historyList.add(historyEntry);
 	        }
-
-	        // Implement pagination
-	        int totalElements = historyList.size();
-	        Map<String, Object> pagination = Utils.paganationInApi(size, page, totalElements);
-	        int startIndex = (int) pagination.get("startIndex");
-	        int endIndex = (int) pagination.get("endIndex");
-	        int totalPages = (int) pagination.get("totalPages");
-	        int currentPage = (int) pagination.get("currentPage");
-
-	        List<Map<String, Object>> paginatedList = historyList.subList(startIndex, Math.min(endIndex, totalElements));
-
 	        response.put("status", true);
 	        response.put("message", "Wallet found");
 	        response.put("totalWalletBalance", totalAmount);
-	        response.put("referralHistory", paginatedList);
-	        response.put("currentPage", currentPage);
-	        response.put("totalPages", totalPages);
-	        response.put("totalElements", totalElements);
+	        response.put("referralHistory", historyList);
+	        response.put("currentPage", walletPage.getNumber());
+	        response.put("totalPages", walletPage.getTotalPages());
+	        response.put("totalElements", walletPage.getTotalElements());
 
+	        // **Next Page URL**
+	        if (walletPage.hasNext()) {
+	            String nextPageUrl = "/cusReferral/getWalletHistoryCust?pageNumber=" + (walletPage.getNumber() + 1) + "&pageSize=" + size;
+	            response.put("nextPageUrl", nextPageUrl);
+	        } else {
+	            response.put("nextPageUrl", null);
+	        }
+
+	        // **Previous Page URL**
+	        if (walletPage.hasPrevious()) {
+	            String prevPageUrl = "/cusReferral/getWalletHistoryCust?pageNumber=" + (walletPage.getNumber() - 1) + "&pageSize=" + size;
+	            response.put("prevPageUrl", prevPageUrl);
+	        } else {
+	            response.put("prevPageUrl", null);
+	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        response.put("status", false);
-	        response.put("message", "Something Went Wrong!");
+	        response.put("message", "Something went wrong!");
 	    }
 	    return ResponseEntity.ok(response);
 	}
 
-	
-	public ResponseEntity<Map<String, Object>> getNotificationHistoryCus(CustomerMain existingCustomer) {
+	public ResponseEntity<Map<String, Object>> getNotificationHistoryCus(CustomerMain existingCustomer, int page, int size) {
 	    Map<String, Object> response = new HashMap<>();
 	    List<Map<String, Object>> notifyList = new ArrayList<>();
-
 	    try {
-	        List<com.plants.entities.Notification> allNotifications = existingCustomer.getNotification()
-	                .stream()
-	                .filter(notification -> "Customer".equals(notification.getTypeIId()))
-	                .collect(Collectors.toList());
+	        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+	        Page<com.plants.entities.Notification> notificationPage = notificationRepo.findByCustomerMainAndTypeIId(existingCustomer, "Customer", pageable);
 
-	        int totalElements = allNotifications.size();
-
-	        Map<String, Object> pagination = Utils.paganationInApi(size, page, totalElements);
-	        int startIndex = (int) pagination.get("startIndex");
-	        int endIndex = (int) pagination.get("endIndex");
-	        int totalPages = (int) pagination.get("totalPages");
-	        int currentPage = (int) pagination.get("currentPage");
-
-	        if (startIndex >= totalElements) {
-	            response.put("status", true);
-	            response.put("message", "No Notifications found");
-	            response.put("notifyHistory", Collections.emptyList());
-	            response.put("currentPage", currentPage);
-	            response.put("totalPages", totalPages);
-	            response.put("totalElements", totalElements);
-	            return ResponseEntity.ok(response);
-	        }
-
-	        List<com.plants.entities.Notification> paginatedList = allNotifications.subList(startIndex, endIndex);
-	        for (com.plants.entities.Notification notification : paginatedList) {
+	        for (com.plants.entities.Notification notification : notificationPage.getContent()) {
 	            Map<String, Object> notifyHist = new HashMap<>();
 	            notifyHist.put("id", notification.getId());
 	            notifyHist.put("message", notification.getMessage());
@@ -221,20 +203,38 @@ public class cusReferralService {
 	            notifyHist.put("isRead", notification.isRead());
 	            notifyList.add(notifyHist);
 	        }
+
 	        response.put("notifyHistory", notifyList);
-	        response.put("message", "Notifications found");
-	        response.put("status", true);
-	        response.put("currentPage", currentPage);
-	        response.put("totalPages", totalPages);
-	        response.put("totalElements", totalElements);
+	        response.put("message", notificationPage.isEmpty() ? "No Notifications found" : "Notifications found");
+	        response.put("status", !notificationPage.isEmpty());
+	        response.put("currentPage", notificationPage.getNumber());
+	        response.put("totalPages", notificationPage.getTotalPages());
+	        response.put("totalElements", notificationPage.getTotalElements());
+
+	        // Next Page URL
+	        if (notificationPage.hasNext()) {
+	            String nextPageUrl = "/cusReferral/getNotificationHistoryCus?pageNumber=" + (notificationPage.getNumber() + 1) + "&pageSize=" + size;
+	            response.put("nextPageUrl", nextPageUrl);
+	        } else {
+	            response.put("nextPageUrl", null);
+	        }
+
+	        // Previous Page URL
+	        if (notificationPage.hasPrevious()) {
+	            String prevPageUrl = "/cusReferral/getNotificationHistoryCus?pageNumber=" + (notificationPage.getNumber() - 1) + "&pageSize=" + size;
+	            response.put("prevPageUrl", prevPageUrl);
+	        } else {
+	            response.put("prevPageUrl", null);
+	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        response.put("status", false);
-	        response.put("message", "Something Went Wrong!");
+	        response.put("message", "Something went wrong!");
 	    }
+
 	    return ResponseEntity.ok(response);
 	}
-	
+
 	public String sendNotificationToAgent(CustomerMain customerMain, String title, String message) {
 	    String response = "";
 	    try {
@@ -248,7 +248,6 @@ public class cusReferralService {
 	                .setBody(message)
 	                .build())
 	            .build();
-
 	        response = FirebaseMessaging.getInstance().send(firebaseMessage);
 	        System.out.println("Successfully sent message: " + response);
 	    } catch (FirebaseMessagingException e) {

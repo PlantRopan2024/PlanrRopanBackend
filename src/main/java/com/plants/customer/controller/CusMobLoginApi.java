@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +25,7 @@ import com.plants.Service.CustomerService;
 import com.plants.Service.OTPService;
 import com.plants.Service.SmsService;
 import com.plants.config.JwtUtil;
+import com.plants.config.MessageService;
 import com.plants.entities.AgentMain;
 import com.plants.entities.BookingRequest;
 import com.plants.entities.CustomerMain;
@@ -128,4 +130,19 @@ public class CusMobLoginApi {
 		ResponseEntity<Map<String, Object>> response = customerService.orderSummaryCalculation(exitsCustomer,bookingRequest);
 		return ResponseEntity.ok(response.getBody());
 	}
+	
+	@PostMapping("/applyOffersCust") 
+	public ResponseEntity<?> applyOffersCust(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, Object> request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
+
+		if (Objects.isNull(exitsCustomer) || !jwtToken.equals(exitsCustomer.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		
+		ResponseEntity<Map<String, Object>> response = customerService.applyOffesCustomer(exitsCustomer,request);
+		return ResponseEntity.ok(response.getBody());
+	}
+	
 }

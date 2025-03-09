@@ -16,7 +16,7 @@ public class OffersApplied {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int primaryKey;
 	
-	private String offerStatus;
+	private String offerStatus;   //  coupon used 
 	private String appTypeId;   // Agent  , Customer
 	
 	@ManyToOne

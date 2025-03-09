@@ -66,7 +66,9 @@ public class CusReferralController {
 	}
 	
 	@GetMapping("/getWalletHistoryCust")
-    public ResponseEntity<Map<String, Object>> getWalletHistoryCust(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+    public ResponseEntity<Map<String, Object>> getWalletHistoryCust(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+    		@RequestParam(value = "pageNumber",defaultValue = "0" ,required = false) Integer pageNumber,
+			@RequestParam(value = "pageSize",defaultValue = "15" ,required = false) Integer pageSize) {
 		Map<String, Object> response = new HashMap<>();
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);
@@ -76,14 +78,16 @@ public class CusReferralController {
 			response.put("error", "Invalid or expired token");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 		}
-		ResponseEntity<Map<String, Object>> wallethist = this.cusreferralService.walletHistoryCust(exitsCustomer);
+		ResponseEntity<Map<String, Object>> wallethist = this.cusreferralService.walletHistoryCust(exitsCustomer,pageNumber,pageSize);
 		return ResponseEntity.ok(wallethist.getBody());
     }
 	
 	
 	
 	@GetMapping("/getNotificationHistoryCus")
-	public ResponseEntity<Map<String, Object>> getNotificationHistoryCus(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+	public ResponseEntity<Map<String, Object>> getNotificationHistoryCus(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+			@RequestParam(value = "pageNumber",defaultValue = "0" ,required = false) Integer pageNumber,
+			@RequestParam(value = "pageSize",defaultValue = "15" ,required = false) Integer pageSize) {
 	    Map<String, Object> response = new HashMap<>();
 	    String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 	    String mobileNumber = jwtUtil.extractUsername(jwtToken);
@@ -93,7 +97,7 @@ public class CusReferralController {
 	        response.put("error", "Invalid or expired token");
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 	    }
-	    return cusreferralService.getNotificationHistoryCus(exitsCustomer);
+	    return cusreferralService.getNotificationHistoryCus(exitsCustomer,pageNumber,pageSize);
 	}
 
 

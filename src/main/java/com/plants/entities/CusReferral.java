@@ -18,10 +18,10 @@ public class CusReferral {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(name = "referrer_agent_id", nullable = false)
+	@Column(name = "referrer_cust_id", nullable = false)
 	private int referrerCustId; // ID of the agent who referred
 
-	@Column(name = "referred_agent_id")
+	@Column(name = "referred_cust_id")
 	private int referredCustId; // ID of the referred agent
 
 	@Column(name = "referral_code", nullable = false, length = 20)

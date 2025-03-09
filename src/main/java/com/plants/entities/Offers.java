@@ -1,12 +1,15 @@
 package com.plants.entities;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Offers {
@@ -21,13 +24,18 @@ public class Offers {
 	@Column(unique = true, nullable = false)
 	private String offerCode;
 	private String discount;
+	@Column(nullable = true)
+	private double disAmountRs;
 	@Column(columnDefinition = "TEXT")
 	private String conditions;
 	public boolean isNewActive;
 	private String TypeID;
 	
+	@OneToMany(mappedBy = "offers")
+    private List<OffersApplied> offersApplieds = new ArrayList<>();
+	
 	public Offers(String title, String description, LocalDate validity, String discount, String conditions,
-			 String typeID,boolean isNewActive,String offerCode) {
+			 String typeID,boolean isNewActive,String offerCode,double disAmountRs) {
 		super();
 		this.title = title;
 		this.description = description;
@@ -37,6 +45,7 @@ public class Offers {
 		this.TypeID = typeID;
 		this.isNewActive=isNewActive;
 		this.offerCode=offerCode;
+		this.disAmountRs=disAmountRs;
 	}
 	public Offers() {
 		
@@ -92,6 +101,12 @@ public class Offers {
 	}
 	public void setNewActive(boolean isNewActive) {
 		this.isNewActive = isNewActive;
+	}
+	public double getDisAmountRs() {
+		return disAmountRs;
+	}
+	public void setDisAmountRs(double disAmountRs) {
+		this.disAmountRs = disAmountRs;
 	}
 	@Override
 	public String toString() {

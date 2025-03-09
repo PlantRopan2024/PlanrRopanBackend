@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.plants.Dao.CustomerDao;
+import com.plants.Dao.OffersAppliedRepo;
 import com.plants.Dao.userDao;
 import com.plants.config.JwtUtil;
 import com.plants.entities.AgentMain;
@@ -22,6 +23,7 @@ import com.plants.entities.BookingRequest;
 import com.plants.entities.CustomerMain;
 import com.plants.entities.FertilizerRequest;
 import com.plants.entities.Offers;
+import com.plants.entities.OffersApplied;
 import com.plants.entities.Plans;
 
 @Service
@@ -51,6 +53,7 @@ public class CustomerService {
 	private JwtUtil jwtUtil;
 	
 	@Autowired OfferService offerService;
+	@Autowired OffersAppliedRepo offersAppliedRepo;
 
 	public ResponseEntity<Map<String, String>> sentOtpCus(String mobileNumber) {
 		Map<String, String> response = new HashMap<>();
@@ -171,8 +174,7 @@ public class CustomerService {
 		return ResponseEntity.ok(response);
 	}
 
-	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(CustomerMain exitsCustomer,
-			Map<String, String> request) {
+	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(CustomerMain exitsCustomer,Map<String, String> request) {
 		Map<String, String> response = new HashMap<>();
 		String firebaseDeviceToken = request.get("firebaseDeviceToken");
 		if (Objects.nonNull(exitsCustomer)) {
@@ -189,6 +191,7 @@ public class CustomerService {
 
 	public ResponseEntity<Map<String, Object>> orderSummaryCalculation(CustomerMain exitsCustomer,BookingRequest bookingRequest) {
 		System.out.println("Booking received: " + bookingRequest);
+		Map<String, Object> finalResponse = new HashMap<>();
 		Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
 		int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
 		double totalFertilizerCost = 0;
@@ -212,18 +215,84 @@ public class CustomerService {
 		data.put("GST 18%", "₹" + String.format("%.2f", gstAmount));
 		data.put("Grand Total", "₹" + String.format("%.2f", grandTotal));
 		
-		Map<String, Object> finalResponse = new HashMap<>();
 		
 		finalResponse.put("BillingDetails", data); 
 		
 		// discount offer 
+		List<Offers> getOffers = this.offerService.getAllOffersCusMobApi();
+		List<Offers> unusedOffers = new ArrayList<>();
+		for (Offers offer : getOffers) {
+		    long appliedCount = this.offersAppliedRepo.countAppliedOffers(offer.getPrimarykey(), exitsCustomer.getPrimarykey());
+		    if (appliedCount == 0) {
+		        unusedOffers.add(offer);
+		    }
+		}
 		
-		//List<Offers> getOffers = this.offerService.get
-		
-		
+		finalResponse.put("Offers", unusedOffers); 
 
 		return ResponseEntity.ok(finalResponse);
 	}
+	
+	public ResponseEntity<Map<String, Object>> applyOffesCustomer(CustomerMain exitsCustomer, Map<String, Object> request) {
+	    Map<String, Object> response = new HashMap<>();
+
+	    // Extracting values from the request
+	    String offerId = (String) request.get("offerId");
+	    String typeMessage = (String) request.get("typeMessage");
+
+	    // Extract BillingDetails safely
+	    Map<String, Object> billingDetails = (Map<String, Object>) request.get("BillingDetails");
+
+	    // Ensure BillingDetails exists before accessing it
+	    if (billingDetails == null || !billingDetails.containsKey("Grand Total")) {
+	        response.put("status", false);
+	        response.put("message", "Billing details are missing or incorrect");
+	        return ResponseEntity.ok(response);
+	    }
+
+	    // Convert Grand Total to Double for calculations
+	    double grandTotal = Double.parseDouble(billingDetails.get("Grand Total").toString());
+
+	    if (offerId == null || offerId.isEmpty()) {
+	        response.put("status", false);
+	        response.put("message", "Offer ID is required");
+	        return ResponseEntity.ok(response);
+	    }
+
+	    // Fetch Offer Details
+	    Offers getOfferId = this.offerService.getIdOffers(offerId);
+	    
+	    if (getOfferId == null) {
+	        response.put("status", false);
+	        response.put("message", "Invalid Offer ID");
+	        return ResponseEntity.ok(response);
+	    }
+
+	    if ("USED".equals(typeMessage)) {
+	        OffersApplied offersApplied = new OffersApplied();
+	        offersApplied.setCustomerMain(exitsCustomer);
+	        offersApplied.setOfferStatus("USED");
+	        offersApplied.setAppTypeId("Customer");
+	        offersApplied.setOffers(getOfferId);
+	        this.offersAppliedRepo.save(offersApplied);
+
+	        // Subtract the discount from Grand Total
+	        grandTotal -= getOfferId.getDisAmountRs();
+	    }
+
+	    // Update response with new values
+	    response.put("status", true);
+	    response.put("message", "Offer applied successfully.");
+	    response.put("offerId", offerId);
+	    response.put("typeMessage", typeMessage);
+
+	    // Update Billing Details with new Grand Total
+	    billingDetails.put("Grand Total", String.format("₹%.2f", grandTotal));
+	    response.put("BillingDetails", billingDetails);
+
+	    return ResponseEntity.ok(response);
+	}
+
 
 	private String extractQuantity(String name) {
 		Pattern pattern = Pattern.compile("\\((.*?)\\)"); // Match text inside parentheses
