@@ -184,9 +184,20 @@
 	                        <div class="col-md-6">
 	                            <div class="mb-3">
 	                                <input type="text" class="form-control" name="discount" ng-model="offer.discount"
-	                                    placeholder="Enter the Discounts Amount" />
+	                                    placeholder="Enter the Discounts Description" />
 	                            </div>
 	                        </div>
+							
+							<div class="col-md-6">
+							    <div class="mb-3">
+							        <input type="text" class="form-control" name="disAmountRs" ng-model="offer.disAmountRs"
+							            placeholder="Enter the Discounts Amount" required />
+							        <div ng-show="myOffersForm.disAmountRs.$touched && myOffersForm.disAmountRs.$error.required" class="text-danger">
+							            Discount Amount is required.
+							        </div>
+							    </div>
+							</div>
+
 
 	                        <div class="col-md-6">
 	                            <div class="mb-3">
@@ -248,7 +259,7 @@
 				        </div>
 				        <div class="row">
 				            <div class="col-md-6">
-				                <p><strong>Discount:</strong> {{ selectedOffer.discount }}</p>
+				                <p><strong>Discount Description:</strong> {{ selectedOffer.discount }}</p>
 				            </div>
 				            <div class="col-md-6">
 				                <p><strong>Type:</strong> {{ selectedOffer.typeID }}</p>
@@ -264,6 +275,9 @@
 				            <div class="col-md-6">
 				                <p><strong>Is Active:</strong> {{ selectedOffer.isNewActive ? 'Yes' : 'No' }}</p>
 				            </div>
+							<div class="col-md-6">
+								<p><strong>Discount Amount:</strong> {{ selectedOffer.disAmountRs }}</p>
+							</div>
 				        </div>
 						<div class="row">
 							<div class="col-md-6">

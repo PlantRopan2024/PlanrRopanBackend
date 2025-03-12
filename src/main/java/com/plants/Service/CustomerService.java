@@ -1,5 +1,6 @@
 package com.plants.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import com.plants.Dao.CustomerDao;
 import com.plants.Dao.OffersAppliedRepo;
 import com.plants.Dao.userDao;
 import com.plants.config.JwtUtil;
+import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
 import com.plants.entities.BookingRequest;
 import com.plants.entities.CustomerMain;
@@ -233,66 +235,70 @@ public class CustomerService {
 		return ResponseEntity.ok(finalResponse);
 	}
 	
-	public ResponseEntity<Map<String, Object>> applyOffesCustomer(CustomerMain exitsCustomer, Map<String, Object> request) {
+	public ResponseEntity<Map<String, Object>> applyOffersCustomer(CustomerMain existingCustomer, Map<String, Object> request) {
 	    Map<String, Object> response = new HashMap<>();
 
-	    // Extracting values from the request
 	    String offerId = (String) request.get("offerId");
 	    String typeMessage = (String) request.get("typeMessage");
 
-	    // Extract BillingDetails safely
 	    Map<String, Object> billingDetails = (Map<String, Object>) request.get("BillingDetails");
 
-	    // Ensure BillingDetails exists before accessing it
 	    if (billingDetails == null || !billingDetails.containsKey("Grand Total")) {
-	        response.put("status", false);
-	        response.put("message", "Billing details are missing or incorrect");
-	        return ResponseEntity.ok(response);
+	        return Utils.createErrorResponse(response, "Billing details are missing or incorrect");
 	    }
 
-	    // Convert Grand Total to Double for calculations
-	    double grandTotal = Double.parseDouble(billingDetails.get("Grand Total").toString());
+	    BigDecimal grandTotal;
+	    try {
+	        grandTotal = new BigDecimal(billingDetails.get("Grand Total").toString());
+	    } catch (NumberFormatException e) {
+	        return Utils.createErrorResponse(response, "Invalid Grand Total value");
+	    }
 
 	    if (offerId == null || offerId.isEmpty()) {
-	        response.put("status", false);
-	        response.put("message", "Offer ID is required");
-	        return ResponseEntity.ok(response);
+	        return Utils.createErrorResponse(response, "Offer ID is required");
 	    }
 
-	    // Fetch Offer Details
-	    Offers getOfferId = this.offerService.getIdOffers(offerId);
-	    
-	    if (getOfferId == null) {
-	        response.put("status", false);
-	        response.put("message", "Invalid Offer ID");
-	        return ResponseEntity.ok(response);
+	    Offers offer = offerService.getIdOffers(offerId);
+	    if (offer == null) {
+	        return Utils.createErrorResponse(response, "Invalid Offer ID");
 	    }
 
-	    if ("USED".equals(typeMessage)) {
-	        OffersApplied offersApplied = new OffersApplied();
-	        offersApplied.setCustomerMain(exitsCustomer);
-	        offersApplied.setOfferStatus("USED");
-	        offersApplied.setAppTypeId("Customer");
-	        offersApplied.setOffers(getOfferId);
-	        this.offersAppliedRepo.save(offersApplied);
+	    OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(), existingCustomer.getPrimarykey());
 
-	        // Subtract the discount from Grand Total
-	        grandTotal -= getOfferId.getDisAmountRs();
+	    if ("APPLY".equalsIgnoreCase(typeMessage)) {
+	        if (existingAppliedOffer == null) {
+	            OffersApplied appliedOffer = new OffersApplied();
+	            appliedOffer.setCustomerMain(existingCustomer);
+	            appliedOffer.setOfferStatus("APPLY");
+	            appliedOffer.setAppTypeId("Customer");
+	            appliedOffer.setOffers(offer);
+	            offersAppliedRepo.save(appliedOffer);
+	            // Subtract discount from Grand Total if the discount value is not null
+	            grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+	            billingDetails.put("Coupon Applied", "₹ -" + offer.getDisAmountRs());
+	            
+	            response.put("message", "Offer applied successfully.");
+	        } else {
+	        	grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+	            billingDetails.put("Coupon Applied", "₹" + offer.getDisAmountRs());
+	            response.put("message", "You have already applied this offer.");
+	        }
 	    }
 
-	    // Update response with new values
-	    response.put("status", true);
-	    response.put("message", "Offer applied successfully.");
-	    response.put("offerId", offerId);
-	    response.put("typeMessage", typeMessage);
+	    if ("REMOVE".equalsIgnoreCase(typeMessage)) {
+	        if (existingAppliedOffer != null) {
+	            offersAppliedRepo.deleteById(existingAppliedOffer.getPrimaryKey());
+	            response.put("message", "Offer has been removed.");
+	        }
+	    }
 
-	    // Update Billing Details with new Grand Total
 	    billingDetails.put("Grand Total", String.format("₹%.2f", grandTotal));
 	    response.put("BillingDetails", billingDetails);
-
+	    response.put("status", true);
+	    response.put("offerId", offerId);
+	    response.put("typeMessage", typeMessage);
 	    return ResponseEntity.ok(response);
 	}
-
 
 	private String extractQuantity(String name) {
 		Pattern pattern = Pattern.compile("\\((.*?)\\)"); // Match text inside parentheses

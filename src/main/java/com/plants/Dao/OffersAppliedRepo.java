@@ -13,8 +13,15 @@ public interface OffersAppliedRepo extends JpaRepository<OffersApplied,Integer>{
 	@Query("SELECT e FROM OffersApplied e Where e.offers.primaryKey = :offerPk AND e.customerMain.primarykey = :cusstPk ")
 	List<OffersApplied> getAppliedlistOffers(@Param("offerPk") int offerPk,@Param("custPk") int custPk);
 	
-	@Query("SELECT COUNT(e) FROM OffersApplied e WHERE e.offers.primaryKey = :offerPk AND e.customerMain.primarykey = :custPk AND e.offerStatus = 'USED'")
+	@Query("SELECT COUNT(e) FROM OffersApplied e WHERE e.offers.primaryKey = :offerPk AND e.customerMain.primarykey = :custPk AND e.offerStatus = 'APPLY'")
 	long countAppliedOffers(@Param("offerPk") int offerPk, @Param("custPk") int custPk);
+	
+	@Query("SELECT e FROM OffersApplied e WHERE e.offers.primaryKey = :offerPk AND e.customerMain.primarykey = :custPk AND e.offerStatus = 'APPLY'")
+	OffersApplied getAppliedOffers(@Param("offerPk") int offerPk, @Param("custPk") int custPk);
+	
+	@Query("SELECT e FROM OffersApplied e WHERE e.offers.primaryKey = :offerPk AND e.customerMain.primarykey = :custPk AND e.offerStatus = 'REMOVE'")
+	OffersApplied getRemoveOffers(@Param("offerPk") int offerPk, @Param("custPk") int custPk);
+	
 
 
 }

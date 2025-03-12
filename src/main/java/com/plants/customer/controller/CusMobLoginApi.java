@@ -141,7 +141,7 @@ public class CusMobLoginApi {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 		}
 		
-		ResponseEntity<Map<String, Object>> response = customerService.applyOffesCustomer(exitsCustomer,request);
+		ResponseEntity<Map<String, Object>> response = customerService.applyOffersCustomer(exitsCustomer,request);
 		return ResponseEntity.ok(response.getBody());
 	}
 	

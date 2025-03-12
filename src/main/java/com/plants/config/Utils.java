@@ -232,5 +232,17 @@ public class Utils {
         paginationData.put("currentPage", page);
         return paginationData;
     }
+    
+    public static ResponseEntity<Map<String, Object>> createErrorResponse(Map<String, Object> response, String message) {
+	    response.put("status", false);
+	    response.put("message", message);
+	    return ResponseEntity.ok(response);
+	}
+    
+    public static ResponseEntity<Map<String, Object>> createSuccessResponse(Map<String, Object> response, String message) {
+	    response.put("status", true);
+	    response.put("message", message);
+	    return ResponseEntity.ok(response);
+	}
 
 }

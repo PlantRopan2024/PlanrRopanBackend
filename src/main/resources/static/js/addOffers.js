@@ -20,6 +20,7 @@ app.controller('addOffersController', ['$scope', '$http', function($scope, $http
         formData.append('description', $scope.offer.description);
         formData.append('validity',formattedValidity);
         formData.append('discount', $scope.offer.discount); 
+		formData.append('disAmountRs', $scope.offer.disAmountRs); 
         formData.append('conditions', $scope.offer.conditions);
         formData.append('TypeID', $scope.offer.TypeID);
         formData.append('isNewActive', $scope.offer.isNewActive);
