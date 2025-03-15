@@ -30,6 +30,12 @@ import com.plants.entities.Plans;
 
 @Service
 public class CustomerService {
+	
+	@Value("${google.api.key}")
+	private String googleApiKey;
+	
+	@Value("${google.url.address}")
+	private String googleUrlAddress;
 
 	@Value("${platform.fee}")
 	private String platformFees;
@@ -45,15 +51,13 @@ public class CustomerService {
 
 	@Autowired
 	LocationService locationService;
-	@Autowired
-	private SmsService smsService;
-
+	
 	@Autowired
 	private CustomerDao customerDao;
 
 	@Autowired
 	private JwtUtil jwtUtil;
-	
+	 
 	@Autowired OfferService offerService;
 	@Autowired OffersAppliedRepo offersAppliedRepo;
 
@@ -134,40 +138,36 @@ public class CustomerService {
 		return customerDao.save(customerMain);
 	}
 
-	public ResponseEntity<Map<String, Object>> getUpdateLiveLocationCust(CustomerMain exitsCustomer,
-			Map<String, String> request) {
+	public ResponseEntity<Map<String, Object>> getUpdateLiveLocationCust(CustomerMain exitsCustomer,Map<String, String> request) {
 		Map<String, Object> response = new HashMap<>();
 		double custLatitude = Double.parseDouble(request.get("custLatitude"));
 		double custLongitude = Double.parseDouble(request.get("custLongtitude"));
-		String city = request.get("city");
-		String address = request.get("address");
-		double speedKmPerHour = 25.0;
+		
+		CustomerMain customerMain = null;
+		if (Objects.nonNull(exitsCustomer)) {
+			exitsCustomer.setLatitude(custLatitude);
+			exitsCustomer.setLoggitude(custLongitude);
+			exitsCustomer.setAddress(Utils.getAddressFromCoordinates(custLatitude, custLongitude, googleApiKey, googleUrlAddress));
+			customerMain = this.customerDao.save(exitsCustomer);
+		}
+		
 		List<AgentMain> activeAgents = this.userdao.activeAgent();
 
 		if (!activeAgents.isEmpty()) {
 			for (AgentMain agent : activeAgents) {
 				if (agent.isActiveAgent()) {
-					double arrivalTime = locationService.estimateArrivalTime(custLatitude, custLongitude,
-							agent.getLatitude(), agent.getLongitude(), speedKmPerHour);
+					double arrivalTime = locationService.estimateArrivalTime(custLatitude, custLongitude,agent.getLatitude(), agent.getLongitude());
 					int roundedTime = (int) Math.ceil(arrivalTime);
 					if (arrivalTime != -1) {
-						if (Objects.nonNull(exitsCustomer)) {
-							exitsCustomer.setLatitude(custLatitude);
-							exitsCustomer.setLoggitude(custLongitude);
-							exitsCustomer.setAddress(address);
-							exitsCustomer.setCity(city);
-							CustomerMain save = this.customerDao.save(exitsCustomer);
-							Map<String, String> data = Map.of("address", save.getAddress(), "city", save.getCity(),
-									"custLatitude", String.valueOf(save.getLatitude()), "custLongtitude",
-									String.valueOf(save.getLoggitude()), "GardenerAvaliable",
-									"Gardener avaliable in " + roundedTime + " minutes");
+							Map<String, String> data = Map.of("address", customerMain.getAddress(),
+								"GardenerAvaliable", "Gardener avaliable in " + roundedTime + " minutes");
 							response.put("data", data);
-							response.put("status", "true");
+							response.put("status", true);
 							response.put("message", "Location Updated");
-						}
+						
 						System.out.println("Gardener avaliable in " + roundedTime + " minutes");
 					} else {
-						response.put("status", "false");
+						response.put("status", true);
 						response.put("message", "Gardener is not Avaliable for Your Location");
 					}
 				}
@@ -192,112 +192,105 @@ public class CustomerService {
 	}
 
 	public ResponseEntity<Map<String, Object>> orderSummaryCalculation(CustomerMain exitsCustomer,BookingRequest bookingRequest) {
-		System.out.println("Booking received: " + bookingRequest);
 		Map<String, Object> finalResponse = new HashMap<>();
-		Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
-		int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
-		double totalFertilizerCost = 0;
-		List<String> fertilizerDetails = new ArrayList<>();
-		for (FertilizerRequest fertilizer : bookingRequest.getFertilizers()) {
-			String name = fertilizer.getName();
-			String cleanedName = removeQuantityFromName(fertilizer.getName()); // Remove quantity
-			fertilizerDetails.add(cleanedName + " - ₹" + fertilizer.getPrice() * fertilizer.getQuantity());
-			totalFertilizerCost += fertilizer.getPrice() * fertilizer.getQuantity();
+		try {
+			Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
+			int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
+			double totalFertilizerCost = 0;
+			List<String> fertilizerDetails = new ArrayList<>();
+			for (FertilizerRequest fertilizer : bookingRequest.getFertilizers()) {
+				String name = fertilizer.getName();
+				String cleanedName = removeQuantityFromName(fertilizer.getName()); // Remove quantity
+				fertilizerDetails.add(cleanedName + " - ₹" + fertilizer.getPrice() * fertilizer.getQuantity());
+				totalFertilizerCost += fertilizer.getPrice() * fertilizer.getQuantity();
+			}
+			int platformFee = Integer.parseInt(platformFees);
+			double gstAmount = (serviceCharge * Double.parseDouble(gstRate)) / 100.0;
+			double grandTotal = serviceCharge + totalFertilizerCost + platformFee + gstAmount;
+			Map<String, Object> data = new HashMap<>();
+			data.put("Service Charge", "₹" + serviceCharge);
+			data.put("Fertilizer", "₹" + (int) totalFertilizerCost);
+			data.put("Fertilizer Details", fertilizerDetails);
+			data.put("Platform Fee", "₹" + platformFee);
+			data.put("GST 18%", "₹" + String.format("%.2f", gstAmount));
+			data.put("Grand Total", "₹" + String.format("%.2f", grandTotal));
+			
+			finalResponse.put("BillingDetails", data); 
+			finalResponse.put("Offers", getDiscountOffers(exitsCustomer)); 
+		    finalResponse.put("GardeningLocation", getGardeningLocation(exitsCustomer));
+		    finalResponse.put("status", true);
+		}catch(Exception e) {
+			e.printStackTrace();
+			finalResponse.put("status", false);
+			finalResponse.put("message", "Something Went Wrong");
 		}
-		int platformFee = Integer.parseInt(platformFees);
-
-		double gstAmount = (serviceCharge * Double.parseDouble(gstRate)) / 100.0;
-		double grandTotal = serviceCharge + totalFertilizerCost + platformFee + gstAmount;
-
-		Map<String, Object> data = new HashMap<>();
-		data.put("Service Charge", "₹" + serviceCharge);
-		data.put("Fertilizer", "₹" + (int) totalFertilizerCost);
-		data.put("Fertilizer Details", fertilizerDetails);
-		data.put("Platform Fee", "₹" + platformFee);
-		data.put("GST 18%", "₹" + String.format("%.2f", gstAmount));
-		data.put("Grand Total", "₹" + String.format("%.2f", grandTotal));
-		
-		
-		finalResponse.put("BillingDetails", data); 
-		
-		// discount offer 
-		List<Offers> getOffers = this.offerService.getAllOffersCusMobApi();
-		List<Offers> unusedOffers = new ArrayList<>();
-		for (Offers offer : getOffers) {
-		    long appliedCount = this.offersAppliedRepo.countAppliedOffers(offer.getPrimarykey(), exitsCustomer.getPrimarykey());
-		    if (appliedCount == 0) {
-		        unusedOffers.add(offer);
-		    }
-		}
-		
-		finalResponse.put("Offers", unusedOffers); 
-
 		return ResponseEntity.ok(finalResponse);
 	}
 	
 	public ResponseEntity<Map<String, Object>> applyOffersCustomer(CustomerMain existingCustomer, Map<String, Object> request) {
 	    Map<String, Object> response = new HashMap<>();
-
-	    String offerId = (String) request.get("offerId");
-	    String typeMessage = (String) request.get("typeMessage");
-
-	    Map<String, Object> billingDetails = (Map<String, Object>) request.get("BillingDetails");
-
-	    if (billingDetails == null || !billingDetails.containsKey("Grand Total")) {
-	        return Utils.createErrorResponse(response, "Billing details are missing or incorrect");
-	    }
-
-	    BigDecimal grandTotal;
 	    try {
+	    	String offerId = (String) request.get("offerId");
+		    String typeMessage = (String) request.get("typeMessage");
+		    Map<String, Object> billingDetails = (Map<String, Object>) request.get("BillingDetails");
+		    if (billingDetails == null || !billingDetails.containsKey("Grand Total")) {
+		        return Utils.createErrorResponse(response, "Billing details are missing or incorrect");
+		    }
+		    BigDecimal grandTotal;
 	        grandTotal = new BigDecimal(billingDetails.get("Grand Total").toString());
+	     
+	        if (offerId == null || offerId.isEmpty()) {
+		        return Utils.createErrorResponse(response, "Offer ID is required");
+		    }
+
+		    Offers offer = offerService.getIdOffers(offerId);
+		    if (offer == null) {
+		        return Utils.createErrorResponse(response, "Invalid Offer ID");
+		    }
+
+		    OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(), existingCustomer.getPrimarykey());
+
+		    if ("APPLY".equalsIgnoreCase(typeMessage)) {
+		        if (existingAppliedOffer == null) {
+		            OffersApplied appliedOffer = new OffersApplied();
+		            appliedOffer.setCustomerMain(existingCustomer);
+		            appliedOffer.setOfferStatus("APPLY");
+		            appliedOffer.setAppTypeId("Customer");
+		            appliedOffer.setOffers(offer);
+		            offersAppliedRepo.save(appliedOffer);
+		            // Subtract discount from Grand Total if the discount value is not null
+		            grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+		            billingDetails.put("Coupon Applied", "₹ -" + offer.getDisAmountRs());
+		            
+		            response.put("message", "Offer applied successfully.");
+		        } else {
+		        	grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+		            billingDetails.put("Coupon Applied", "₹" + offer.getDisAmountRs());
+		            response.put("message", "You have already applied this offer.");
+		        }
+		    }
+
+		    if ("REMOVE".equalsIgnoreCase(typeMessage)) {
+		        if (existingAppliedOffer != null) {
+		            offersAppliedRepo.deleteById(existingAppliedOffer.getPrimaryKey());
+		            response.put("message", "Offer has been removed.");
+		        }
+		    }
+
+		    billingDetails.put("Grand Total", String.format("₹%.2f", grandTotal));
+		    response.put("BillingDetails", billingDetails);
+		    response.put("status", true);
+		    response.put("offerId", offerId);
+		    response.put("typeMessage", typeMessage);
+
 	    } catch (NumberFormatException e) {
 	        return Utils.createErrorResponse(response, "Invalid Grand Total value");
-	    }
-
-	    if (offerId == null || offerId.isEmpty()) {
-	        return Utils.createErrorResponse(response, "Offer ID is required");
-	    }
-
-	    Offers offer = offerService.getIdOffers(offerId);
-	    if (offer == null) {
-	        return Utils.createErrorResponse(response, "Invalid Offer ID");
-	    }
-
-	    OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(), existingCustomer.getPrimarykey());
-
-	    if ("APPLY".equalsIgnoreCase(typeMessage)) {
-	        if (existingAppliedOffer == null) {
-	            OffersApplied appliedOffer = new OffersApplied();
-	            appliedOffer.setCustomerMain(existingCustomer);
-	            appliedOffer.setOfferStatus("APPLY");
-	            appliedOffer.setAppTypeId("Customer");
-	            appliedOffer.setOffers(offer);
-	            offersAppliedRepo.save(appliedOffer);
-	            // Subtract discount from Grand Total if the discount value is not null
-	            grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
-	            billingDetails.put("Coupon Applied", "₹ -" + offer.getDisAmountRs());
-	            
-	            response.put("message", "Offer applied successfully.");
-	        } else {
-	        	grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
-	            billingDetails.put("Coupon Applied", "₹" + offer.getDisAmountRs());
-	            response.put("message", "You have already applied this offer.");
-	        }
-	    }
-
-	    if ("REMOVE".equalsIgnoreCase(typeMessage)) {
-	        if (existingAppliedOffer != null) {
-	            offersAppliedRepo.deleteById(existingAppliedOffer.getPrimaryKey());
-	            response.put("message", "Offer has been removed.");
-	        }
-	    }
-
-	    billingDetails.put("Grand Total", String.format("₹%.2f", grandTotal));
-	    response.put("BillingDetails", billingDetails);
-	    response.put("status", true);
-	    response.put("offerId", offerId);
-	    response.put("typeMessage", typeMessage);
-	    return ResponseEntity.ok(response);
+	    } catch(Exception e) {
+			e.printStackTrace();
+			response.put("status", false);
+			response.put("message", "Something Went Wrong");
+		}
+	   return ResponseEntity.ok(response);
 	}
 
 	private String extractQuantity(String name) {
@@ -316,5 +309,44 @@ public class CustomerService {
 	
 	private String generateReferralCodeCus() {
 		return "cus50" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+	}
+	
+	private Map<String, Object> getGardeningLocation(CustomerMain exitsCustomer) {
+	    List<AgentMain> activeAgents = this.userdao.activeAgent();
+	    Map<String, Object> agentAvailResponse = new HashMap<>();
+
+	    if (!activeAgents.isEmpty()) {
+	        for (AgentMain agent : activeAgents) {
+	            if (agent.isActiveAgent()) {
+	                double arrivalTime = locationService.estimateArrivalTime(
+	                        exitsCustomer.getLatitude(),
+	                        exitsCustomer.getLoggitude(),
+	                        agent.getLatitude(),
+	                        agent.getLongitude()
+	                );
+	                int roundedTime = (int) Math.ceil(arrivalTime);
+	                if (arrivalTime != -1) {
+	                    agentAvailResponse.put("GardenerAddress", exitsCustomer.getAddress());
+	                    agentAvailResponse.put("GardenerAvailable", "Gardener available in " + roundedTime + " minutes");
+	                } else {
+	                    agentAvailResponse.put("GardenerAvailable", "Gardener is not available for your location");
+	                }
+	            }
+	        }
+	    }
+	    return agentAvailResponse;
+	}
+	
+	// discount offer 
+	private List<Offers> getDiscountOffers(CustomerMain exitsCustomer) {
+				List<Offers> getOffers = this.offerService.getAllOffersCusMobApi();
+				List<Offers> unusedOffers = new ArrayList<>();
+				for (Offers offer : getOffers) {
+				    long appliedCount = this.offersAppliedRepo.countAppliedOffers(offer.getPrimarykey(), exitsCustomer.getPrimarykey());
+				    if (appliedCount == 0) {
+				        unusedOffers.add(offer);
+				    }
+				}
+	    return unusedOffers;
 	}
 }

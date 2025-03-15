@@ -47,6 +47,12 @@ public class AgentLoginService {
 	@Value("${file.upload-dir}")
 	private String uploadDir;
 	
+	@Value("${google.api.key}")
+	private String googleApiKey;
+	
+	@Value("${google.url.address}")
+	private String googleUrlAddress;
+	
 	@Autowired
 	private S3Service s3Service;
 
@@ -141,7 +147,8 @@ public class AgentLoginService {
 				agentMain.setEmailId(agentJsonRequest.getAgentPersonalDetails().getEmailId());
 				agentMain.setState(agentJsonRequest.getAgentPersonalDetails().getState());
 				agentMain.setCity(agentJsonRequest.getAgentPersonalDetails().getCity());
-				agentMain.setAddress(agentJsonRequest.getAgentPersonalDetails().getAddress());
+				String address = Utils.getAddressFromCoordinates(agentJsonRequest.getAgentPersonalDetails().getLatitude(), agentJsonRequest.getAgentPersonalDetails().getLongitude(), googleApiKey, googleUrlAddress);
+				agentMain.setAddress(address);
 				agentMain.setPincode(agentJsonRequest.getAgentPersonalDetails().getPincode());
 				agentMain.setLatitude(agentJsonRequest.getAgentPersonalDetails().getLatitude());
 				agentMain.setLongitude(agentJsonRequest.getAgentPersonalDetails().getLongitude());

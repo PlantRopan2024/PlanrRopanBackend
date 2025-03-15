@@ -24,8 +24,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.Resource;
 
@@ -244,5 +246,24 @@ public class Utils {
 	    response.put("message", message);
 	    return ResponseEntity.ok(response);
 	}
+    
+    public static String getAddressFromCoordinates(double latitude, double longitude,String apiKeyGoogle,String urlAddressGoogle) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        String url = UriComponentsBuilder.fromHttpUrl(urlAddressGoogle)
+                .queryParam("latlng", latitude + "," + longitude)
+                .queryParam("key", apiKeyGoogle)
+                .toUriString();
+
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+
+        if (response != null && response.containsKey("results")) {
+            var results = (java.util.List<Map<String, Object>>) response.get("results");
+            if (!results.isEmpty()) {
+                return (String) results.get(0).get("formatted_address");
+            }
+        }
+        return "Address not found";
+    }
 
 }
