@@ -56,9 +56,26 @@ public class CusMobLoginApi {
 	            response.put("error", "Invalid or expired token");
 	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 	        }
-	        response.put("data", exitsCustomer);
-	        return ResponseEntity.ok(response);
-	    } catch (Exception e) {
+	        
+	        
+	        Map<String, Object> data = new HashMap<>();
+			data.put("primarykey", exitsCustomer.getPrimarykey());
+			data.put("firstName", exitsCustomer.getFirstName());
+			data.put("lastName", exitsCustomer.getLastName());
+			data.put("emailId", exitsCustomer.getEmailId());
+			data.put("mobileNumber", exitsCustomer.getMobileNumber());
+			data.put("address", exitsCustomer.getAddress());
+			data.put("city", exitsCustomer.getCity());
+			data.put("latitude", exitsCustomer.getLatitude());
+			data.put("loggitude", exitsCustomer.getLoggitude());
+			data.put("token", exitsCustomer.getToken());
+			data.put("firebasetokenCus", exitsCustomer.getFirebasetokenCus());
+			data.put("profileCompleted", exitsCustomer.isProfileCompleted());
+			
+			response.put("data", data);
+			return ResponseEntity.ok(response);
+
+	  	    } catch (Exception e) {
 	        response.put("error", "An unexpected error occurred");
 	        response.put("details", e.getMessage());
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
