@@ -15,12 +15,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.plants.Dao.AppRatingRepo;
 import com.plants.Dao.MobileApiDao;
 import com.plants.Dao.userDao;
 import com.plants.config.JwtUtil;
 import com.plants.config.Utils;
 import com.plants.entities.AgentJsonRequest;
 import com.plants.entities.AgentMain;
+import com.plants.entities.AppRating;
+import com.plants.entities.CustomerMain;
 
 import jakarta.transaction.Transactional;
 
@@ -43,6 +46,9 @@ public class AgentLoginService {
 
 	@Autowired
 	userDao userdao;
+	
+	@Autowired
+	private AppRatingRepo appRatingRepo;
 
 	@Value("${file.upload-dir}")
 	private String uploadDir;
@@ -320,6 +326,44 @@ public class AgentLoginService {
 		}
 		return ResponseEntity.ok(response);
 	}
+	
+	public ResponseEntity<Map<String, Object>> appRatingAgent(AgentMain existingAgent,Map<String, String> request) {
+		    Map<String, Object> response = new HashMap<>();
+		    try {
+		        if (!request.containsKey("rating")) {
+		            response.put("status", false);
+		            response.put("message", "Rating is required");
+		            return ResponseEntity.badRequest().body(response);
+		        }
+		        int rating;
+		        try {
+		            rating = Integer.parseInt(request.get("rating").toString());
+		            if (rating < 1 || rating > 5) {
+		                response.put("status", false);
+		                response.put("message", "Rating must be between 1 and 5");
+		                return ResponseEntity.badRequest().body(response);
+		            }
+		        } catch (NumberFormatException e) {
+		            response.put("status", false);
+		            response.put("message", "Invalid rating format");
+		            return ResponseEntity.badRequest().body(response);
+		        }
+
+		        AppRating appRating = new AppRating();
+		        appRating.setAgentMain(existingAgent);
+		        appRating.setRating(rating);
+		        appRatingRepo.save(appRating);
+
+		        response.put("status", true);
+		        response.put("message", "Thank You For Giving Rating");
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        response.put("status", false);
+		        response.put("message", "Something Went Wrong");
+		    }
+		    return ResponseEntity.ok(response);
+	}
+
 
 	private String generateReferralCode() {
 		return "gar50" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();

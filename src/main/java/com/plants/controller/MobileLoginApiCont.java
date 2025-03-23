@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import com.plants.Dao.AppRatingRepo;
 import com.plants.Dao.MobileApiDao;
 import com.plants.Dao.userDao;
 import com.plants.Service.AgentLoginService;
@@ -38,6 +39,9 @@ public class MobileLoginApiCont {
 
 	@Autowired
 	private MobileApiDao mobileApiDao;
+	
+	@Autowired
+	private AppRatingRepo appRatingRepo;
 
 	@Autowired
 	private JwtUtil jwtUtil;
@@ -214,6 +218,20 @@ public class MobileLoginApiCont {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 		}
 		ResponseEntity<Map<String, String>> activeAgent = agentLoginService.getFirebaseDeviceToken(agentRecords,
+				request);
+		return ResponseEntity.ok(activeAgent.getBody());
+	}
+	
+	@PostMapping("/appRatingAgent")
+	public ResponseEntity<Map<String, Object>> appRatingAgentCon(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, String> request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+
+		if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		ResponseEntity<Map<String, Object>> activeAgent = agentLoginService.appRatingAgent(agentRecords,
 				request);
 		return ResponseEntity.ok(activeAgent.getBody());
 	}

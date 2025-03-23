@@ -42,6 +42,9 @@ public class Plans {
     private List<Fertilizer> fertilizers = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "plans")
+    private List<IncludingService> includingService = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "plans")
     private List<Reviews> reviews = new ArrayList<>();
 	    
 	public Plans() {
@@ -50,7 +53,7 @@ public class Plans {
 
 	public Plans(int primaryKey, String plansName, String plansRs, String timeDuration, String uptoPots,
 			String includingServicesName, String planType, String planPacks, String workDone, String varietiesTrimmed,
-			boolean isActive, serviceName servicesName,String reviewsCount,String ratingStar, List<Fertilizer> fertilizers, List<Reviews> reviews) {
+			boolean isActive, serviceName servicesName,String reviewsCount,String ratingStar, List<Fertilizer> fertilizers, List<Reviews> reviews,List<IncludingService> includingService) {
 		super();
 		this.primaryKey = primaryKey;
 		this.plansName = plansName;
@@ -66,6 +69,7 @@ public class Plans {
 		this.servicesName = servicesName;
 		this.fertilizers = fertilizers;
 		this.reviews = reviews;
+		this.includingService =includingService;
 		this.reviewsCount=reviewsCount;
 		this.ratingStar=ratingStar;
 	}
@@ -197,6 +201,15 @@ public class Plans {
 
 	public void setRatingStar(String ratingStar) {
 		this.ratingStar = ratingStar;
+	}
+	
+
+	public List<IncludingService> getIncludingService() {
+		return includingService;
+	}
+
+	public void setIncludingService(List<IncludingService> includingService) {
+		this.includingService = includingService;
 	}
 
 	@Override

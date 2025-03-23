@@ -15,12 +15,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.plants.Dao.AppRatingRepo;
 import com.plants.Dao.CustomerDao;
 import com.plants.Dao.OffersAppliedRepo;
 import com.plants.Dao.userDao;
 import com.plants.config.JwtUtil;
 import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
+import com.plants.entities.AppRating;
 import com.plants.entities.BookingRequest;
 import com.plants.entities.CustomerMain;
 import com.plants.entities.FertilizerRequest;
@@ -54,6 +56,9 @@ public class CustomerService {
 	
 	@Autowired
 	private CustomerDao customerDao;
+	
+	@Autowired
+	private AppRatingRepo appRatingRepo;
 
 	@Autowired
 	private JwtUtil jwtUtil;
@@ -194,27 +199,22 @@ public class CustomerService {
 	public ResponseEntity<Map<String, Object>> orderSummaryCalculation(CustomerMain exitsCustomer,BookingRequest bookingRequest) {
 		Map<String, Object> finalResponse = new HashMap<>();
 		try {
-			Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
-			int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
-			double totalFertilizerCost = 0;
-			List<String> fertilizerDetails = new ArrayList<>();
-			for (FertilizerRequest fertilizer : bookingRequest.getFertilizers()) {
-				String name = fertilizer.getName();
-				String cleanedName = removeQuantityFromName(fertilizer.getName()); // Remove quantity
-				fertilizerDetails.add(cleanedName + " - ₹" + fertilizer.getPrice() * fertilizer.getQuantity());
-				totalFertilizerCost += fertilizer.getPrice() * fertilizer.getQuantity();
-			}
+			//Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
+			//int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
+		//	double totalFertilizerCost = 0;
+		//	List<String> fertilizerDetails = new ArrayList<>();
+//			for (FertilizerRequest fertilizer : bookingRequest.getFertilizers()) {
+//				String name = fertilizer.getName();
+//				String cleanedName = removeQuantityFromName(fertilizer.getName()); // Remove quantity
+//				fertilizerDetails.add(cleanedName + " - ₹" + fertilizer.getPrice() * fertilizer.getQuantity());
+//				totalFertilizerCost += fertilizer.getPrice() * fertilizer.getQuantity();
+//			}
 			int platformFee = Integer.parseInt(platformFees);
-			double gstAmount = (serviceCharge * Double.parseDouble(gstRate)) / 100.0;
-			double grandTotal = serviceCharge + totalFertilizerCost + platformFee + gstAmount;
+		//	double gstAmount = (serviceCharge * Double.parseDouble(gstRate)) / 100.0;
+		//	double grandTotal = serviceCharge + totalFertilizerCost + platformFee + gstAmount;
 			Map<String, Object> data = new HashMap<>();
-			data.put("Service Charge", "₹" + serviceCharge);
-			data.put("Fertilizer", "₹" + (int) totalFertilizerCost);
-			data.put("Fertilizer Details", fertilizerDetails);
-			data.put("Platform Fee", "₹" + platformFee);
-			data.put("GST 18%", "₹" + String.format("%.2f", gstAmount));
-			data.put("Grand Total", "₹" + String.format("%.2f", grandTotal));
-			
+			data.put("Platform Fee", platformFee);	
+			data.put("Gst Fee", Double.parseDouble(gstRate));			
 			finalResponse.put("BillingDetails", data); 
 			finalResponse.put("Offers", getDiscountOffers(exitsCustomer)); 
 		    finalResponse.put("GardeningLocation", getGardeningLocation(exitsCustomer));
@@ -232,13 +232,11 @@ public class CustomerService {
 	    try {
 	    	String offerId = (String) request.get("offerId");
 		    String typeMessage = (String) request.get("typeMessage");
-		    Map<String, Object> billingDetails = (Map<String, Object>) request.get("BillingDetails");
-		    if (billingDetails == null || !billingDetails.containsKey("Grand Total")) {
-		        return Utils.createErrorResponse(response, "Billing details are missing or incorrect");
-		    }
-		    BigDecimal grandTotal;
-	        grandTotal = new BigDecimal(billingDetails.get("Grand Total").toString());
-	     
+		    Object grandTotalObj = request.get("grandTotal");
+		    BigDecimal grandTotal = (grandTotalObj instanceof Number) 
+		        ? BigDecimal.valueOf(((Number) grandTotalObj).doubleValue()) 
+		        : BigDecimal.ZERO;
+		    
 	        if (offerId == null || offerId.isEmpty()) {
 		        return Utils.createErrorResponse(response, "Offer ID is required");
 		    }
@@ -247,10 +245,12 @@ public class CustomerService {
 		    if (offer == null) {
 		        return Utils.createErrorResponse(response, "Invalid Offer ID");
 		    }
+		    
+		    Map<String, Object> billingDetails = new HashMap<String, Object>();
 
 		    OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(), existingCustomer.getPrimarykey());
 
-		    if ("APPLY".equalsIgnoreCase(typeMessage)) {
+			if ("APPLY".equalsIgnoreCase(typeMessage)) {
 		        if (existingAppliedOffer == null) {
 		            OffersApplied appliedOffer = new OffersApplied();
 		            appliedOffer.setCustomerMain(existingCustomer);
@@ -260,12 +260,11 @@ public class CustomerService {
 		            offersAppliedRepo.save(appliedOffer);
 		            // Subtract discount from Grand Total if the discount value is not null
 		            grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
-		            billingDetails.put("Coupon Applied", "₹ -" + offer.getDisAmountRs());
-		            
+		            billingDetails.put("Coupon Applied", offer.getDisAmountRs());
 		            response.put("message", "Offer applied successfully.");
 		        } else {
 		        	grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
-		            billingDetails.put("Coupon Applied", "₹" + offer.getDisAmountRs());
+		            billingDetails.put("Coupon Applied", offer.getDisAmountRs());
 		            response.put("message", "You have already applied this offer.");
 		        }
 		    }
@@ -277,7 +276,7 @@ public class CustomerService {
 		        }
 		    }
 
-		    billingDetails.put("Grand Total", String.format("₹%.2f", grandTotal));
+		    billingDetails.put("Grand Total", String.format("%.2f", grandTotal));
 		    response.put("BillingDetails", billingDetails);
 		    response.put("status", true);
 		    response.put("offerId", offerId);
@@ -291,6 +290,47 @@ public class CustomerService {
 			response.put("message", "Something Went Wrong");
 		}
 	   return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, Object>> appRatingServicesCus(CustomerMain existingCustomer, Map<String, Object> request) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        if (!request.containsKey("rating")) {
+	            response.put("status", false);
+	            response.put("message", "Rating is required");
+	            return ResponseEntity.badRequest().body(response);
+	        }
+	  
+	        int rating;
+	        try {
+	            rating = Integer.parseInt(request.get("rating").toString());
+	            if (rating < 1 || rating > 5) {
+	                response.put("status", false);
+	                response.put("message", "Rating must be between 1 and 5");
+	                return ResponseEntity.badRequest().body(response);
+	            }
+	        } catch (NumberFormatException e) {
+	            response.put("status", false);
+	            response.put("message", "Invalid rating format");
+	            return ResponseEntity.badRequest().body(response);
+	        }
+
+	        // Save rating
+	        AppRating appRating = new AppRating();
+	        appRating.setCustomerMain(existingCustomer);
+	        appRating.setRating(rating);
+	        appRatingRepo.save(appRating);
+
+	        response.put("status", true);
+	        response.put("message", "Thank You For Giving Rating");
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("status", false);
+	        response.put("message", "Something went wrong, please try again later");
+	    }
+
+	    return ResponseEntity.ok(response);
 	}
 
 	private String extractQuantity(String name) {

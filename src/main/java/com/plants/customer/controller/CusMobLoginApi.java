@@ -162,4 +162,18 @@ public class CusMobLoginApi {
 		return ResponseEntity.ok(response.getBody());
 	}
 	
+	@PostMapping("/appRatingCus") 
+	public ResponseEntity<?> appRatingCus(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, Object> request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
+
+		if (Objects.isNull(exitsCustomer) || !jwtToken.equals(exitsCustomer.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		
+		ResponseEntity<Map<String, Object>> response = customerService.appRatingServicesCus(exitsCustomer,request);
+		return ResponseEntity.ok(response.getBody());
+	}
+	
 }
