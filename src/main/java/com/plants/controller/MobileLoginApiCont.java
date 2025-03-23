@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,8 @@ import com.plants.config.JwtUtil;
 import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/MobileLoginApi")
 public class MobileLoginApiCont {
@@ -45,10 +48,13 @@ public class MobileLoginApiCont {
 
 	@Autowired
 	private JwtUtil jwtUtil;
+	
+	@Value("${file.upload-dir}")
+    private String uploadDir;
 
 	@GetMapping("/getallDetailAgent")
 	public ResponseEntity<Map<String, Object>> getAllDetailAgent(
-			@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token,HttpServletRequest request) {
 		Map<String, Object> response = new HashMap<>();
 
 		try {
@@ -62,6 +68,11 @@ public class MobileLoginApiCont {
 				response.put("error", "Invalid or expired token");
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 			}
+			
+			String selfieImageUrl = Utils.findImgPath(uploadDir, agentRecords.getMobileNumber(), agentRecords.getSelfieImg());
+			String aadharFrontImageUrl = Utils.findImgPath(uploadDir, agentRecords.getMobileNumber(), agentRecords.getAadharImgFrontSide());
+			String aadharBackImageUrl = Utils.findImgPath(uploadDir, agentRecords.getMobileNumber(), agentRecords.getAadharImgBackSide());
+			String bankImageUrl = Utils.findImgPath(uploadDir, agentRecords.getMobileNumber(), agentRecords.getBankPassBookImage());
 
 			Map<String, Object> data = new HashMap<>();
 			data.put("agentIDPk", agentRecords.getAgentIDPk());
@@ -77,6 +88,10 @@ public class MobileLoginApiCont {
 			data.put("activeAgent", agentRecords.isActiveAgent());
 			data.put("state", agentRecords.getState());
 			data.put("city", agentRecords.getCity());
+			data.put("selefiImageUrl", selfieImageUrl);
+			data.put("aadharFrontImageUrl", aadharFrontImageUrl);
+			data.put("aadharBackImageUrl", aadharBackImageUrl);
+			data.put("bankPassImageUrl", bankImageUrl);
 			data.put("address", agentRecords.getAddress());
 			data.put("pincode", agentRecords.getPincode());
 			data.put("latitude", agentRecords.getLatitude());

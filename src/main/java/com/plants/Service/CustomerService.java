@@ -38,7 +38,10 @@ public class CustomerService {
 	
 	@Value("${google.url.address}")
 	private String googleUrlAddress;
-
+	
+	@Value("${google.url.latidude}")
+	private String getLatidudeOrLongitutdeUrl;
+	
 	@Value("${platform.fee}")
 	private String platformFees;
 
@@ -217,7 +220,7 @@ public class CustomerService {
 			data.put("Gst Fee", Double.parseDouble(gstRate));			
 			finalResponse.put("BillingDetails", data); 
 			finalResponse.put("Offers", getDiscountOffers(exitsCustomer)); 
-		    finalResponse.put("GardeningLocation", getGardeningLocation(exitsCustomer));
+		//    finalResponse.put("GardeningLocation", getGardeningLocation(exitsCustomer));
 		    finalResponse.put("status", true);
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -315,7 +318,6 @@ public class CustomerService {
 	            return ResponseEntity.badRequest().body(response);
 	        }
 
-	        // Save rating
 	        AppRating appRating = new AppRating();
 	        appRating.setCustomerMain(existingCustomer);
 	        appRating.setRating(rating);
@@ -324,6 +326,37 @@ public class CustomerService {
 	        response.put("status", true);
 	        response.put("message", "Thank You For Giving Rating");
 	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("status", false);
+	        response.put("message", "Something went wrong, please try again later");
+	    }
+
+	    return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, Object>> changesAddessOrder(CustomerMain existingCustomer, Map<String, Object> request) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	    	double latitudeCus = (double) request.get("latitude");
+	    	double longitudeCus = (double) request.get("longitude");
+	    	String addressType = (String) request.get("addressType");
+	    	String otherAddress = (String) request.get("otherAddress");
+
+	    	if(addressType.equals("SELF_ADDRESS")) {
+	    		Map<String, Object> gardeningLocation = getGardeningLocation(latitudeCus,longitudeCus);
+	    		response.put("GardeningLocation", gardeningLocation);
+	    		response.put("status", true);
+	    	}
+	    	
+	    	if(addressType.equals("OTHER_ADDRESS")) {
+	    		Map<String, Object> gardeningLocation = Utils.getCoordinates(getLatidudeOrLongitutdeUrl,googleApiKey,otherAddress);
+	    		double latitude = (double) gardeningLocation.get("latitude");
+	            double longitude = (double) gardeningLocation.get("longitude");
+	    		Map<String, Object> gardeningLocationOther = getGardeningLocation(latitude,longitude);
+	            response.put("GardeningLocation", gardeningLocationOther);
+	    		response.put("status", true);
+	    	}
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        response.put("status", false);
@@ -351,22 +384,16 @@ public class CustomerService {
 		return "cus50" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 	}
 	
-	private Map<String, Object> getGardeningLocation(CustomerMain exitsCustomer) {
+	private Map<String, Object> getGardeningLocation(double latitudeCus,double longitudeCus) {
 	    List<AgentMain> activeAgents = this.userdao.activeAgent();
 	    Map<String, Object> agentAvailResponse = new HashMap<>();
 
 	    if (!activeAgents.isEmpty()) {
 	        for (AgentMain agent : activeAgents) {
 	            if (agent.isActiveAgent()) {
-	                double arrivalTime = locationService.estimateArrivalTime(
-	                        exitsCustomer.getLatitude(),
-	                        exitsCustomer.getLoggitude(),
-	                        agent.getLatitude(),
-	                        agent.getLongitude()
-	                );
+	                double arrivalTime = locationService.estimateArrivalTime(latitudeCus,longitudeCus,agent.getLatitude(),agent.getLongitude());
 	                int roundedTime = (int) Math.ceil(arrivalTime);
 	                if (arrivalTime != -1) {
-	                    agentAvailResponse.put("GardenerAddress", exitsCustomer.getAddress());
 	                    agentAvailResponse.put("GardenerAvailable", "Gardener available in " + roundedTime + " minutes");
 	                } else {
 	                    agentAvailResponse.put("GardenerAvailable", "Gardener is not available for your location");

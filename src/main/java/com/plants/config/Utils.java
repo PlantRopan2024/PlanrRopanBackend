@@ -4,9 +4,13 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,6 +22,9 @@ import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import javax.imageio.ImageIO;
 
 import org.springframework.http.HttpHeaders;
@@ -28,6 +35,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.fasterxml.jackson.databind.util.JSONPObject;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.Resource;
 
@@ -146,9 +158,30 @@ public class Utils {
             return ResponseEntity.status(500).body(null);
         }
     }
+    
+    public static ResponseEntity<String> getImageUrl(String baseDirectory, String folderName, String fileName, HttpServletRequest request) {
+        try {
+            Path filePath = Paths.get(baseDirectory, folderName, fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            System.out.println(" resource   -- " + resource);
 
-	public static String findImgPath(String file) {
-		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/uploadImages/compressed_").path(file).toUriString();
+            System.out.println(" filePath   -- " + filePath);
+            if (!Files.exists(filePath)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+            }
+
+            String fileUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+                    + "/uploads/" + folderName + "/" + fileName;
+
+            return ResponseEntity.ok(fileUrl);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating file URL");
+        }
+    }
+
+
+	public static String findImgPath(String baseDirectory, String folderName, String fileName) {
+		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/"+baseDirectory+"/"+folderName).path(fileName).toUriString();
 	}
 	
 	public static MediaType getFileExtensionName(String fileName) {
@@ -264,6 +297,52 @@ public class Utils {
             }
         }
         return "Address not found";
+    }
+    
+    public static Map<String, Object> getCoordinates(String getLatidudeOrLongitutdeUrl, String apiKey, String address) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String formattedAddress = address.replace(" ", "+");
+            String urlString = getLatidudeOrLongitutdeUrl + "=" + formattedAddress + "&key=" + apiKey;
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            // Parse JSON Response
+            JSONObject jsonResponse = new JSONObject(response.toString());
+            if (jsonResponse.getString("status").equals("OK")) {
+                JSONArray results = jsonResponse.getJSONArray("results");
+                if (results.length() > 0) {
+                    JSONObject location = results.getJSONObject(0)
+                            .getJSONObject("geometry")
+                            .getJSONObject("location");
+
+                    double latitude = location.getDouble("lat");
+                    double longitude = location.getDouble("lng");
+
+                    result.put("latitude", latitude);
+                    result.put("longitude", longitude);
+                    System.out.println("Latitude: " + latitude);
+                    System.out.println("Longitude: " + longitude);
+                } else {
+                    System.out.println("No results found.");
+                }
+            } else {
+                System.out.println("Error: " + jsonResponse.getString("status"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
 }
