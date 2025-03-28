@@ -330,6 +330,7 @@ public class AgentLoginService {
 	public ResponseEntity<Map<String, Object>> appRatingAgent(AgentMain existingAgent,Map<String, String> request) {
 		    Map<String, Object> response = new HashMap<>();
 		    try {
+			    String comment = (String) request.get("comment");
 		        if (!request.containsKey("rating")) {
 		            response.put("status", false);
 		            response.put("message", "Rating is required");
@@ -352,6 +353,7 @@ public class AgentLoginService {
 		        AppRating appRating = new AppRating();
 		        appRating.setAgentMain(existingAgent);
 		        appRating.setRating(rating);
+		        appRating.setComment(comment);
 		        appRatingRepo.save(appRating);
 
 		        response.put("status", true);

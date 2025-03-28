@@ -18,7 +18,8 @@ public class AppRating {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int primaryKey;
 	
-    private int rating;   
+    private int rating; 
+    private String comment;
 	
     @ManyToOne
 	@JsonIgnore
@@ -35,10 +36,11 @@ public class AppRating {
 		// TODO Auto-generated constructor stub
 	}
 
-	public AppRating(int primaryKey, int rating, AgentMain agentMain, CustomerMain customerMain) {
+	public AppRating(int primaryKey, int rating,String comment, AgentMain agentMain, CustomerMain customerMain) {
 		super();
 		this.primaryKey = primaryKey;
 		this.rating = rating;
+		this.comment=comment;
 		this.agentMain = agentMain;
 		this.customerMain = customerMain;
 	}
@@ -74,6 +76,13 @@ public class AppRating {
 	public void setCustomerMain(CustomerMain customerMain) {
 		this.customerMain = customerMain;
 	}
-	
-	
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 }

@@ -97,12 +97,13 @@ public class cusReferralService {
 			 
 
 	        // Save Notification
-	        String message = "Dear Customer,\n\n" +
-	                "Your referral code has been successfully applied! ₹50 will be credited to your account after the first service is completed with Plant Ropan.\n\n" +
-	                "Thank you for spreading the greenery!\n\n" +
-	                "Happy Gardening,\n" +
-	                "Team Plant Ropan";
-	        
+			  String message = "Dear Plant Lover,\n\n" +
+		                 "A big thank you for referring [Referred Person’s Name] to Plant Ropan!\n\n" +
+		                 "As a token of our appreciation, ₹50 will be credited to your wallet after their first service is completed with us.\n\n" +
+		                 //"We truly appreciate your support in making the world greener!\n\n" +
+		                 "Thank you for helping us spread the greener!\n\n" +
+		                 "Happy Gardening,\n" +
+		                 "Team Plant Ropan";
 	        try {
 	            sendNotificationToAgent(cusMainReferral, "Referral Reward Earned 🎉", message);
 	        } catch (Exception e) {

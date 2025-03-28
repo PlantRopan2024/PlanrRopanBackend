@@ -298,6 +298,7 @@ public class CustomerService {
 	public ResponseEntity<Map<String, Object>> appRatingServicesCus(CustomerMain existingCustomer, Map<String, Object> request) {
 	    Map<String, Object> response = new HashMap<>();
 	    try {
+		    String comment = (String) request.get("comment");
 	        if (!request.containsKey("rating")) {
 	            response.put("status", false);
 	            response.put("message", "Rating is required");
@@ -321,6 +322,7 @@ public class CustomerService {
 	        AppRating appRating = new AppRating();
 	        appRating.setCustomerMain(existingCustomer);
 	        appRating.setRating(rating);
+	        appRating.setComment(comment);
 	        appRatingRepo.save(appRating);
 
 	        response.put("status", true);
