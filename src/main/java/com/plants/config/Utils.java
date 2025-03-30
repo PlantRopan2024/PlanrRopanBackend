@@ -344,5 +344,14 @@ public class Utils {
         }
         return result;
     }
+    
+    public static String decimalFormatString(double value) {
+        return String.format("%.2f", value);
+    }
+
+    public static double decimalFormat(double value) {
+        return Double.parseDouble(String.format("%.2f", value));
+    }
+
 
 }

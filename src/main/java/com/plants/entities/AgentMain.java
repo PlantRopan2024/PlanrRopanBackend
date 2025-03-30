@@ -58,6 +58,7 @@ public class AgentMain {
 	private String ifscCode;
 	private String bankPassBookImage;
 	private String bankPassBookImage_type;    
+	private boolean isReferral;
 	@Column(columnDefinition = "TEXT")
 	private String bankPassBookImagePath;
 	@Column(name = "is_profile_completed", nullable = true)
@@ -93,7 +94,7 @@ public class AgentMain {
 			String ifscCode, String bankPassBookImage, String bankPassBookImage_type, String bankPassBookImagePath,
 			boolean isProfileCompleted, String fcmTokenAgent, boolean isProfileInfoStepFirst,
 			boolean isAadharInfoStepSecond, boolean isBankInfoStepThird, String agentReferralCode,
-			List<WalletHistory> referralHistory, List<Notification> notification) {
+			List<WalletHistory> referralHistory, List<Notification> notification,boolean isReferral) {
 		super();
 		AgentIDPk = agentIDPk;
 		this.firstName = firstName;
@@ -135,6 +136,7 @@ public class AgentMain {
 		this.agentReferralCode = agentReferralCode;
 		this.referralHistory = referralHistory;
 		this.notification = notification;
+		this.isReferral= isReferral;
 	}
 
 
@@ -382,6 +384,13 @@ public class AgentMain {
 
 	public void setNotification(List<Notification> notification) {
 		this.notification = notification;
+	}
+	public boolean isReferral() {
+		return isReferral;
+	}
+
+	public void setReferral(boolean isReferral) {
+		this.isReferral = isReferral;
 	}
 
 	@Override

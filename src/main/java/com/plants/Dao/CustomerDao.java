@@ -24,6 +24,9 @@ public interface CustomerDao extends CrudRepository<CustomerMain, Integer> {
 	@Query("select e FROM CustomerMain e where e.mobileNumber=:mobileNumber")
 	public CustomerMain findMobileNumber(@Param("mobileNumber")String mobileNumber);
 	
+	@Query("select e FROM CustomerMain e where e.primarykey=:primarykey")
+	public CustomerMain findbyPrimaryKey(@Param("primarykey")int primarykey);
+	
 	@Query("select e FROM Plans e where e.planPacks=:planPacks")
 	public ArrayList<Plans> getMonthVSDailyfetch(@Param("planPacks")String planPacks);
 	
