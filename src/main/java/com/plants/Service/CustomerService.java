@@ -33,16 +33,16 @@ import com.plants.entities.Plans;
 
 @Service
 public class CustomerService {
-	
+
 	@Value("${google.api.key}")
 	private String googleApiKey;
-	
+
 	@Value("${google.url.address}")
 	private String googleUrlAddress;
-	
+
 	@Value("${google.url.latidude}")
 	private String getLatidudeOrLongitutdeUrl;
-	
+
 	@Value("${platform.fee}")
 	private String platformFees;
 
@@ -57,18 +57,20 @@ public class CustomerService {
 
 	@Autowired
 	LocationService locationService;
-	
+
 	@Autowired
 	private CustomerDao customerDao;
-	
+
 	@Autowired
 	private AppRatingRepo appRatingRepo;
 
 	@Autowired
 	private JwtUtil jwtUtil;
-	 
-	@Autowired OfferService offerService;
-	@Autowired OffersAppliedRepo offersAppliedRepo;
+
+	@Autowired
+	OfferService offerService;
+	@Autowired
+	OffersAppliedRepo offersAppliedRepo;
 
 	public ResponseEntity<Map<String, String>> sentOtpCus(String mobileNumber) {
 		Map<String, String> response = new HashMap<>();
@@ -147,7 +149,8 @@ public class CustomerService {
 		return customerDao.save(customerMain);
 	}
 
-	public ResponseEntity<Map<String, Object>> getUpdateLiveLocationCust(CustomerMain exitsCustomer,Map<String, String> request) {
+	public ResponseEntity<Map<String, Object>> getUpdateLiveLocationCust(CustomerMain exitsCustomer,
+			Map<String, String> request) {
 		Map<String, Object> response = new HashMap<>();
 		double custLatitude = Double.parseDouble(request.get("custLatitude"));
 		double custLongitude = Double.parseDouble(request.get("custLongtitude"));
@@ -155,43 +158,41 @@ public class CustomerService {
 		if (Objects.nonNull(exitsCustomer)) {
 			exitsCustomer.setLatitude(custLatitude);
 			exitsCustomer.setLoggitude(custLongitude);
-			exitsCustomer.setAddress(Utils.getAddressFromCoordinates(custLatitude, custLongitude, googleApiKey, googleUrlAddress));
+			exitsCustomer.setAddress(
+					Utils.getAddressFromCoordinates(custLatitude, custLongitude, googleApiKey, googleUrlAddress));
 			customerMain = this.customerDao.save(exitsCustomer);
 		}
 		List<AgentMain> activeAgents = this.userdao.activeAgent();
 		if (!activeAgents.isEmpty()) {
-		    List<Integer> validArrivalTimes = new ArrayList<>();
-		    boolean gardenerAvailable = false;
-		    for (AgentMain agent : activeAgents) {
-		        if (agent.isActiveAgent()) {
-		            double arrivalTime = locationService.estimateArrivalTime(
-		                custLatitude, custLongitude, agent.getLatitude(), agent.getLongitude()
-		            );
-		            int roundedTime = (int) Math.ceil(arrivalTime);
-		            if (arrivalTime != -1) {
-		                validArrivalTimes.add(roundedTime);
-		                gardenerAvailable = true;
-		            }
-		        }
-		    }
-		    if (gardenerAvailable) {
-		        int minTime = Collections.min(validArrivalTimes); // Get the nearest gardener
-		        Map<String, String> data = Map.of(
-		            "address", customerMain.getAddress(),
-		            "GardenerAvailable", "Gardener available in " + minTime + " minutes",
-		            "message", "Location Updated"
-		        );
-		        response.put("data", data);
-		        response.put("status", true);
-		    } else {
-		        response.put("status", false);
-		        response.put("message", "Gardener is not available at your location");
-		    }
+			List<Integer> validArrivalTimes = new ArrayList<>();
+			boolean gardenerAvailable = false;
+			for (AgentMain agent : activeAgents) {
+				if (agent.isActiveAgent()) {
+					double arrivalTime = locationService.estimateArrivalTime(custLatitude, custLongitude,
+							agent.getLatitude(), agent.getLongitude());
+					int roundedTime = (int) Math.ceil(arrivalTime);
+					if (arrivalTime != -1) {
+						validArrivalTimes.add(roundedTime);
+						gardenerAvailable = true;
+					}
+				}
+			}
+			if (gardenerAvailable) {
+				int minTime = Collections.min(validArrivalTimes); // Get the nearest gardener
+				Map<String, String> data = Map.of("address", customerMain.getAddress(), "GardenerAvailable",
+						"Gardener available in " + minTime + " minutes", "message", "Location Updated");
+				response.put("data", data);
+				response.put("status", true);
+			} else {
+				response.put("status", false);
+				response.put("message", "Gardener is not available at your location");
+			}
 		}
 		return ResponseEntity.ok(response);
 	}
 
-	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(CustomerMain exitsCustomer,Map<String, String> request) {
+	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(CustomerMain exitsCustomer,
+			Map<String, String> request) {
 		Map<String, String> response = new HashMap<>();
 		String firebaseDeviceToken = request.get("firebaseDeviceToken");
 		if (Objects.nonNull(exitsCustomer)) {
@@ -209,10 +210,10 @@ public class CustomerService {
 	public ResponseEntity<Map<String, Object>> orderSummaryCalculation(CustomerMain exitsCustomer,BookingRequest bookingRequest) {
 		Map<String, Object> finalResponse = new HashMap<>();
 		try {
-			//Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
-			//int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
-		//	double totalFertilizerCost = 0;
-		//	List<String> fertilizerDetails = new ArrayList<>();
+			// Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
+			// int serviceCharge = Integer.parseInt(getPlan.getPlansRs());
+			// double totalFertilizerCost = 0;
+			// List<String> fertilizerDetails = new ArrayList<>();
 //			for (FertilizerRequest fertilizer : bookingRequest.getFertilizers()) {
 //				String name = fertilizer.getName();
 //				String cleanedName = removeQuantityFromName(fertilizer.getName()); // Remove quantity
@@ -220,16 +221,17 @@ public class CustomerService {
 //				totalFertilizerCost += fertilizer.getPrice() * fertilizer.getQuantity();
 //			}
 			int platformFee = Integer.parseInt(platformFees);
-		//	double gstAmount = (serviceCharge * Double.parseDouble(gstRate)) / 100.0;
-		//	double grandTotal = serviceCharge + totalFertilizerCost + platformFee + gstAmount;
+			// double gstAmount = (serviceCharge * Double.parseDouble(gstRate)) / 100.0;
+			// double grandTotal = serviceCharge + totalFertilizerCost + platformFee +
+			// gstAmount;
 			Map<String, Object> data = new HashMap<>();
-			data.put("Platform Fee", platformFee);	
-			data.put("Gst Fee", Double.parseDouble(gstRate));			
-			finalResponse.put("BillingDetails", data); 
-			finalResponse.put("Offers", getDiscountOffers(exitsCustomer)); 
-		//    finalResponse.put("GardeningLocation", getGardeningLocation(exitsCustomer));
-		    finalResponse.put("status", true);
-		}catch(Exception e) {
+			data.put("Platform Fee", platformFee);
+			data.put("Gst Fee", Double.parseDouble(gstRate));
+			finalResponse.put("BillingDetails", data);
+			finalResponse.put("Offers", getDiscountOffers(exitsCustomer));
+			// finalResponse.put("GardeningLocation", getGardeningLocation(exitsCustomer));
+			finalResponse.put("status", true);
+		} catch (Exception e) {
 			e.printStackTrace();
 			finalResponse.put("status", false);
 			finalResponse.put("message", "Something Went Wrong");
@@ -237,150 +239,252 @@ public class CustomerService {
 		return ResponseEntity.ok(finalResponse);
 	}
 	
-	public ResponseEntity<Map<String, Object>> applyOffersCustomer(CustomerMain existingCustomer, Map<String, Object> request) {
-	    Map<String, Object> response = new HashMap<>();
-	    try {
-	    	String offerCode = (String) request.get("offerCode");
-		    String typeMessage = (String) request.get("typeMessage");
-		    Object grandTotalObj = request.get("grandTotal");
-		    BigDecimal grandTotal = (grandTotalObj instanceof Number) 
-		        ? BigDecimal.valueOf(((Number) grandTotalObj).doubleValue()) 
-		        : BigDecimal.ZERO;
-		    
-	        if (offerCode == null || offerCode.isEmpty()) {
-		        return Utils.createErrorResponse(response, "Offer Code is required");
-		    }
+	public ResponseEntity<Map<String, Object>> applyCuopanCalulation(CustomerMain existingCustomer,Map<String, Object> request) {
+		Map<String, Object> response = new HashMap<>();
+		Map<String, Object> billingDetails = new HashMap<String, Object>();
+		String offerCode = (String) request.get("offerCode");
+		String typeMessage = (String) request.get("typeMessage");
+		Object grandTotalObj = request.get("grandTotal");
+		BigDecimal grandTotal = (grandTotalObj instanceof Number)
+				? BigDecimal.valueOf(((Number) grandTotalObj).doubleValue())
+				: BigDecimal.ZERO;
+		try {
+			if (offerCode == null || offerCode.isEmpty()) {
+				billingDetails.put("Grand Total", grandTotal);
+				billingDetails.put("Coupon Applied", 0.0);
+				response.put("BillingDetails", billingDetails);
+				response.put("OfferCode", offerCode);
+				response.put("typeMessage", typeMessage);
+				response.put("message", "Offer Code is Required");
+				response.put("status", true);
+				return ResponseEntity.ok(response);
+			}
 
-		    Offers offer = offerService.getOffersCode(offerCode);
-		    if (offer == null) {
-		        return Utils.createErrorResponse(response, "Invalid Offer Code");
-		    }
-		    
-		    Map<String, Object> billingDetails = new HashMap<String, Object>();
-
-		    OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(), existingCustomer.getPrimarykey());
-
+			Offers offer = offerService.getOffersCode(offerCode);
+			if (offer == null) {
+				billingDetails.put("Grand Total", grandTotal);
+				billingDetails.put("Coupon Applied", 0.0);
+				response.put("BillingDetails", billingDetails);
+				response.put("OfferCode", offerCode);
+				response.put("typeMessage", typeMessage);
+				response.put("status", true);
+				response.put("message", "Invalid Coupon");
+				return ResponseEntity.ok(response);
+			}
+			
 			if ("APPLY".equalsIgnoreCase(typeMessage)) {
-		        if (existingAppliedOffer == null) {
-		            OffersApplied appliedOffer = new OffersApplied();
-		            appliedOffer.setCustomerMain(existingCustomer);
-		            appliedOffer.setOfferStatus("APPLY");
-		            appliedOffer.setAppTypeId("Customer");
-		            appliedOffer.setOffers(offer);
-		            offersAppliedRepo.save(appliedOffer);
-		            // Subtract discount from Grand Total if the discount value is not null
-		            grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
-		            billingDetails.put("Coupon Applied", offer.getDisAmountRs());
-		            response.put("message", "Offer applied successfully.");
-		        } else {
-		        	grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
-		            billingDetails.put("Coupon Applied", offer.getDisAmountRs());
-		            response.put("message", "You have already applied this offer.");
-		        }
-		    }
+			// Subtract discount from Grand Total if the discount value is not null
+			grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+			billingDetails.put("Grand Total", Double.parseDouble(String.format("%.2f", grandTotal)));
+			billingDetails.put("Coupon Applied", offer.getDisAmountRs());
+			response.put("message", "Offer applied successfully.");
+			}
+			
+			if ("REMOVE".equalsIgnoreCase(typeMessage)) {
+				billingDetails.put("Grand Total", grandTotal);
+				billingDetails.put("Coupon Applied", 0.0);
+				response.put("message", "Offer has been removed.");
+			}
+			
+//			OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(),existingCustomer.getPrimarykey());
+//			if ("APPLY".equalsIgnoreCase(typeMessage)) {
+//				if (existingAppliedOffer == null) {
+//					OffersApplied appliedOffer = new OffersApplied();
+//					appliedOffer.setCustomerMain(existingCustomer);
+//					appliedOffer.setOfferStatus("APPLY");
+//					appliedOffer.setAppTypeId("Customer");
+//					appliedOffer.setOffers(offer);
+//					offersAppliedRepo.save(appliedOffer);
+//					// Subtract discount from Grand Total if the discount value is not null
+//					grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+//					billingDetails.put("Coupon Applied", offer.getDisAmountRs());
+//					response.put("message", "Offer applied successfully.");
+//				} else {
+//					grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+//					billingDetails.put("Coupon Applied", offer.getDisAmountRs());
+//					response.put("message", "You have already applied this offer.");
+//				}
+//			}
+//			if ("REMOVE".equalsIgnoreCase(typeMessage)) {
+//				if (existingAppliedOffer != null) {
+//					offersAppliedRepo.deleteById(existingAppliedOffer.getPrimaryKey());
+//					billingDetails.put("Coupon Applied", 0.0);
+//					response.put("message", "Offer has been removed.");
+//				}
+//			}
+			response.put("BillingDetails", billingDetails);
+			response.put("status", true);
+			response.put("OfferCode", offer.getOfferCode());
+			response.put("typeMessage", typeMessage);
 
-		    if ("REMOVE".equalsIgnoreCase(typeMessage)) {
-		        if (existingAppliedOffer != null) {
-		            offersAppliedRepo.deleteById(existingAppliedOffer.getPrimaryKey());
-		            billingDetails.put("Coupon Applied", 0.0);
-		            response.put("message", "Offer has been removed.");
-		        }
-		    }
-		    billingDetails.put("Grand Total", Double.parseDouble(String.format("%.2f", grandTotal)));
-		    response.put("BillingDetails", billingDetails);
-		    response.put("status", true);
-		    response.put("OfferCode", offer.getOfferCode());
-		    response.put("typeMessage", typeMessage);
-
-	    } catch (NumberFormatException e) {
-	        return Utils.createErrorResponse(response, "Invalid Grand Total value");
-	    } catch(Exception e) {
+		} catch (NumberFormatException e) {
+			billingDetails.put("Grand Total", grandTotal);
+			billingDetails.put("Coupon Applied", 0.0);
+			response.put("BillingDetails", billingDetails);
+			response.put("OfferCode", offerCode);
+			response.put("typeMessage", typeMessage);
+			response.put("status", true);
+			response.put("message", "Invalid Grand Total value");
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("status", false);
 			response.put("message", "Something Went Wrong");
 		}
-	   return ResponseEntity.ok(response);
+		return ResponseEntity.ok(response);
 	}
-	
-	public ResponseEntity<Map<String, Object>> appRatingServicesCus(CustomerMain existingCustomer, Map<String, Object> request) {
-	    Map<String, Object> response = new HashMap<>();
-	    try {
-		    String comment = (String) request.get("comment");
-	        if (!request.containsKey("rating")) {
-	            response.put("status", false);
-	            response.put("message", "Rating is required");
-	            return ResponseEntity.badRequest().body(response);
-	        }
-	  
-	        double rating;
-	        try {
-	        	 rating = Double.parseDouble(request.get("rating").toString());
-	          //  rating = Integer.parseInt(request.get("rating").toString());
-	            if (rating < 1 || rating > 5) {
-	                response.put("status", false);
-	                response.put("message", "Rating must be between 1 and 5");
-	                return ResponseEntity.badRequest().body(response);
-	            }
-	        } catch (NumberFormatException e) {
-	            response.put("status", false);
-	            response.put("message", "Invalid rating format");
-	            return ResponseEntity.badRequest().body(response);
-	        }
 
-	        AppRating appRating = new AppRating();
-	        appRating.setCustomerMain(existingCustomer);
-	        appRating.setRating(rating);
-	        appRating.setComment(comment);
-	        appRatingRepo.save(appRating);
+	public ResponseEntity<Map<String, Object>> applyOffersCustomer(CustomerMain existingCustomer,Map<String, Object> request) {
+		Map<String, Object> response = new HashMap<>();
+		Map<String, Object> billingDetails = new HashMap<String, Object>();
+		String offerCode = (String) request.get("offerCode");
+		String typeMessage = (String) request.get("typeMessage");
+		Object grandTotalObj = request.get("grandTotal");
+		BigDecimal grandTotal = (grandTotalObj instanceof Number)
+				? BigDecimal.valueOf(((Number) grandTotalObj).doubleValue())
+				: BigDecimal.ZERO;
+		try {
+			if (offerCode == null || offerCode.isEmpty()) {
+				response.put("message", "Offer Code is required");
+				response.put("status", true);
+				return ResponseEntity.ok(response);
+			}
 
-	        response.put("status", true);
-	        response.put("message", "Thank You For Giving Rating");
-	        
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        response.put("status", false);
-	        response.put("message", "Something went wrong, please try again later");
-	    }
+			Offers offer = offerService.getOffersCode(offerCode);
+			if (offer == null) {
+				billingDetails.put("Grand Total", grandTotal);
+				billingDetails.put("Coupon Applied", 0.0);
+				response.put("BillingDetails", billingDetails);
+				response.put("status", true);
+				response.put("OfferCode", offerCode);
+				response.put("typeMessage", typeMessage);
+				response.put("status", true);
+				response.put("message", "Invalid Coupon");
+				return ResponseEntity.ok(response);
+			}
 
-	    return ResponseEntity.ok(response);
+			OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(),existingCustomer.getPrimarykey());
+			if ("APPLY".equalsIgnoreCase(typeMessage)) {
+				if (existingAppliedOffer == null) {
+					OffersApplied appliedOffer = new OffersApplied();
+					appliedOffer.setCustomerMain(existingCustomer);
+					appliedOffer.setOfferStatus("APPLY");
+					appliedOffer.setAppTypeId("Customer");
+					appliedOffer.setOffers(offer);
+					offersAppliedRepo.save(appliedOffer);
+					// Subtract discount from Grand Total if the discount value is not null
+					grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+					billingDetails.put("Coupon Applied", offer.getDisAmountRs());
+					response.put("message", "Offer applied successfully.");
+				} else {
+					grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+					billingDetails.put("Coupon Applied", offer.getDisAmountRs());
+					response.put("message", "You have already applied this offer.");
+				}
+			}
+			if ("REMOVE".equalsIgnoreCase(typeMessage)) {
+				if (existingAppliedOffer != null) {
+					offersAppliedRepo.deleteById(existingAppliedOffer.getPrimaryKey());
+					billingDetails.put("Coupon Applied", 0.0);
+					response.put("message", "Offer has been removed.");
+				}
+			}
+			billingDetails.put("Grand Total", Double.parseDouble(String.format("%.2f", grandTotal)));
+			response.put("BillingDetails", billingDetails);
+			response.put("status", true);
+			response.put("OfferCode", offer.getOfferCode());
+			response.put("typeMessage", typeMessage);
+
+		} catch (NumberFormatException e) {
+			billingDetails.put("Grand Total", grandTotal);
+			billingDetails.put("Coupon Applied", 0.0);
+			response.put("BillingDetails", billingDetails);
+			response.put("status", true);
+			response.put("OfferCode", offerCode);
+			response.put("typeMessage", typeMessage);
+			response.put("status", true);
+			response.put("message", "Invalid Grand Total value");
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put("status", false);
+			response.put("message", "Something Went Wrong");
+		}
+		return ResponseEntity.ok(response);
 	}
-	
-	public ResponseEntity<Map<String, Object>> changesAddessOrder(CustomerMain existingCustomer, Map<String, Object> request) {
-	    Map<String, Object> response = new HashMap<>();
-	    try {
-	    	double latitudeCus = (double) request.get("latitude");
-	    	double longitudeCus = (double) request.get("longitude");
-	    	String addressType = (String) request.get("addressType");
-	    	String otherAddress = (String) request.get("otherAddress");
 
-	    	if(addressType.equals("SELF_ADDRESS")) {
-	    		Map<String, Object> gardeningLocation = getGardeningLocation(latitudeCus,longitudeCus);
-	    		response.put("GardeningLocation", gardeningLocation);
-	    		 if (!(boolean) gardeningLocation.get("Avalibality")) { 
-	    		        response.put("status", false);
-	    		    } else {
-	    		        response.put("status", true);
-	    		    }
-	    	}
-	    	if(addressType.equals("OTHER_ADDRESS")) {
-	    		Map<String, Object> gardeningLocation = Utils.getCoordinates(getLatidudeOrLongitutdeUrl,googleApiKey,otherAddress);
-	    		double latitude = (double) gardeningLocation.get("latitude");
-	            double longitude = (double) gardeningLocation.get("longitude");
-	    		Map<String, Object> gardeningLocationOther = getGardeningLocation(latitude,longitude);
-	            response.put("GardeningLocation", gardeningLocationOther);
-	            if (!(boolean) gardeningLocationOther.get("Avalibality")) { 
-	                response.put("status", false);
-	            } else {
-	                response.put("status", true);
-	            }
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        response.put("status", false);
-	        response.put("message", "Something went wrong, please try again later");
-	    }
+	public ResponseEntity<Map<String, Object>> appRatingServicesCus(CustomerMain existingCustomer,
+			Map<String, Object> request) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String comment = (String) request.get("comment");
+			if (!request.containsKey("rating")) {
+				response.put("status", false);
+				response.put("message", "Rating is required");
+				return ResponseEntity.badRequest().body(response);
+			}
 
-	    return ResponseEntity.ok(response);
+			double rating;
+			try {
+				rating = Double.parseDouble(request.get("rating").toString());
+				// rating = Integer.parseInt(request.get("rating").toString());
+				if (rating < 1 || rating > 5) {
+					response.put("status", false);
+					response.put("message", "Rating must be between 1 and 5");
+					return ResponseEntity.badRequest().body(response);
+				}
+			} catch (NumberFormatException e) {
+				response.put("status", false);
+				response.put("message", "Invalid rating format");
+				return ResponseEntity.badRequest().body(response);
+			}
+
+			AppRating appRating = new AppRating();
+			appRating.setCustomerMain(existingCustomer);
+			appRating.setRating(rating);
+			appRating.setComment(comment);
+			appRatingRepo.save(appRating);
+
+			response.put("status", true);
+			response.put("message", "Thank You For Giving Rating");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put("status", false);
+			response.put("message", "Something went wrong, please try again later");
+		}
+
+		return ResponseEntity.ok(response);
+	}
+
+	public ResponseEntity<Map<String, Object>> changesAddessOrder(CustomerMain existingCustomer,
+			Map<String, Object> request) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			double latitudeCus = (double) request.get("latitude");
+			double longitudeCus = (double) request.get("longitude");
+			String addressType = (String) request.get("addressType");
+			String otherAddress = (String) request.get("otherAddress");
+
+			if (addressType.equals("SELF_ADDRESS")) {
+				Map<String, Object> gardeningLocation = getGardeningLocation(latitudeCus, longitudeCus);
+				response.put("GardeningLocation", gardeningLocation);
+				response.put("status", true);
+			}
+			if (addressType.equals("OTHER_ADDRESS")) {
+				Map<String, Object> gardeningLocation = Utils.getCoordinates(getLatidudeOrLongitutdeUrl, googleApiKey,
+						otherAddress);
+				double latitude = (double) gardeningLocation.get("latitude");
+				double longitude = (double) gardeningLocation.get("longitude");
+				Map<String, Object> gardeningLocationOther = getGardeningLocation(latitude, longitude);
+				response.put("GardeningLocation", gardeningLocationOther);
+				response.put("status", true);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put("status", true);
+		}
+		return ResponseEntity.ok(response);
 	}
 
 	private String extractQuantity(String name) {
@@ -396,52 +500,52 @@ public class CustomerService {
 	private String removeQuantityFromName(String name) {
 		return name.replaceAll("\\(\\d+ kg\\)", "").trim(); // Remove "(5 kg)" and trim extra spaces
 	}
-	
+
 	private String generateReferralCodeCus() {
 		return "cus50" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 	}
-	
-	private Map<String, Object> getGardeningLocation(double latitudeCus,double longitudeCus) {
-	    List<AgentMain> activeAgents = this.userdao.activeAgent();
-	    Map<String, Object> agentAvailResponse = new HashMap<>();
-	    if (!activeAgents.isEmpty()) {
-	        List<Integer> validArrivalTimes = new ArrayList<>();
-	        for (AgentMain agent : activeAgents) {
-	            if (agent.isActiveAgent()) {
-	                System.out.println("Agent name: " + agent.getFirstName());
-	                double arrivalTime = locationService.estimateArrivalTime(
-	                    latitudeCus, longitudeCus, agent.getLatitude(), agent.getLongitude()
-	                );
 
-	                int roundedTime = (int) Math.ceil(arrivalTime);
-	                if (arrivalTime != -1) {  
-	                    validArrivalTimes.add(roundedTime);
-	                }
-	            }
-	        }
-	        // Check if any valid gardeners are available
-	        if (!validArrivalTimes.isEmpty()) {
-	            int minTime = Collections.min(validArrivalTimes);  // Find the shortest arrival time
-	            agentAvailResponse.put("GardenerAvailable", "Gardener available in " + minTime + " minutes");
-	            agentAvailResponse.put("Avalibality", true);
-	        } else {
-	            agentAvailResponse.put("GardenerAvailable", "Gardener is not available for your location");
-	            agentAvailResponse.put("Avalibality", false);
-	        }
-	    }
-	    return agentAvailResponse;
-	}
-	
-	// discount offer 
-	private List<Offers> getDiscountOffers(CustomerMain exitsCustomer) {
-				List<Offers> getOffers = this.offerService.getAllOffersCusMobApi();
-				List<Offers> unusedOffers = new ArrayList<>();
-				for (Offers offer : getOffers) {
-				    long appliedCount = this.offersAppliedRepo.countAppliedOffers(offer.getPrimarykey(), exitsCustomer.getPrimarykey());
-				    if (appliedCount == 0) {
-				        unusedOffers.add(offer);
-				    }
+	private Map<String, Object> getGardeningLocation(double latitudeCus, double longitudeCus) {
+		List<AgentMain> activeAgents = this.userdao.activeAgent();
+		Map<String, Object> agentAvailResponse = new HashMap<>();
+		if (!activeAgents.isEmpty()) {
+			List<Integer> validArrivalTimes = new ArrayList<>();
+			for (AgentMain agent : activeAgents) {
+				if (agent.isActiveAgent()) {
+					System.out.println("Agent name: " + agent.getFirstName());
+					double arrivalTime = locationService.estimateArrivalTime(latitudeCus, longitudeCus,
+							agent.getLatitude(), agent.getLongitude());
+
+					int roundedTime = (int) Math.ceil(arrivalTime);
+					if (arrivalTime != -1) {
+						validArrivalTimes.add(roundedTime);
+					}
 				}
-	    return unusedOffers;
+			}
+			// Check if any valid gardeners are available
+			if (!validArrivalTimes.isEmpty()) {
+				int minTime = Collections.min(validArrivalTimes); // Find the shortest arrival time
+				agentAvailResponse.put("GardenerAvailable", "Gardener available in " + minTime + " minutes");
+				agentAvailResponse.put("Avalibality", true);
+			} else {
+				agentAvailResponse.put("GardenerAvailable", "Gardener is not available for your location");
+				agentAvailResponse.put("Avalibality", false);
+			}
+		}
+		return agentAvailResponse;
+	}
+
+	// discount offer
+	private List<Offers> getDiscountOffers(CustomerMain exitsCustomer) {
+		List<Offers> getOffers = this.offerService.getAllOffersCusMobApi();
+		List<Offers> unusedOffers = new ArrayList<>();
+		for (Offers offer : getOffers) {
+			long appliedCount = this.offersAppliedRepo.countAppliedOffers(offer.getPrimarykey(),
+					exitsCustomer.getPrimarykey());
+			if (appliedCount == 0) {
+				unusedOffers.add(offer);
+			}
+		}
+		return unusedOffers;
 	}
 }

@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.plants.Dao.CustomerDao;
 import com.plants.Dao.MobileApiDao;
 import com.plants.Service.PaymentServices;
+import com.plants.config.HelperToken;
 import com.plants.config.JwtUtil;
 import com.plants.entities.AgentMain;
 import com.plants.entities.CustomerMain;
@@ -41,6 +42,9 @@ public class PaymentController {
 
 	@Autowired
 	private CustomerDao customerDao;
+	
+	@Autowired
+	private HelperToken helperToken;
 
 	@Autowired
 	private MobileApiDao mobileApiDao;
@@ -144,6 +148,18 @@ public class PaymentController {
 
 		ResponseEntity<Map<String, Object>> getprofileDetails = paymentServices.workPhotoUpload(agentRecords,
 				OrderNumber, workCompletdPhoto1, workCompletdPhoto2);
+		return ResponseEntity.ok(getprofileDetails.getBody());
+	}
+	
+	@PostMapping("/OurServicesRating")
+	public ResponseEntity<Map<String, Object>> OurServicesRating(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, Object> request) {
+		CustomerMain existingCustomer = this.helperToken.validateCustomerToken(token);
+	    if (existingCustomer == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+	    }
+
+		ResponseEntity<Map<String, Object>> getprofileDetails = paymentServices.ourServiceRating(existingCustomer,request);
 		return ResponseEntity.ok(getprofileDetails.getBody());
 	}
 
