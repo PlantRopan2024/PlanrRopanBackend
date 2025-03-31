@@ -22,8 +22,6 @@ public class OTPService {
         return otp;
     }
    
-    
-
     public boolean validateOTP(String mobileNumber, String otp) {
     	
     	System.out.println("  hsap " + otpData);
