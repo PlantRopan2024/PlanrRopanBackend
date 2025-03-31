@@ -55,5 +55,10 @@ public class OfferService {
 		Offers getoffers = this.offerDao.findById(pk);
 		return getoffers;
 	}
+	
+	public Offers getOffersCode(String offerCode) {
+		Offers getoffers = this.offerDao.findOfferCode(offerCode);
+		return getoffers;
+	}
 
 }

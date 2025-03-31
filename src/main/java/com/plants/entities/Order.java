@@ -34,13 +34,13 @@ public class Order {
 	private boolean couponApplied;
 	private double coupanAmount;
 	private double totalAmount;
-	@Column(name = "fk_offer_id")
-	private int offerId;
+	private String offerCode;
 	private LocalDateTime createdAt;
 	private String orderStatus; // PENDING, SUCCESS, FAILED
 	private String address;
 	private double latitude;
     private double longtitude;
+    private String shareCode;  //4 digit code
 	
 	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
@@ -58,6 +58,9 @@ public class Order {
 	@OneToMany(mappedBy = "orders")
     private List<OrderFertilizers> orderFertilizers = new ArrayList<>();
 	
+	@OneToMany(mappedBy = "orders")
+    private List<WorkCompletedPhoto> workCompletedPhoto = new ArrayList<>();
+	
 	@ManyToOne
 	@JoinColumn(name = "fk_plan_id", nullable = false)
 	private Plans plans;
@@ -67,9 +70,10 @@ public class Order {
 		// TODO Auto-generated constructor stub
 	}
 	public Order(int primary_key, String orderId, double servicesCharges, double platformfees, double gstAmount,
-			boolean couponApplied, double coupanAmount, double totalAmount, int offerId, LocalDateTime createdAt,
-			String orderStatus, String address, double latitude, double longtitude, Payment payment,
-			AgentMain agentMain, CustomerMain customerMain, List<OrderFertilizers> orderFertilizers, Plans plans) {
+			boolean couponApplied, double coupanAmount, double totalAmount, String offerCode, LocalDateTime createdAt,
+			String orderStatus, String address, double latitude, double longtitude, String shareCode, Payment payment,
+			AgentMain agentMain, CustomerMain customerMain, List<OrderFertilizers> orderFertilizers,
+			List<WorkCompletedPhoto> workCompletedPhoto, Plans plans) {
 		super();
 		this.primary_key = primary_key;
 		this.orderId = orderId;
@@ -79,16 +83,18 @@ public class Order {
 		this.couponApplied = couponApplied;
 		this.coupanAmount = coupanAmount;
 		this.totalAmount = totalAmount;
-		this.offerId = offerId;
+		this.offerCode = offerCode;
 		this.createdAt = createdAt;
 		this.orderStatus = orderStatus;
 		this.address = address;
 		this.latitude = latitude;
 		this.longtitude = longtitude;
+		this.shareCode = shareCode;
 		this.payment = payment;
 		this.agentMain = agentMain;
 		this.customerMain = customerMain;
 		this.orderFertilizers = orderFertilizers;
+		this.workCompletedPhoto = workCompletedPhoto;
 		this.plans = plans;
 	}
 
@@ -164,14 +170,12 @@ public class Order {
 		this.createdAt = createdAt;
 	}
 
-	public int getOfferId() {
-		return offerId;
+	public String getOfferCode() {
+		return offerCode;
 	}
-
-	public void setOfferId(int offerId) {
-		this.offerId = offerId;
+	public void setOfferCode(String offerCode) {
+		this.offerCode = offerCode;
 	}
-
 	public String getOrderStatus() {
 		return orderStatus;
 	}
@@ -239,4 +243,18 @@ public class Order {
 	public void setLongtitude(double longtitude) {
 		this.longtitude = longtitude;
 	}
+	public String getShareCode() {
+		return shareCode;
+	}
+	public void setShareCode(String shareCode) {
+		this.shareCode = shareCode;
+	}
+	public List<WorkCompletedPhoto> getWorkCompletedPhoto() {
+		return workCompletedPhoto;
+	}
+	public void setWorkCompletedPhoto(List<WorkCompletedPhoto> workCompletedPhoto) {
+		this.workCompletedPhoto = workCompletedPhoto;
+	}
+	
+	
 }

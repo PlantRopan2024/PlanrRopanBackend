@@ -30,5 +30,8 @@ public interface OfferDao extends JpaRepository<Offers, Integer> {
 	
 	@Query("SELECT e FROM Offers e where e.primaryKey = :pk")
 	public Offers findById(@Param("pk") String pk);
+	
+	@Query("SELECT e FROM Offers e where e.offerCode = :offerCode")
+	public Offers findOfferCode(@Param("offerCode") String offerCode);
 
 }

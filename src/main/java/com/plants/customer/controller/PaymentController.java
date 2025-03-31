@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.plants.Dao.CustomerDao;
 import com.plants.Dao.MobileApiDao;
@@ -30,22 +32,22 @@ import com.twilio.rest.api.v2010.account.call.PaymentUpdater;
 @RestController
 @RequestMapping("/paymentCont")
 public class PaymentController {
-	
+
 	@Autowired
 	private PaymentServices paymentServices;
-	
+
 	@Autowired
 	private JwtUtil jwtUtil;
-	
+
 	@Autowired
 	private CustomerDao customerDao;
-	
+
 	@Autowired
 	private MobileApiDao mobileApiDao;
 
-	
 	@PostMapping("/initiatePayment")
-	public ResponseEntity<Map<String, Object>> initiatePayment(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody PaymentRequest request) {
+	public ResponseEntity<Map<String, Object>> initiatePayment(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+			@RequestBody PaymentRequest request) {
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);
 		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
@@ -53,12 +55,13 @@ public class PaymentController {
 		if (Objects.isNull(exitsCustomer) || !jwtToken.equals(exitsCustomer.getToken())) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 		}
-		ResponseEntity<Map<String, Object>> response = paymentServices.paymentInitiate(exitsCustomer,request);
+		ResponseEntity<Map<String, Object>> response = paymentServices.paymentInitiate(exitsCustomer, request);
 		return ResponseEntity.ok(response.getBody());
 	}
-	
-	@PostMapping("/sendOrderAgent")
-	public ResponseEntity<Map<String, Object>> orderAssignedAgent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, Object> request) {
+
+	@PostMapping("/sendOrderNotifactionAgent")
+	public ResponseEntity<Map<String, Object>> sendOrderNotifactionAgent(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, Object> request) {
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);
 		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
@@ -66,12 +69,27 @@ public class PaymentController {
 		if (Objects.isNull(exitsCustomer) || !jwtToken.equals(exitsCustomer.getToken())) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 		}
-		ResponseEntity<Map<String, Object>> response = paymentServices.OrderAssigned(exitsCustomer,request);
+		ResponseEntity<Map<String, Object>> response = paymentServices.OrderAssignedNotify(exitsCustomer, request);
 		return ResponseEntity.ok(response.getBody());
 	}
-	
+
+	@PostMapping("/checkOrderAgent")
+	public ResponseEntity<Map<String, Object>> checkOrderAgent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+			@RequestBody Map<String, Object> request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		CustomerMain exitsCustomer = customerDao.findMobileNumber(mobileNumber);
+
+		if (Objects.isNull(exitsCustomer) || !jwtToken.equals(exitsCustomer.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		ResponseEntity<Map<String, Object>> response = paymentServices.OrderAssigned(exitsCustomer, request);
+		return ResponseEntity.ok(response.getBody());
+	}
+
 	@PostMapping("/accpetOrRejectOrder")
-	public ResponseEntity<Map<String, Object>> accpetOrRejectOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, Object> request) {
+	public ResponseEntity<Map<String, Object>> accpetOrRejectOrder(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, Object> request) {
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);
 		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
@@ -79,9 +97,54 @@ public class PaymentController {
 		if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 		}
-		ResponseEntity<Map<String, Object>> response = paymentServices.accpetOrRejctOrder(agentRecords,request);
+		ResponseEntity<Map<String, Object>> response = paymentServices.accpetOrRejctOrder(agentRecords, request);
 		return ResponseEntity.ok(response.getBody());
 	}
-	
-	
+
+	@PostMapping("/reachedLocationAgent")
+	public ResponseEntity<Map<String, Object>> reachedLocationAgent(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, Object> request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+
+		if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		ResponseEntity<Map<String, Object>> response = paymentServices.reachedLocation(agentRecords, request);
+		return ResponseEntity.ok(response.getBody());
+	}
+
+	@PostMapping("/OtpCodeShared")
+	public ResponseEntity<Map<String, Object>> OtpCodeShared(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+			@RequestBody Map<String, Object> request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+
+		if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		ResponseEntity<Map<String, Object>> response = paymentServices.OtpCodeShared(agentRecords, request);
+		return ResponseEntity.ok(response.getBody());
+	}
+
+	@PostMapping(value = "/workCompletedPhotoUpload", consumes = "multipart/form-data")
+	public ResponseEntity<Map<String, Object>> workCompletedPhotoUpload(
+			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestPart("OrderNumber") String OrderNumber,
+			@RequestPart(value = "workCompletdPhoto1", required = false) MultipartFile workCompletdPhoto1,
+			@RequestPart(value = "workCompletdPhoto2", required = false) MultipartFile workCompletdPhoto2) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+
+		if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+
+		ResponseEntity<Map<String, Object>> getprofileDetails = paymentServices.workPhotoUpload(agentRecords,
+				OrderNumber, workCompletdPhoto1, workCompletdPhoto2);
+		return ResponseEntity.ok(getprofileDetails.getBody());
+	}
+
 }

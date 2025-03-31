@@ -18,7 +18,7 @@ public class AppRating {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int primaryKey;
 	
-    private int rating; 
+    private double rating; 
     private String comment;
 	
     @ManyToOne
@@ -36,7 +36,7 @@ public class AppRating {
 		// TODO Auto-generated constructor stub
 	}
 
-	public AppRating(int primaryKey, int rating,String comment, AgentMain agentMain, CustomerMain customerMain) {
+	public AppRating(int primaryKey, double rating,String comment, AgentMain agentMain, CustomerMain customerMain) {
 		super();
 		this.primaryKey = primaryKey;
 		this.rating = rating;
@@ -53,11 +53,11 @@ public class AppRating {
 		this.primaryKey = primaryKey;
 	}
 
-	public int getRating() {
+	public double getRating() {
 		return rating;
 	}
 
-	public void setRating(int rating) {
+	public void setRating(double rating) {
 		this.rating = rating;
 	}
 

@@ -2,6 +2,7 @@ package com.plants.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +151,6 @@ public class CustomerService {
 		Map<String, Object> response = new HashMap<>();
 		double custLatitude = Double.parseDouble(request.get("custLatitude"));
 		double custLongitude = Double.parseDouble(request.get("custLongtitude"));
-		
 		CustomerMain customerMain = null;
 		if (Objects.nonNull(exitsCustomer)) {
 			exitsCustomer.setLatitude(custLatitude);
@@ -158,28 +158,35 @@ public class CustomerService {
 			exitsCustomer.setAddress(Utils.getAddressFromCoordinates(custLatitude, custLongitude, googleApiKey, googleUrlAddress));
 			customerMain = this.customerDao.save(exitsCustomer);
 		}
-		
 		List<AgentMain> activeAgents = this.userdao.activeAgent();
-
 		if (!activeAgents.isEmpty()) {
-			for (AgentMain agent : activeAgents) {
-				if (agent.isActiveAgent()) {
-					double arrivalTime = locationService.estimateArrivalTime(custLatitude, custLongitude,agent.getLatitude(), agent.getLongitude());
-					int roundedTime = (int) Math.ceil(arrivalTime);
-					if (arrivalTime != -1) {
-							Map<String, String> data = Map.of("address", customerMain.getAddress(),
-								"GardenerAvaliable", "Gardener avaliable in " + roundedTime + " minutes");
-							response.put("data", data);
-							response.put("status", true);
-							response.put("message", "Location Updated");
-						
-						System.out.println("Gardener avaliable in " + roundedTime + " minutes");
-					} else {
-						response.put("status", true);
-						response.put("message", "Gardener is not Avaliable for Your Location");
-					}
-				}
-			}
+		    List<Integer> validArrivalTimes = new ArrayList<>();
+		    boolean gardenerAvailable = false;
+		    for (AgentMain agent : activeAgents) {
+		        if (agent.isActiveAgent()) {
+		            double arrivalTime = locationService.estimateArrivalTime(
+		                custLatitude, custLongitude, agent.getLatitude(), agent.getLongitude()
+		            );
+		            int roundedTime = (int) Math.ceil(arrivalTime);
+		            if (arrivalTime != -1) {
+		                validArrivalTimes.add(roundedTime);
+		                gardenerAvailable = true;
+		            }
+		        }
+		    }
+		    if (gardenerAvailable) {
+		        int minTime = Collections.min(validArrivalTimes); // Get the nearest gardener
+		        Map<String, String> data = Map.of(
+		            "address", customerMain.getAddress(),
+		            "GardenerAvailable", "Gardener available in " + minTime + " minutes",
+		            "message", "Location Updated"
+		        );
+		        response.put("data", data);
+		        response.put("status", true);
+		    } else {
+		        response.put("status", false);
+		        response.put("message", "Gardener is not available at your location");
+		    }
 		}
 		return ResponseEntity.ok(response);
 	}
@@ -233,20 +240,20 @@ public class CustomerService {
 	public ResponseEntity<Map<String, Object>> applyOffersCustomer(CustomerMain existingCustomer, Map<String, Object> request) {
 	    Map<String, Object> response = new HashMap<>();
 	    try {
-	    	String offerId = (String) request.get("offerId");
+	    	String offerCode = (String) request.get("offerCode");
 		    String typeMessage = (String) request.get("typeMessage");
 		    Object grandTotalObj = request.get("grandTotal");
 		    BigDecimal grandTotal = (grandTotalObj instanceof Number) 
 		        ? BigDecimal.valueOf(((Number) grandTotalObj).doubleValue()) 
 		        : BigDecimal.ZERO;
 		    
-	        if (offerId == null || offerId.isEmpty()) {
-		        return Utils.createErrorResponse(response, "Offer ID is required");
+	        if (offerCode == null || offerCode.isEmpty()) {
+		        return Utils.createErrorResponse(response, "Offer Code is required");
 		    }
 
-		    Offers offer = offerService.getIdOffers(offerId);
+		    Offers offer = offerService.getOffersCode(offerCode);
 		    if (offer == null) {
-		        return Utils.createErrorResponse(response, "Invalid Offer ID");
+		        return Utils.createErrorResponse(response, "Invalid Offer Code");
 		    }
 		    
 		    Map<String, Object> billingDetails = new HashMap<String, Object>();
@@ -275,14 +282,14 @@ public class CustomerService {
 		    if ("REMOVE".equalsIgnoreCase(typeMessage)) {
 		        if (existingAppliedOffer != null) {
 		            offersAppliedRepo.deleteById(existingAppliedOffer.getPrimaryKey());
+		            billingDetails.put("Coupon Applied", 0.0);
 		            response.put("message", "Offer has been removed.");
 		        }
 		    }
-
-		    billingDetails.put("Grand Total", String.format("%.2f", grandTotal));
+		    billingDetails.put("Grand Total", Double.parseDouble(String.format("%.2f", grandTotal)));
 		    response.put("BillingDetails", billingDetails);
 		    response.put("status", true);
-		    response.put("offerId", offerId);
+		    response.put("OfferCode", offer.getOfferCode());
 		    response.put("typeMessage", typeMessage);
 
 	    } catch (NumberFormatException e) {
@@ -305,9 +312,10 @@ public class CustomerService {
 	            return ResponseEntity.badRequest().body(response);
 	        }
 	  
-	        int rating;
+	        double rating;
 	        try {
-	            rating = Integer.parseInt(request.get("rating").toString());
+	        	 rating = Double.parseDouble(request.get("rating").toString());
+	          //  rating = Integer.parseInt(request.get("rating").toString());
 	            if (rating < 1 || rating > 5) {
 	                response.put("status", false);
 	                response.put("message", "Rating must be between 1 and 5");
@@ -348,17 +356,24 @@ public class CustomerService {
 	    	if(addressType.equals("SELF_ADDRESS")) {
 	    		Map<String, Object> gardeningLocation = getGardeningLocation(latitudeCus,longitudeCus);
 	    		response.put("GardeningLocation", gardeningLocation);
-	    		response.put("status", true);
+	    		 if (!(boolean) gardeningLocation.get("Avalibality")) { 
+	    		        response.put("status", false);
+	    		    } else {
+	    		        response.put("status", true);
+	    		    }
 	    	}
-	    	
 	    	if(addressType.equals("OTHER_ADDRESS")) {
 	    		Map<String, Object> gardeningLocation = Utils.getCoordinates(getLatidudeOrLongitutdeUrl,googleApiKey,otherAddress);
 	    		double latitude = (double) gardeningLocation.get("latitude");
 	            double longitude = (double) gardeningLocation.get("longitude");
 	    		Map<String, Object> gardeningLocationOther = getGardeningLocation(latitude,longitude);
 	            response.put("GardeningLocation", gardeningLocationOther);
-	    		response.put("status", true);
-	    	}
+	            if (!(boolean) gardeningLocationOther.get("Avalibality")) { 
+	                response.put("status", false);
+	            } else {
+	                response.put("status", true);
+	            }
+	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        response.put("status", false);
@@ -389,18 +404,29 @@ public class CustomerService {
 	private Map<String, Object> getGardeningLocation(double latitudeCus,double longitudeCus) {
 	    List<AgentMain> activeAgents = this.userdao.activeAgent();
 	    Map<String, Object> agentAvailResponse = new HashMap<>();
-
 	    if (!activeAgents.isEmpty()) {
+	        List<Integer> validArrivalTimes = new ArrayList<>();
 	        for (AgentMain agent : activeAgents) {
 	            if (agent.isActiveAgent()) {
-	                double arrivalTime = locationService.estimateArrivalTime(latitudeCus,longitudeCus,agent.getLatitude(),agent.getLongitude());
+	                System.out.println("Agent name: " + agent.getFirstName());
+	                double arrivalTime = locationService.estimateArrivalTime(
+	                    latitudeCus, longitudeCus, agent.getLatitude(), agent.getLongitude()
+	                );
+
 	                int roundedTime = (int) Math.ceil(arrivalTime);
-	                if (arrivalTime != -1) {
-	                    agentAvailResponse.put("GardenerAvailable", "Gardener available in " + roundedTime + " minutes");
-	                } else {
-	                    agentAvailResponse.put("GardenerAvailable", "Gardener is not available for your location");
+	                if (arrivalTime != -1) {  
+	                    validArrivalTimes.add(roundedTime);
 	                }
 	            }
+	        }
+	        // Check if any valid gardeners are available
+	        if (!validArrivalTimes.isEmpty()) {
+	            int minTime = Collections.min(validArrivalTimes);  // Find the shortest arrival time
+	            agentAvailResponse.put("GardenerAvailable", "Gardener available in " + minTime + " minutes");
+	            agentAvailResponse.put("Avalibality", true);
+	        } else {
+	            agentAvailResponse.put("GardenerAvailable", "Gardener is not available for your location");
+	            agentAvailResponse.put("Avalibality", false);
 	        }
 	    }
 	    return agentAvailResponse;
