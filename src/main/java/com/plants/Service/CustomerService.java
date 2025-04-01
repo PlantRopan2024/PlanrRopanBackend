@@ -477,6 +477,8 @@ public class CustomerService {
 				double latitude = (double) gardeningLocation.get("latitude");
 				double longitude = (double) gardeningLocation.get("longitude");
 				Map<String, Object> gardeningLocationOther = getGardeningLocation(latitude, longitude);
+				gardeningLocationOther.put("latitude", latitude);
+				gardeningLocationOther.put("longitude", longitude);
 				response.put("GardeningLocation", gardeningLocationOther);
 				response.put("status", true);
 			}
