@@ -73,7 +73,7 @@ public class PaymentServices {
 	GardnerRatingRepo gardnerRatingRepo;
 	
 	@Autowired 
-	RejectedOrdersRepo rejectedOrdersRepo;
+	private RejectedOrdersRepo rejectedOrdersRepo;
 	
 	private final List<Map<String, Object>> upComingOrdersStored = new ArrayList<>();
 
@@ -504,10 +504,10 @@ public class PaymentServices {
 					for (AgentMain agent : activeAgents) {
 						
 						// Skip the assigned agent to prevent duplicate notifications
-					    if (getAssignOrderAgent != null && agent.getAgentIDPk() == getAssignOrderAgent.getAgentIDPk()) {
-					        System.out.println("Skipping notification for assigned agent: " + agent.getFirstName());
-					        continue;
-					    }
+//					    if (getAssignOrderAgent != null && agent.getAgentIDPk() == getAssignOrderAgent.getAgentIDPk()) {
+//					        System.out.println("Skipping notification for assigned agent: " + agent.getFirstName());
+//					        continue;
+//					    }
 						if (agent.isActiveAgent()) {
 							// Check if the agent is within the 5 km range
 							boolean isWithinRange = this.locationService.isWithinRange(getOrdersDetails.getLatitude(),
