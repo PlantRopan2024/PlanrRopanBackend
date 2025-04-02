@@ -68,7 +68,7 @@ public class AgentLoginService {
 			return ResponseEntity.badRequest().body(Map.of("error", "Mobile number is required"));
 		}
 		String otp = otpService.generateOTP(mobileNumber);
-		// smsService.sendOtp(mobileNumber, otp);
+		smsService.sendOtp(mobileNumber, otp);
 		response.put("message", "OTP sent successfully!");
 		return ResponseEntity.ok(response);
 	}

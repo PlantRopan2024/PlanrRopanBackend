@@ -40,6 +40,7 @@ public class Order {
 	private String address;
 	private double latitude;
     private double longtitude;
+    private double Km;
     private String shareCode;  //4 digit code
 	
 	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
@@ -73,7 +74,7 @@ public class Order {
 			boolean couponApplied, double coupanAmount, double totalAmount, String offerCode, LocalDateTime createdAt,
 			String orderStatus, String address, double latitude, double longtitude, String shareCode, Payment payment,
 			AgentMain agentMain, CustomerMain customerMain, List<OrderFertilizers> orderFertilizers,
-			List<WorkCompletedPhoto> workCompletedPhoto, Plans plans) {
+			List<WorkCompletedPhoto> workCompletedPhoto, Plans plans, double Km) {
 		super();
 		this.primary_key = primary_key;
 		this.orderId = orderId;
@@ -96,6 +97,7 @@ public class Order {
 		this.orderFertilizers = orderFertilizers;
 		this.workCompletedPhoto = workCompletedPhoto;
 		this.plans = plans;
+		this.Km=Km;
 	}
 
 	public int getPrimary_key() {
@@ -255,6 +257,10 @@ public class Order {
 	public void setWorkCompletedPhoto(List<WorkCompletedPhoto> workCompletedPhoto) {
 		this.workCompletedPhoto = workCompletedPhoto;
 	}
-	
-	
+	public double getKm() {
+		return Km;
+	}
+	public void setKm(double km) {
+		Km = km;
+	}
 }

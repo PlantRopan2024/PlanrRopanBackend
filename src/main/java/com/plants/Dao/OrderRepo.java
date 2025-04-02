@@ -1,5 +1,7 @@
 package com.plants.Dao;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +12,12 @@ public interface OrderRepo extends JpaRepository<Order, Integer>{
 	
 	@Query("SELECT o FROM Order o WHERE o.orderId = :OrderNumber")
 	Order getOrderNumber(@Param("OrderNumber") String OrderNumber);
+	
+//	@Query("SELECT o FROM Order o WHERE o.orderId = :OrderNumber AND o.orderStatus = 'NOT_ASSIGNED' AND DATE(o.createdAt) = CURRENT_DATE")
+//	Order getOrderNumberWithStatusAndCurrentDate(@Param("OrderNumber") String OrderNumber);
+	
+	@Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'ASSIGNED'")
+	List<Order> getOrderAssignedList(@Param("agentPk") int agentPk);
 	
 	@Query("SELECT MAX(o.orderId) FROM Order o")
 	long getMaxOrderId();

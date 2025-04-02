@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -26,10 +25,10 @@ import com.plants.Dao.GardnerRatingRepo;
 import com.plants.Dao.OrderFertilizersRepo;
 import com.plants.Dao.OrderRepo;
 import com.plants.Dao.PaymentRepo;
+import com.plants.Dao.RejectedOrdersRepo;
 import com.plants.Dao.WorkCompletedPhotoRepo;
 import com.plants.Dao.userDao;
 import com.plants.config.Utils;
-import com.plants.entities.AgentJsonRequest;
 import com.plants.entities.AgentMain;
 import com.plants.entities.CustomerMain;
 import com.plants.entities.FertilizerRequest;
@@ -40,6 +39,7 @@ import com.plants.entities.OrderSummaryRequest;
 import com.plants.entities.Payment;
 import com.plants.entities.PaymentRequest;
 import com.plants.entities.Plans;
+import com.plants.entities.RejectedOrders;
 import com.plants.entities.WorkCompletedPhoto;
 
 @Service
@@ -71,6 +71,12 @@ public class PaymentServices {
 
 	@Autowired
 	GardnerRatingRepo gardnerRatingRepo;
+	
+	@Autowired 
+	RejectedOrdersRepo rejectedOrdersRepo;
+	
+	private final List<Map<String, Object>> upComingOrdersStored = new ArrayList<>();
+
 
 	public ResponseEntity<Map<String, Object>> paymentInitiate(CustomerMain exitsCustomer, PaymentRequest request) {
 		Map<String, Object> response = new HashMap<>();
@@ -225,8 +231,12 @@ public class PaymentServices {
 				response.put("CustomerDetails", CustomerDetails);
 				response.put("PlansDetails", plansDetails);
 				response.put("status", true);
-				// response.put("agentsWithinRange", agentsWithinRange); // Send the list of
-				// agents within range
+				
+				
+				 // Store upcoming orders without overwriting previous ones
+	            synchronized (upComingOrdersStored) {
+	                upComingOrdersStored.add(response);
+	            }
 			} else {
 				System.out.println("No agents found within 5 km range.");
 				response.put("status", false);
@@ -238,6 +248,27 @@ public class PaymentServices {
 			response.put("message", "Something Went Worng");
 		}
 		return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, Object>> upComingOrders(AgentMain agentRecords) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        synchronized (upComingOrdersStored) {
+	            if (upComingOrdersStored == null || upComingOrdersStored.isEmpty()) {
+	                response.put("status", true);
+	                response.put("message", "No upcoming orders.");
+	            } else {
+	                response.put("data", new ArrayList<>(upComingOrdersStored)); // Return a copy
+	                response.put("status", true);
+	                response.put("message", "Upcoming orders.");
+	            }
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("status", false);
+	        response.put("message", "Something went wrong.");
+	    }
+	    return ResponseEntity.ok(response);
 	}
 
 	public ResponseEntity<Map<String, Object>> OrderAssigned(CustomerMain exitsCustomer, Map<String, Object> request) {
@@ -295,7 +326,7 @@ public class PaymentServices {
 		return ResponseEntity.ok(response);
 	}
 
-	public ResponseEntity<Map<String, Object>> accpetOrRejctOrder(AgentMain agentMain, Map<String, Object> request) {
+	public ResponseEntity<Map<String, Object>> accpetedOrder(AgentMain agentMain, Map<String, Object> request) {
 		Map<String, Object> response = new HashMap<>();
 		String OrderNumber = (String) request.get("OrderNumber");
 		String bookingStatus = (String) request.get("BookingStatus");
@@ -304,6 +335,8 @@ public class PaymentServices {
 				Order getOrdersDetails = this.orderRepo.getOrderNumber(OrderNumber);
 				getOrdersDetails.setOrderStatus("ASSIGNED");
 				getOrdersDetails.setAgentMain(agentMain);
+				double distanceKm = this.locationService.calculateDistance(getOrdersDetails.getLatitude(),getOrdersDetails.getLongtitude(), agentMain.getLatitude(), agentMain.getLongitude());
+				getOrdersDetails.setKm(distanceKm);
 				Random random = new Random();
 				int code = 1000 + random.nextInt(9000); // Ensures a 4-digit number (1000-9999)
 				getOrdersDetails.setShareCode(String.valueOf(code));
@@ -312,7 +345,7 @@ public class PaymentServices {
 				// send notification to customer your order has been accpeted
 				String notify = sendNotificationToAgent(null, customerMain, "You Order have been assigned",
 						"Please check the app for details.", "OrderRecived");
-
+				
 				Map<String, Object> orderDetails = new HashMap<String, Object>();
 				orderDetails.put("OrderNumber", saveOrders.getOrderId());
 
@@ -337,11 +370,212 @@ public class PaymentServices {
 				response.put("notify", notify);
 				response.put("status", true);
 				response.put("message", "Order has been Assigned ");
-			}
+				
+				synchronized (upComingOrdersStored) {
+				    boolean removed = upComingOrdersStored.removeIf(order -> 
+				        OrderNumber.equals(order.get("OrderNumber")) // Compare OrderNumber correctly
+				    );
 
-			if (bookingStatus.equals("REJECT")) {
-
+				    if (removed) {
+				        System.out.println("Order " + OrderNumber + " removed from upComingOrdersStored.");
+				    } else {
+				        System.out.println("Order " + OrderNumber + " not found in upComingOrdersStored.");
+				    }
+				}
 			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			response.put("status", false);
+			response.put("message", "Something Went Worng");
+		}
+		return ResponseEntity.ok(response);
+	}
+	
+	
+	public ResponseEntity<Map<String, Object>> getListAccpetOrder(AgentMain agentRecords) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        List<Order> getOrdersDetails = this.orderRepo.getOrderAssignedList(agentRecords.getAgentIDPk());
+
+	        System.out.println("getOrdersDetails  ---   " + getOrdersDetails.size());
+
+	        if (getOrdersDetails.isEmpty()) {
+	            response.put("message", "You have no orders assigned.");
+	            response.put("status", true);
+	        } else {
+	            List<Map<String, Object>> ordersList = new ArrayList<>();
+	            
+	            for (Order order : getOrdersDetails) {
+	                Map<String, Object> orderDetails = new HashMap<>();
+	                orderDetails.put("OrderNumber", order.getOrderId());
+	                orderDetails.put("OrderStatus", order.getOrderStatus());
+	                orderDetails.put("Location", order.getAddress());
+	                orderDetails.put("Latitude", order.getLatitude());
+	                orderDetails.put("Longitude", order.getLongtitude());
+	                orderDetails.put("Km", order.getKm());
+	                orderDetails.put("PlanName", order.getPlans().getPlansName());
+	                orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+	                ordersList.add(orderDetails);
+	            }
+	            response.put("status", true);
+	            response.put("orders", ordersList);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("status", false);
+	        response.put("message", "Something went wrong.");
+	    }
+	    return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, Object>> viewDetailOrders(AgentMain agentMain, Map<String, Object> request) {
+		Map<String, Object> response = new HashMap<>();
+		String OrderNumber = (String) request.get("OrderNumber");
+		try {
+				Order getOrdersDetails = this.orderRepo.getOrderNumber(OrderNumber);
+				
+				Map<String, Object> orderDetails = new HashMap<String, Object>();
+				orderDetails.put("OrderNumber", getOrdersDetails.getOrderId());
+
+				Map<String, Object> CustomerDetails = new HashMap<String, Object>();
+				CustomerDetails.put("customerName", getOrdersDetails.getCustomerMain().getFirstName() + " " + getOrdersDetails.getCustomerMain().getLastName());
+				CustomerDetails.put("address", getOrdersDetails.getAddress());
+				CustomerDetails.put("latitudeCus", getOrdersDetails.getLatitude());
+				CustomerDetails.put("longtitudeCus", getOrdersDetails.getLongtitude());
+				CustomerDetails.put("mobileNUmber", getOrdersDetails.getCustomerMain().getMobileNumber());
+
+				Map<String, Object> plansDetails = new HashMap<String, Object>();
+				plansDetails.put("planName", getOrdersDetails.getPlans().getPlansName());
+				plansDetails.put("planRs", getOrdersDetails.getPlans().getPlansRs());
+				plansDetails.put("pots", getOrdersDetails.getPlans().getUptoPots());
+				plansDetails.put("plansDuration", getOrdersDetails.getPlans().getTimeDuration());
+				plansDetails.put("frequency", "1 times");
+				plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
+
+				response.put("OderDetails", orderDetails);
+				response.put("customerDetails", CustomerDetails);
+				response.put("PlansDetails", plansDetails);
+				response.put("status", true);
+				
+		}catch(Exception e) {
+			e.printStackTrace();
+			response.put("status", false);
+			response.put("message", "Something Went Worng");
+		}
+		return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, Object>> rejectedOrders(AgentMain agentMain, Map<String, Object> request) {
+		Map<String, Object> response = new HashMap<>();
+		String OrderNumber = (String) request.get("OrderNumber");
+		String reason = (String) request.get("reason");
+		String notify = "";
+		int roundedTime = 0;
+		double distanceKm = 0.0;
+		try {
+				Order getOrdersDetails = this.orderRepo.getOrderNumber(OrderNumber);
+				
+				AgentMain getAssignOrderAgent = getOrdersDetails.getAgentMain();
+				
+				getOrdersDetails.setOrderStatus("NOT_ASSIGNED");
+				getOrdersDetails.setAgentMain(null);
+				
+				Order saveOrders = this.orderRepo.save(getOrdersDetails);
+				
+				RejectedOrders rejectedOrders = new RejectedOrders();
+				
+				rejectedOrders.setOrderNumber(OrderNumber);
+				rejectedOrders.setAgents(getAssignOrderAgent);
+				rejectedOrders.setOrders(saveOrders);
+				rejectedOrders.setReason(reason);
+				rejectedOrders.setOrderStatus("REJECTED_ORDER");
+				this.rejectedOrdersRepo.save(rejectedOrders);
+				
+				
+				// send notification to other same  orders 
+				List<AgentMain> activeAgents = this.userdao.activeAgent();
+				System.out.println("activeAgents size " + activeAgents.size());
+
+				// List to keep track of agents within 5 km range
+				List<AgentMain> agentsWithinRange = new ArrayList<>();
+
+				// If there are active agents
+				if (!activeAgents.isEmpty()) {
+					for (AgentMain agent : activeAgents) {
+						
+						// Skip the assigned agent to prevent duplicate notifications
+					    if (getAssignOrderAgent != null && agent.getAgentIDPk() == getAssignOrderAgent.getAgentIDPk()) {
+					        System.out.println("Skipping notification for assigned agent: " + agent.getFirstName());
+					        continue;
+					    }
+						if (agent.isActiveAgent()) {
+							// Check if the agent is within the 5 km range
+							boolean isWithinRange = this.locationService.isWithinRange(getOrdersDetails.getLatitude(),
+									getOrdersDetails.getLongtitude(), agent.getLatitude(), agent.getLongitude());
+
+							if (isWithinRange) {
+								double getEstimatetime = this.locationService.estimateArrivalTime(getOrdersDetails.getLatitude(), getOrdersDetails.getLongtitude(),
+										agent.getLatitude(), agent.getLongitude());
+								roundedTime = (int) Math.ceil(getEstimatetime);
+
+								System.out.println(" get estimate time --- " + roundedTime);
+
+								distanceKm = this.locationService.calculateDistance(getOrdersDetails.getLatitude(),getOrdersDetails.getLongtitude(), agent.getLatitude(), agent.getLongitude());
+								System.out.println(" distance km -- " + distanceKm);
+
+								// Add agent to the list if they are within the range
+								agentsWithinRange.add(agent);
+								System.out.println("Agent within range: " + agent.getFirstName());
+
+								String message = "Reminder Alert!\n\n" + "Hey " + agent.getFirstName() + " "
+										+ agent.getLastName() + " it's time to nurture some greens! 🌱\n"
+										+ "You have a scheduled service today. Check your app for details and get ready to bring life to another garden! 🌿✨";
+
+								// notification send firebase with help
+								notify = sendNotificationToAgent(agent, null, "Service Alert: New Order", message,"OrderNotification");
+								System.out.println(" notify----" + notify);
+							}
+						}
+					}
+				}
+				// Prepare the response
+				response.put("message", "Data received successfully");
+
+				if (!agentsWithinRange.isEmpty()) {
+					System.out.println("Total agents within 5 km range: " + agentsWithinRange.size());
+
+					Map<String, Object> CustomerDetails = new HashMap<String, Object>();
+					CustomerDetails.put("customerName", getOrdersDetails.getCustomerMain().getFirstName() + " " + getOrdersDetails.getCustomerMain().getLastName());
+					CustomerDetails.put("location", getOrdersDetails.getAddress());
+					CustomerDetails.put("latitudeCus", getOrdersDetails.getLatitude());
+					CustomerDetails.put("arrivalTime", roundedTime);
+					CustomerDetails.put("distanceKm", Utils.decimalFormat(distanceKm) + " KM");
+					CustomerDetails.put("longtitudeCus", getOrdersDetails.getLongtitude());
+
+					Map<String, Object> plansDetails = new HashMap<String, Object>();
+					plansDetails.put("planName", getOrdersDetails.getPlans().getPlansName());
+					plansDetails.put("planRs", getOrdersDetails.getPlans().getPlansRs());
+					plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
+
+					response.put("notify", notify);
+					response.put("notificationKey", "OrderNotification");
+					response.put("OrderNumber", getOrdersDetails.getOrderId());
+					response.put("OrderStatus", getOrdersDetails.getOrderStatus());
+					response.put("CustomerDetails", CustomerDetails);
+					response.put("PlansDetails", plansDetails);
+					response.put("status", true);
+					
+					
+					 // Store upcoming orders without overwriting previous ones
+		            synchronized (upComingOrdersStored) {
+		                upComingOrdersStored.add(response);
+		            }
+				} else {
+					System.out.println("No agents found within 5 km range.");
+					response.put("status", false);
+					response.put("agentsWithinRange", "No agents found within range");
+				}
+	
 		}catch(Exception e) {
 			e.printStackTrace();
 			response.put("status", false);

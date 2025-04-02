@@ -80,6 +80,7 @@ public class AgentMain {
 	@OneToMany(mappedBy = "agentMain")
     private List<Notification> notification = new ArrayList<>();
 	
+	private String workStatus;
 	public AgentMain() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -94,7 +95,7 @@ public class AgentMain {
 			String ifscCode, String bankPassBookImage, String bankPassBookImage_type, String bankPassBookImagePath,
 			boolean isProfileCompleted, String fcmTokenAgent, boolean isProfileInfoStepFirst,
 			boolean isAadharInfoStepSecond, boolean isBankInfoStepThird, String agentReferralCode,
-			List<WalletHistory> referralHistory, List<Notification> notification,boolean isReferral) {
+			List<WalletHistory> referralHistory, List<Notification> notification,boolean isReferral,String workStatus) {
 		super();
 		AgentIDPk = agentIDPk;
 		this.firstName = firstName;
@@ -137,10 +138,8 @@ public class AgentMain {
 		this.referralHistory = referralHistory;
 		this.notification = notification;
 		this.isReferral= isReferral;
+		this.workStatus =workStatus;
 	}
-
-
-
 	public int getAgentIDPk() {
 		return AgentIDPk;
 	}
@@ -381,18 +380,21 @@ public class AgentMain {
 	public List<Notification> getNotification() {
 		return notification;
 	}
-
 	public void setNotification(List<Notification> notification) {
 		this.notification = notification;
 	}
 	public boolean isReferral() {
 		return isReferral;
 	}
-
 	public void setReferral(boolean isReferral) {
 		this.isReferral = isReferral;
 	}
-
+	public String getWorkStatus() {
+		return workStatus;
+	}
+	public void setWorkStatus(String workStatus) {
+		this.workStatus = workStatus;
+	}
 	@Override
 	public String toString() {
 		return "AgentMain [AgentIDPk=" + AgentIDPk + ", firstName=" + firstName + ", lastName=" + lastName + ", gender="

@@ -51,6 +51,9 @@ public class CustomerService {
 
 	@Autowired
 	private OTPService otpService;
+	
+	@Autowired
+	private SmsService smsService;
 
 	@Autowired
 	userDao userdao;
@@ -78,7 +81,7 @@ public class CustomerService {
 			return ResponseEntity.badRequest().body(Map.of("error", "Mobile number is required"));
 		}
 		String otp = otpService.generateOTP(mobileNumber);
-		// smsService.sendOtp(mobileNumber, otp);
+		this.smsService.sendOtp(mobileNumber, otp);
 		response.put("message", "OTP sent successfully!");
 		return ResponseEntity.ok(response);
 	}

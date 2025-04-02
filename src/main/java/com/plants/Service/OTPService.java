@@ -14,13 +14,21 @@ public class OTPService {
     private final Map<String, Long> otpTimestamps = new HashMap<>();
    
     public String generateOTP(String mobileNumber) {
-        // Generate a random 6-digit OTP
-        //String otp = String.valueOf(new Random().nextInt(999999));
-    	 String otp= "123456";
-        otpData.put(mobileNumber, otp);
+        Random random = new Random();
+        int otp;
+        
+        do {
+            otp = random.nextInt(999999); // Generates a number between 0 and 999999
+        } while (otp < 100000); // Ensures it is at least 100000 (6 digits)
+
+        String otpString = String.valueOf(otp);
+    	// String otpString= "123456";
+        otpData.put(mobileNumber, otpString);
         otpTimestamps.put(mobileNumber, System.currentTimeMillis());
-        return otp;
+        
+        return otpString;
     }
+
    
     public boolean validateOTP(String mobileNumber, String otp) {
     	
