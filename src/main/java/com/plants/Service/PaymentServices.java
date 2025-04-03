@@ -527,26 +527,26 @@ public class PaymentServices {
 				Order getOrdersDetails = this.orderRepo.getOrderNumber(OrderNumber);
 				
 				
-				// if order has been assigned for some one 
+//				// if order has been assigned for some one 
+//				
+//				if(getOrdersDetails.getOrderStatus().equals("ASSIGNED")) {
+//					synchronized (upComingOrdersStored) {
+//					    boolean removed = upComingOrdersStored.removeIf(order -> 
+//					        OrderNumber.equals(order.get("OrderNumber")) // Compare OrderNumber correctly
+//					    );
+//
+//					    if (removed) {
+//					        System.out.println("Order " + OrderNumber + " removed from upComingOrdersStored.");
+//					    } else {
+//					        System.out.println("Order " + OrderNumber + " not found in upComingOrdersStored.");
+//					    }
+//					}
+//					response.put("message","This order assign to another Maali");
+//					response.put("status", false);
+//					return ResponseEntity.ok(response);
+//				}
 				
-				if(getOrdersDetails.getOrderStatus().equals("ASSIGNED")) {
-					synchronized (upComingOrdersStored) {
-					    boolean removed = upComingOrdersStored.removeIf(order -> 
-					        OrderNumber.equals(order.get("OrderNumber")) // Compare OrderNumber correctly
-					    );
-
-					    if (removed) {
-					        System.out.println("Order " + OrderNumber + " removed from upComingOrdersStored.");
-					    } else {
-					        System.out.println("Order " + OrderNumber + " not found in upComingOrdersStored.");
-					    }
-					}
-					response.put("message","This order assign to another Maali");
-					response.put("status", false);
-					return ResponseEntity.ok(response);
-				}
-				
-			//	AgentMain getAssignOrderAgent = getOrdersDetails.getAgentMain();
+				AgentMain getAssignOrderAgent = getOrdersDetails.getAgentMain();
 				
 				getOrdersDetails.setOrderStatus("NOT_ASSIGNED");
 				getOrdersDetails.setAgentMain(null);
@@ -576,10 +576,10 @@ public class PaymentServices {
 					for (AgentMain agent : activeAgents) {
 						
 						// Skip the assigned agent to prevent duplicate notifications
-					    if (agentMain != null && agent.getAgentIDPk() == agentMain.getAgentIDPk()) {
-				        System.out.println("Skipping notification for assigned agent: " + agent.getFirstName());
-					        continue;
-					    }
+//					    if (agentMain != null && agent.getAgentIDPk() == agentMain.getAgentIDPk()) {
+//				        System.out.println("Skipping notification for assigned agent: " + agent.getFirstName());
+//					        continue;
+//					    }
 						if (agent.isActiveAgent()) {
 							// Check if the agent is within the 5 km range
 							boolean isWithinRange = this.locationService.isWithinRange(getOrdersDetails.getLatitude(),
