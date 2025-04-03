@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.zip.Deflater;
@@ -41,6 +42,7 @@ import com.fasterxml.jackson.databind.util.JSONPObject;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
 import org.springframework.core.io.Resource;
 
 public class Utils {
@@ -353,5 +355,73 @@ public class Utils {
         return Double.parseDouble(String.format("%.2f", value));
     }
 
+    /**
+	 * Builds pagination URLs for navigation.
+	 */
+	public static Map<String, String> buildPaginationUrls(String baseUrl, int currentPage, int totalPages, int pageSize,List<Map<String, Object>> dataList) {
+	    Map<String, String> paginationUrls = new HashMap<>();
+	    
+	    if(dataList.isEmpty()) {
+	    	paginationUrls.put("first_page_url", baseUrl + "?pageNumber=1&pageSize=" + pageSize);
+	 	    paginationUrls.put("last_page_url", baseUrl + "?pageNumber=1&pageSize=" + pageSize);
+	    }else {
+	    	paginationUrls.put("first_page_url", totalPages > 0 ? baseUrl + "?pageNumber=1&pageSize=" + pageSize : null);
+	 	    paginationUrls.put("last_page_url", totalPages > 0 ? baseUrl + "?pageNumber=" + totalPages + "&pageSize=" + pageSize : null);
+	    }
+	    paginationUrls.put("next_page_url", currentPage < totalPages ? baseUrl + "?pageNumber=" + (currentPage + 1) + "&pageSize=" + pageSize : null);
+	    paginationUrls.put("prev_page_url", currentPage > 1 ? baseUrl + "?pageNumber=" + (currentPage - 1) + "&pageSize=" + pageSize : null);
 
+	    return paginationUrls;
+	}
+
+	
+	/**
+	 * Builds a dynamic pagination response.
+	 */
+	public static <T> Map<String, Object> buildPaginationResponse(Page<T> pageData, String baseUrl, int pageSize, List<Map<String, Object>> dataList) {
+	    int currentPage = pageData.getNumber() + 1;
+	    int totalPages = pageData.getTotalPages();
+	    long totalItems = pageData.getTotalElements();
+
+	    Map<String, Object> pagination = new HashMap<>();
+	    pagination.put("current_page", currentPage);
+	    pagination.put("data", dataList);
+	    pagination.put("first_page_url", baseUrl + "?pageNumber=1&pageSize=" + pageSize);
+	    pagination.put("last_page", totalPages);
+	    pagination.putAll(buildPaginationUrls(baseUrl, currentPage, totalPages, pageSize,dataList));
+	    pagination.put("path", baseUrl);
+	    pagination.put("per_page", pageSize);
+	    pagination.put("from", ((currentPage - 1) * pageSize) + 1);
+	    pagination.put("to", Math.min(currentPage * pageSize, totalItems));
+	    pagination.put("total", totalItems);
+
+	    return pagination;
+	}
+	
+
+
+	public static Map<String, Object> buildPaginationResponse(List<Map<String, Object>> ordersList, String baseUrl,int pageNumber,
+			int pageSize, List<Map<String, Object>> ordersList2) {
+		 int totalItems = ordersList.size();
+		    int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+		    int currentPage = Math.max(1, Math.min(pageNumber, totalPages));
+
+		    int fromIndex = (currentPage - 1) * pageSize;
+		    int toIndex = Math.min(fromIndex + pageSize, totalItems);
+		    
+		    List<Map<String, Object>> paginatedList = ordersList.subList(fromIndex, toIndex);
+
+		    Map<String, Object> pagination = new HashMap<>();
+		    pagination.put("current_page", currentPage);
+		    pagination.put("data", paginatedList);
+		    pagination.put("first_page_url", totalPages > 0 ? baseUrl + "?pageNumber=1&pageSize=" + pageSize : null);
+		    pagination.put("last_page", totalPages);
+		    pagination.putAll(buildPaginationUrls(baseUrl, currentPage, totalPages, pageSize,paginatedList));
+		    pagination.put("path", baseUrl);
+		    pagination.put("per_page", pageSize);
+		    pagination.put("from", totalItems == 0 ? 0 : fromIndex + 1);
+		    pagination.put("to", totalItems == 0 ? 0 : toIndex);
+		    pagination.put("total", totalItems);
+		return pagination;
+	}
 }

@@ -12,6 +12,10 @@ import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,6 +51,12 @@ public class PaymentServices {
 
 	@Value("${file.upload-dir}")
 	private String uploadDir;
+	
+	@Value("${pagination.page}")
+	private int pageNumber;
+	
+	@Value("${pagination.size}")
+	private int pageSize;
 
 	@Autowired
 	private CustomerDao customerDao;
@@ -199,7 +209,7 @@ public class PaymentServices {
 									+ "You have a scheduled service today. Check your app for details and get ready to bring life to another garden! 🌿✨";
 
 							// notification send firebase with help
-							notify = sendNotificationToAgent(agent, null, "Service Alert: New Order", message,"OrderNotification");
+							notify = sendNotificationToAgent(agent, null, "Service Alert: New Order", message,"Order",OrderNumber);
 							System.out.println(" notify----" + notify);
 						}
 					}
@@ -211,25 +221,31 @@ public class PaymentServices {
 			if (!agentsWithinRange.isEmpty()) {
 				System.out.println("Total agents within 5 km range: " + agentsWithinRange.size());
 
-				Map<String, Object> CustomerDetails = new HashMap<String, Object>();
-				CustomerDetails.put("customerName", exitsCustomer.getFirstName() + " " + exitsCustomer.getLastName());
-				CustomerDetails.put("location", getOrdersDetails.getAddress());
-				CustomerDetails.put("latitudeCus", getOrdersDetails.getLatitude());
-				CustomerDetails.put("arrivalTime", roundedTime);
-				CustomerDetails.put("distanceKm", Utils.decimalFormat(distanceKm) + " KM");
-				CustomerDetails.put("longtitudeCus", getOrdersDetails.getLongtitude());
+//				Map<String, Object> CustomerDetails = new HashMap<String, Object>();
+//				CustomerDetails.put("customerName", exitsCustomer.getFirstName() + " " + exitsCustomer.getLastName());
+//				CustomerDetails.put("location", getOrdersDetails.getAddress());
+//				CustomerDetails.put("latitudeCus", getOrdersDetails.getLatitude());
+//				CustomerDetails.put("arrivalTime", roundedTime);
+//				CustomerDetails.put("distanceKm", Utils.decimalFormat(distanceKm) + " KM");
+//				CustomerDetails.put("longtitudeCus", getOrdersDetails.getLongtitude());
 
-				Map<String, Object> plansDetails = new HashMap<String, Object>();
-				plansDetails.put("planName", getOrdersDetails.getPlans().getPlansName());
-				plansDetails.put("planRs", getOrdersDetails.getPlans().getPlansRs());
-				plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
+//				Map<String, Object> plansDetails = new HashMap<String, Object>();
+//				plansDetails.put("planName", getOrdersDetails.getPlans().getPlansName());
+//				plansDetails.put("planRs", getOrdersDetails.getPlans().getPlansRs());
+//				plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
 
 				response.put("notify", notify);
-				response.put("notificationKey", "OrderNotification");
 				response.put("OrderNumber", getOrdersDetails.getOrderId());
 				response.put("OrderStatus", getOrdersDetails.getOrderStatus());
-				response.put("CustomerDetails", CustomerDetails);
-				response.put("PlansDetails", plansDetails);
+				response.put("Location", getOrdersDetails.getAddress());
+				response.put("Latitude", getOrdersDetails.getLatitude());
+				response.put("Longitude", getOrdersDetails.getLongtitude());
+				response.put("Km", Utils.decimalFormat(distanceKm) + " KM");
+				response.put("PlanName", getOrdersDetails.getPlans().getPlansName());
+				response.put("PlanPrice", getOrdersDetails.getPlans().getPlansRs());
+				response.put("notificationKey", "Order");
+			//	response.put("CustomerDetails", CustomerDetails);
+			//	response.put("PlansDetails", plansDetails);
 				response.put("status", true);
 				
 				
@@ -250,26 +266,37 @@ public class PaymentServices {
 		return ResponseEntity.ok(response);
 	}
 	
-	public ResponseEntity<Map<String, Object>> upComingOrders(AgentMain agentRecords) {
+	public ResponseEntity<Map<String, Object>> upComingOrders(AgentMain agentRecords, int pageNumber, int pageSize, String baseUrl) {
 	    Map<String, Object> response = new HashMap<>();
+
 	    try {
 	        synchronized (upComingOrdersStored) {
-	            if (upComingOrdersStored == null || upComingOrdersStored.isEmpty()) {
-	                response.put("status", true);
-	                response.put("message", "No upcoming orders.");
-	            } else {
-	                response.put("data", new ArrayList<>(upComingOrdersStored)); // Return a copy
-	                response.put("status", true);
-	                response.put("message", "Upcoming orders.");
+	            List<Map<String, Object>> ordersList = new ArrayList<>(upComingOrdersStored); // Creating a copy
+
+	            if (ordersList.isEmpty()) {
+	                List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+	                Map<String, Object> pagination = Utils.buildPaginationResponse(ordersList, baseUrl, pageNumber,pageSize, emptyOrdersList);
+	                pagination.put("message", "You have no upcoming orders.");
+	                
+	                response.put("success", true);
+	                response.put("response", pagination);
+	                return ResponseEntity.ok(response);
 	            }
+	            Map<String, Object> pagination = Utils.buildPaginationResponse(ordersList, baseUrl,pageNumber, pageSize, ordersList);
+	            pagination.put("message", "Upcoming orders available.");
+
+	            response.put("success", true);
+	            response.put("response", pagination);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	        response.put("status", false);
+	        response.put("success", false);
 	        response.put("message", "Something went wrong.");
 	    }
+
 	    return ResponseEntity.ok(response);
 	}
+
 
 	public ResponseEntity<Map<String, Object>> OrderAssigned(CustomerMain exitsCustomer, Map<String, Object> request) {
 		Map<String, Object> response = new HashMap<>();
@@ -344,7 +371,7 @@ public class PaymentServices {
 				CustomerMain customerMain = this.customerDao.findbyPrimaryKey(saveOrders.getCustomerMain().getPrimarykey());
 				// send notification to customer your order has been accpeted
 				String notify = sendNotificationToAgent(null, customerMain, "You Order have been assigned",
-						"Please check the app for details.", "OrderRecived");
+						"Please check the app for details.", "OrderRecived",OrderNumber);
 				
 				Map<String, Object> orderDetails = new HashMap<String, Object>();
 				orderDetails.put("OrderNumber", saveOrders.getOrderId());
@@ -392,42 +419,46 @@ public class PaymentServices {
 	}
 	
 	
-	public ResponseEntity<Map<String, Object>> getListAccpetOrder(AgentMain agentRecords) {
+	public ResponseEntity<Map<String, Object>> getListAccpetOrder(AgentMain agentRecords, int pageNumber, int pageSize, String baseUrl) {
 	    Map<String, Object> response = new HashMap<>();
-	    try {
-	        List<Order> getOrdersDetails = this.orderRepo.getOrderAssignedList(agentRecords.getAgentIDPk());
 
-	        System.out.println("getOrdersDetails  ---   " + getOrdersDetails.size());
+	    try {
+	        int pageIndex = Math.max(pageNumber - 1, 0);
+	        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
+	        Page<Order> getOrdersDetails = orderRepo.getOrderAssignedListPaganation(agentRecords.getAgentIDPk(), pageable);
 
 	        if (getOrdersDetails.isEmpty()) {
-	            response.put("message", "You have no orders assigned.");
-	            response.put("status", true);
-	        } else {
-	            List<Map<String, Object>> ordersList = new ArrayList<>();
-	            
-	            for (Order order : getOrdersDetails) {
-	                Map<String, Object> orderDetails = new HashMap<>();
-	                orderDetails.put("OrderNumber", order.getOrderId());
-	                orderDetails.put("OrderStatus", order.getOrderStatus());
-	                orderDetails.put("Location", order.getAddress());
-	                orderDetails.put("Latitude", order.getLatitude());
-	                orderDetails.put("Longitude", order.getLongtitude());
-	                orderDetails.put("Km", order.getKm());
-	                orderDetails.put("PlanName", order.getPlans().getPlansName());
-	                orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
-	                ordersList.add(orderDetails);
-	            }
-	            response.put("status", true);
-	            response.put("orders", ordersList);
+	            List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+	            Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, emptyOrdersList);
+	            pagination.put("message", "You have no orders assigned."); 
+	            response.put("success", true);
+	            response.put("response", pagination);
+	            return ResponseEntity.ok(response);
 	        }
+	        List<Map<String, Object>> ordersList = new ArrayList<>();
+		    for (Order order : getOrdersDetails) {
+		        Map<String, Object> orderDetails = new HashMap<>();
+		        orderDetails.put("OrderNumber", order.getOrderId());
+		        orderDetails.put("OrderStatus", order.getOrderStatus());
+		        orderDetails.put("Location", order.getAddress());
+		        orderDetails.put("Latitude", order.getLatitude());
+		        orderDetails.put("Longitude", order.getLongtitude());
+		        orderDetails.put("Km", order.getKm());
+		        orderDetails.put("PlanName", order.getPlans().getPlansName());
+		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+		        ordersList.add(orderDetails);
+		    }
+	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
+	        response.put("success", true);
+	        response.put("response", pagination);
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	        response.put("status", false);
+	        response.put("success", false);
 	        response.put("message", "Something went wrong.");
 	    }
 	    return ResponseEntity.ok(response);
 	}
-	
+
 	public ResponseEntity<Map<String, Object>> viewDetailOrders(AgentMain agentMain, Map<String, Object> request) {
 		Map<String, Object> response = new HashMap<>();
 		String OrderNumber = (String) request.get("OrderNumber");
@@ -532,7 +563,7 @@ public class PaymentServices {
 										+ "You have a scheduled service today. Check your app for details and get ready to bring life to another garden! 🌿✨";
 
 								// notification send firebase with help
-								notify = sendNotificationToAgent(agent, null, "Service Alert: New Order", message,"OrderNotification");
+								notify = sendNotificationToAgent(agent, null, "Service Alert: New Order", message,"OrderNotification",OrderNumber);
 								System.out.println(" notify----" + notify);
 							}
 						}
@@ -556,13 +587,24 @@ public class PaymentServices {
 					plansDetails.put("planName", getOrdersDetails.getPlans().getPlansName());
 					plansDetails.put("planRs", getOrdersDetails.getPlans().getPlansRs());
 					plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
-
+					
 					response.put("notify", notify);
-					response.put("notificationKey", "OrderNotification");
 					response.put("OrderNumber", getOrdersDetails.getOrderId());
 					response.put("OrderStatus", getOrdersDetails.getOrderStatus());
-					response.put("CustomerDetails", CustomerDetails);
-					response.put("PlansDetails", plansDetails);
+					response.put("Location", getOrdersDetails.getAddress());
+					response.put("Latitude", getOrdersDetails.getLatitude());
+					response.put("Longitude", getOrdersDetails.getLongtitude());
+					response.put("Km", Utils.decimalFormat(distanceKm) + " KM");
+					response.put("PlanName", getOrdersDetails.getPlans().getPlansName());
+					response.put("PlanPrice", getOrdersDetails.getPlans().getPlansRs());
+					response.put("notificationKey", "Order");
+					
+//					response.put("notify", notify);
+//					response.put("notificationKey", "OrderNotification");
+//					response.put("OrderNumber", getOrdersDetails.getOrderId());
+//					response.put("OrderStatus", getOrdersDetails.getOrderStatus());
+//					response.put("CustomerDetails", CustomerDetails);
+//					response.put("PlansDetails", plansDetails);
 					response.put("status", true);
 					
 					
@@ -600,7 +642,7 @@ public class PaymentServices {
 			System.out.println("Distance km -- " + distanceKm);
 			if (distanceKm <= 1.0) {
 				String notify = sendNotificationToAgent(null, getOrdersDetails.getCustomerMain(), "Reached Location",
-						"Gardener has reached your location. You can start the work now.", "ReachedLocationNotify");
+						"Gardener has reached your location. You can start the work now.", "ReachedLocationNotify",orderNumber);
 				response.put("notify", notify);
 				response.put("message", "Gardener has reached the location.");
 				response.put("status", true);
@@ -757,8 +799,7 @@ public class PaymentServices {
 		return orderGenerated;
 	}
 
-	private String sendNotificationToAgent(AgentMain agent, CustomerMain customerMain, String title, String message,
-			String notificationType) {
+	private String sendNotificationToAgent(AgentMain agent, CustomerMain customerMain, String title, String message,String notificationType,String OrderNumber) {
 		String response = "";
 		String fcmToken = null;
 
@@ -776,6 +817,7 @@ public class PaymentServices {
 			Message firebaseMessage = Message.builder().setToken(fcmToken)
 					.setNotification(Notification.builder().setTitle(title).setBody(message).build())
 					.putData("type", notificationType) // Add custom data
+					.putData("OrderID", OrderNumber) // Add custom data
 					.build();
 			// Send the Notification
 			response = FirebaseMessaging.getInstance().send(firebaseMessage);
