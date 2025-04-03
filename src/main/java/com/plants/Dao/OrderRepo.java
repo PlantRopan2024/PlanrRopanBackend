@@ -25,7 +25,10 @@ public interface OrderRepo extends JpaRepository<Order, Integer>{
 	    
     @Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'ASSIGNED'")
     Page<Order> getOrderAssignedListPaganation(@Param("agentPk") int agentPk, Pageable pageable);
-
+    
+    @Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'TASK_COMPLETED'")
+    Page<Order> getOrderCompletedListPaganation(@Param("agentPk") int agentPk, Pageable pageable);
+    
 	
 //	@Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'ASSIGNED'")
 //	List<Order> getOrderAssignedListPaganation(@Param("agentPk") int agentPk);

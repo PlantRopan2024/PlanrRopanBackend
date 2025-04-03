@@ -79,8 +79,8 @@ public class PaymentController {
 	
 	@GetMapping("upComingOrders")
 	public ResponseEntity<Map<String, Object>> upComingOrders(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-			@RequestParam(value = "pageNumber",defaultValue = "0" ,required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize",defaultValue = "10" ,required = false) Integer pageSize ,HttpServletRequest request) {
+			@RequestParam(defaultValue = "0" ,required = false) Integer pageNumber,
+			@RequestParam(defaultValue = "10" ,required = false) Integer pageSize ,HttpServletRequest request) {
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);
 		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
@@ -127,8 +127,8 @@ public class PaymentController {
 	
 	@GetMapping("/getListAccpetedOrderList")
 	public ResponseEntity<Map<String, Object>> getListAccpetedOrderList(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-			@RequestParam(value = "pageNumber",defaultValue = "0" ,required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize",defaultValue = "10" ,required = false) Integer pageSize ,HttpServletRequest request) {
+			@RequestParam(defaultValue = "0" ,required = false) Integer pageNumber,
+			@RequestParam(defaultValue = "10" ,required = false) Integer pageSize ,HttpServletRequest request) {
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 		String mobileNumber = jwtUtil.extractUsername(jwtToken);
 		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
@@ -169,6 +169,26 @@ public class PaymentController {
 		ResponseEntity<Map<String, Object>> response = paymentServices.rejectedOrders(agentRecords, request);
 		return ResponseEntity.ok(response.getBody());
 	}
+	
+	@GetMapping("/getRejectedOrderList")
+	public ResponseEntity<Map<String, Object>> getRejectedOrderList(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+			@RequestParam(defaultValue = "0" ,required = false) Integer pageNumber,
+			@RequestParam(defaultValue = "10" ,required = false) Integer pageSize ,HttpServletRequest request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+
+		if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		 // **Construct Dynamic Base URL**
+	    String baseUrl = request.getScheme() + "://" + request.getServerName() +
+	            (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort()) +
+	            request.getContextPath() + "/paymentCont/getRejectedOrderList";
+	    ResponseEntity<Map<String, Object>> response = paymentServices.getRejectedOrderList(agentRecords, pageNumber, pageSize, baseUrl);
+		return ResponseEntity.ok(response.getBody());
+	}
+	
 
 	@PostMapping("/reachedLocationAgent")
 	public ResponseEntity<Map<String, Object>> reachedLocationAgent(
@@ -214,6 +234,25 @@ public class PaymentController {
 		ResponseEntity<Map<String, Object>> getprofileDetails = paymentServices.workPhotoUpload(agentRecords,
 				OrderNumber, workCompletdPhoto1, workCompletdPhoto2);
 		return ResponseEntity.ok(getprofileDetails.getBody());
+	}
+	
+	@GetMapping("/getCompletedOrderList")
+	public ResponseEntity<Map<String, Object>> getCompletedOrderList(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+			@RequestParam(defaultValue = "0" ,required = false) Integer pageNumber,
+			@RequestParam(defaultValue = "10" ,required = false) Integer pageSize ,HttpServletRequest request) {
+		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+		String mobileNumber = jwtUtil.extractUsername(jwtToken);
+		AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
+
+		if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
+		}
+		 // **Construct Dynamic Base URL**
+	    String baseUrl = request.getScheme() + "://" + request.getServerName() +
+	            (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort()) +
+	            request.getContextPath() + "/paymentCont/getCompletedOrderList";
+	    ResponseEntity<Map<String, Object>> response = paymentServices.getCompletedOrder(agentRecords, pageNumber, pageSize, baseUrl);
+		return ResponseEntity.ok(response.getBody());
 	}
 	
 	@PostMapping("/OurServicesRating")

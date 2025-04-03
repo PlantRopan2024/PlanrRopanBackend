@@ -1,5 +1,7 @@
 package com.plants.entities;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -20,6 +22,8 @@ public class RejectedOrders {
 	private String orderStatus;
 	private String orderNumber;
 	
+	private LocalDateTime createdAt;
+	
 	@ManyToOne
 	@JsonIgnore
 	@JoinColumn(name = "fk_order_id", nullable = true)
@@ -36,7 +40,7 @@ public class RejectedOrders {
 	}
 
 	public RejectedOrders(int primaryKey, String reason, String orderStatus, String orderNumber, Order orders,
-			AgentMain agents) {
+			AgentMain agents,LocalDateTime createdAt) {
 		super();
 		this.primaryKey = primaryKey;
 		this.reason = reason;
@@ -44,6 +48,7 @@ public class RejectedOrders {
 		this.orderNumber = orderNumber;
 		this.orders = orders;
 		this.agents = agents;
+		this.createdAt= createdAt;
 	}
 
 	public int getPrimaryKey() {
@@ -92,6 +97,14 @@ public class RejectedOrders {
 
 	public void setAgents(AgentMain agents) {
 		this.agents = agents;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
 	}
 	
 	

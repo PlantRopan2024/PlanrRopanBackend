@@ -360,6 +360,26 @@ public class PaymentServices {
 		try {
 			if (bookingStatus.equals("ACCEPT")) {
 				Order getOrdersDetails = this.orderRepo.getOrderNumber(OrderNumber);
+				
+				// if order has been assigned for some one 
+				
+				if(getOrdersDetails.getOrderStatus().equals("ASSIGNED")) {
+					synchronized (upComingOrdersStored) {
+					    boolean removed = upComingOrdersStored.removeIf(order -> 
+					        OrderNumber.equals(order.get("OrderNumber")) // Compare OrderNumber correctly
+					    );
+
+					    if (removed) {
+					        System.out.println("Order " + OrderNumber + " removed from upComingOrdersStored.");
+					    } else {
+					        System.out.println("Order " + OrderNumber + " not found in upComingOrdersStored.");
+					    }
+					}
+					response.put("message","This order has been expire");
+					response.put("status", false);
+					return ResponseEntity.ok(response);
+				}
+				
 				getOrdersDetails.setOrderStatus("ASSIGNED");
 				getOrdersDetails.setAgentMain(agentMain);
 				double distanceKm = this.locationService.calculateDistance(getOrdersDetails.getLatitude(),getOrdersDetails.getLongtitude(), agentMain.getLatitude(), agentMain.getLongitude());
@@ -506,19 +526,40 @@ public class PaymentServices {
 		try {
 				Order getOrdersDetails = this.orderRepo.getOrderNumber(OrderNumber);
 				
-				AgentMain getAssignOrderAgent = getOrdersDetails.getAgentMain();
+				
+				// if order has been assigned for some one 
+				
+				if(getOrdersDetails.getOrderStatus().equals("ASSIGNED")) {
+					synchronized (upComingOrdersStored) {
+					    boolean removed = upComingOrdersStored.removeIf(order -> 
+					        OrderNumber.equals(order.get("OrderNumber")) // Compare OrderNumber correctly
+					    );
+
+					    if (removed) {
+					        System.out.println("Order " + OrderNumber + " removed from upComingOrdersStored.");
+					    } else {
+					        System.out.println("Order " + OrderNumber + " not found in upComingOrdersStored.");
+					    }
+					}
+					response.put("message","This order assign to another Maali");
+					response.put("status", false);
+					return ResponseEntity.ok(response);
+				}
+				
+			//	AgentMain getAssignOrderAgent = getOrdersDetails.getAgentMain();
 				
 				getOrdersDetails.setOrderStatus("NOT_ASSIGNED");
 				getOrdersDetails.setAgentMain(null);
-				
+
 				Order saveOrders = this.orderRepo.save(getOrdersDetails);
 				
 				RejectedOrders rejectedOrders = new RejectedOrders();
 				
 				rejectedOrders.setOrderNumber(OrderNumber);
-				rejectedOrders.setAgents(getAssignOrderAgent);
+				rejectedOrders.setAgents(agentMain);
 				rejectedOrders.setOrders(saveOrders);
 				rejectedOrders.setReason(reason);
+				rejectedOrders.setCreatedAt(LocalDateTime.now());
 				rejectedOrders.setOrderStatus("REJECTED_ORDER");
 				this.rejectedOrdersRepo.save(rejectedOrders);
 				
@@ -535,10 +576,10 @@ public class PaymentServices {
 					for (AgentMain agent : activeAgents) {
 						
 						// Skip the assigned agent to prevent duplicate notifications
-//					    if (getAssignOrderAgent != null && agent.getAgentIDPk() == getAssignOrderAgent.getAgentIDPk()) {
-//					        System.out.println("Skipping notification for assigned agent: " + agent.getFirstName());
-//					        continue;
-//					    }
+					    if (agentMain != null && agent.getAgentIDPk() == agentMain.getAgentIDPk()) {
+				        System.out.println("Skipping notification for assigned agent: " + agent.getFirstName());
+					        continue;
+					    }
 						if (agent.isActiveAgent()) {
 							// Check if the agent is within the 5 km range
 							boolean isWithinRange = this.locationService.isWithinRange(getOrdersDetails.getLatitude(),
@@ -563,7 +604,7 @@ public class PaymentServices {
 										+ "You have a scheduled service today. Check your app for details and get ready to bring life to another garden! 🌿✨";
 
 								// notification send firebase with help
-								notify = sendNotificationToAgent(agent, null, "Service Alert: New Order", message,"OrderNotification",OrderNumber);
+								notify = sendNotificationToAgent(agent, null, "Service Alert: New Order", message,"Order",OrderNumber);
 								System.out.println(" notify----" + notify);
 							}
 						}
@@ -574,7 +615,6 @@ public class PaymentServices {
 
 				if (!agentsWithinRange.isEmpty()) {
 					System.out.println("Total agents within 5 km range: " + agentsWithinRange.size());
-
 					Map<String, Object> CustomerDetails = new HashMap<String, Object>();
 					CustomerDetails.put("customerName", getOrdersDetails.getCustomerMain().getFirstName() + " " + getOrdersDetails.getCustomerMain().getLastName());
 					CustomerDetails.put("location", getOrdersDetails.getAddress());
@@ -589,6 +629,7 @@ public class PaymentServices {
 					plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
 					
 					response.put("notify", notify);
+					response.put("notificationKey", "Order");
 					response.put("OrderNumber", getOrdersDetails.getOrderId());
 					response.put("OrderStatus", getOrdersDetails.getOrderStatus());
 					response.put("Location", getOrdersDetails.getAddress());
@@ -597,7 +638,6 @@ public class PaymentServices {
 					response.put("Km", Utils.decimalFormat(distanceKm) + " KM");
 					response.put("PlanName", getOrdersDetails.getPlans().getPlansName());
 					response.put("PlanPrice", getOrdersDetails.getPlans().getPlansRs());
-					response.put("notificationKey", "Order");
 					
 //					response.put("notify", notify);
 //					response.put("notificationKey", "OrderNotification");
@@ -624,6 +664,46 @@ public class PaymentServices {
 			response.put("message", "Something Went Worng");
 		}
 		return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, Object>> getRejectedOrderList(AgentMain agentRecords, int pageNumber, int pageSize, String baseUrl) {
+	    Map<String, Object> response = new HashMap<>();
+
+	    try {
+	        int pageIndex = Math.max(pageNumber - 1, 0);
+	        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
+	        Page<RejectedOrders> getOrdersDetails = this.rejectedOrdersRepo.getRejectedOrderListPaganation(agentRecords.getAgentIDPk(), pageable);
+
+	        if (getOrdersDetails.isEmpty()) {
+	            List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+	            Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, emptyOrdersList);
+	            pagination.put("message", "You have no orders rejecteds."); 
+	            response.put("success", true);
+	            response.put("response", pagination);
+	            return ResponseEntity.ok(response);
+	        }
+	        List<Map<String, Object>> ordersList = new ArrayList<>();
+		    for (RejectedOrders rejectedOrder : getOrdersDetails) {
+		        Map<String, Object> orderDetails = new HashMap<>();
+		        orderDetails.put("OrderNumber", rejectedOrder.getOrderNumber());
+		        orderDetails.put("OrderStatus", rejectedOrder.getOrderStatus());
+		        orderDetails.put("Location", rejectedOrder.getOrders().getAddress());
+		        orderDetails.put("Latitude", rejectedOrder.getOrders().getLatitude());
+		        orderDetails.put("Longitude", rejectedOrder.getOrders().getLongtitude());
+		        orderDetails.put("Km", rejectedOrder.getOrders().getKm());
+		        orderDetails.put("PlanName", rejectedOrder.getOrders().getPlans().getPlansName());
+		        orderDetails.put("PlanPrice", rejectedOrder.getOrders().getPlans().getPlansRs());
+		        ordersList.add(orderDetails);
+		    }
+	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
+	        response.put("success", true);
+	        response.put("response", pagination);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("success", false);
+	        response.put("message", "Something went wrong.");
+	    }
+	    return ResponseEntity.ok(response);
 	}
 
 	public ResponseEntity<Map<String, Object>> reachedLocation(AgentMain agentMain, Map<String, Object> request) {
@@ -677,7 +757,7 @@ public class PaymentServices {
 			}
 			if (otpCode.equals(getOrdersDetails.getShareCode())) {
 				// status changed
-				getOrdersDetails.setOrderStatus("START_WORK");
+				getOrdersDetails.setOrderStatus("WORKING_MODE");
 				Order saveOrders = this.orderRepo.save(getOrdersDetails);
 				response.put("OrderStatus", saveOrders.getOrderStatus());
 				response.put("message", "Otp Code has been matched , Now you can start the work");
@@ -749,6 +829,46 @@ public class PaymentServices {
 			response.put("status", false);
 		}
 		return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, Object>> getCompletedOrder(AgentMain agentRecords, int pageNumber, int pageSize, String baseUrl) {
+	    Map<String, Object> response = new HashMap<>();
+
+	    try {
+	        int pageIndex = Math.max(pageNumber - 1, 0);
+	        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
+	        Page<Order> getOrdersDetails = orderRepo.getOrderCompletedListPaganation(agentRecords.getAgentIDPk(), pageable);
+
+	        if (getOrdersDetails.isEmpty()) {
+	            List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+	            Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, emptyOrdersList);
+	            pagination.put("message", "You have No Completed Order."); 
+	            response.put("success", true);
+	            response.put("response", pagination);
+	            return ResponseEntity.ok(response);
+	        }
+	        List<Map<String, Object>> ordersList = new ArrayList<>();
+		    for (Order order : getOrdersDetails) {
+		        Map<String, Object> orderDetails = new HashMap<>();
+		        orderDetails.put("OrderNumber", order.getOrderId());
+		        orderDetails.put("OrderStatus", order.getOrderStatus());
+		        orderDetails.put("Location", order.getAddress());
+		        orderDetails.put("Latitude", order.getLatitude());
+		        orderDetails.put("Longitude", order.getLongtitude());
+		        orderDetails.put("Km", order.getKm());
+		        orderDetails.put("PlanName", order.getPlans().getPlansName());
+		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+		        ordersList.add(orderDetails);
+		    }
+	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
+	        response.put("success", true);
+	        response.put("response", pagination);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("success", false);
+	        response.put("message", "Something went wrong.");
+	    }
+	    return ResponseEntity.ok(response);
 	}
 
 	public ResponseEntity<Map<String, Object>> ourServiceRating(CustomerMain exitsCustomer,
