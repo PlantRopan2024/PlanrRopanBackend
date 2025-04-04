@@ -16,21 +16,21 @@ public interface OrderRepo extends JpaRepository<Order, Integer>{
 	@Query("SELECT o FROM Order o WHERE o.orderId = :OrderNumber")
 	Order getOrderNumber(@Param("OrderNumber") String OrderNumber);
 	
-//	@Query("SELECT o FROM Order o WHERE o.orderId = :OrderNumber AND o.orderStatus = 'NOT_ASSIGNED' AND DATE(o.createdAt) = CURRENT_DATE")
+//	@Query("SELECT o FROM Order o WHERE o.orderId = :OrderNumber AND o.orderStatus = 'NOT_ACCPETED' AND DATE(o.createdAt) = CURRENT_DATE")
 //	Order getOrderNumberWithStatusAndCurrentDate(@Param("OrderNumber") String OrderNumber);
 	
-	@Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'ASSIGNED'")
+	@Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'ACCEPTED'")
 	List<Order> getOrderAssignedList(@Param("agentPk") int agentPk);
 	
 	    
-    @Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'ASSIGNED'")
+    @Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'ACCEPTED'")
     Page<Order> getOrderAssignedListPaganation(@Param("agentPk") int agentPk, Pageable pageable);
     
-    @Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'TASK_COMPLETED'")
+    @Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'COMPLETED'")
     Page<Order> getOrderCompletedListPaganation(@Param("agentPk") int agentPk, Pageable pageable);
     
 	
-//	@Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'ASSIGNED'")
+//	@Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'ACCEPTED'")
 //	List<Order> getOrderAssignedListPaganation(@Param("agentPk") int agentPk);
 	
 	@Query("SELECT MAX(o.orderId) FROM Order o")

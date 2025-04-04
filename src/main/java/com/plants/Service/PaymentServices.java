@@ -127,7 +127,7 @@ public class PaymentServices {
 			orders.setAddress(request.getAddress());
 			orders.setLatitude(request.getLatitude());
 			orders.setLongtitude(request.getLongtitude());
-			orders.setOrderStatus("NOT_ASSIGNED");
+			orders.setOrderStatus("NOT_ACCPETED");
 
 			Order saveOrders = this.orderRepo.save(orders);
 
@@ -154,8 +154,8 @@ public class PaymentServices {
 
 			response.put("amount", saveOrders.getTotalAmount());
 			response.put("OrderId", saveOrders.getOrderId());
-			response.put("orderStatus", saveOrders.getOrderStatus());
-			response.put("date", saveOrders.getCreatedAt().toLocalDate().toString());
+			response.put("order_Status", saveOrders.getOrderStatus());
+			response.put("date", Utils.formatDateTime(saveOrders.getCreatedAt()));
 			response.put("paymentMethod", savePayment.getPaymentMethod());
 			response.put("customerName", exitsCustomer.getFirstName() + " " + exitsCustomer.getLastName());
 			response.put("paymentStatus", savePayment.getPaymentStatus());
@@ -236,7 +236,7 @@ public class PaymentServices {
 
 				response.put("notify", notify);
 				response.put("OrderNumber", getOrdersDetails.getOrderId());
-				response.put("OrderStatus", getOrdersDetails.getOrderStatus());
+				response.put("order_Status", getOrdersDetails.getOrderStatus());
 				response.put("Location", getOrdersDetails.getAddress());
 				response.put("Latitude", getOrdersDetails.getLatitude());
 				response.put("Longitude", getOrdersDetails.getLongtitude());
@@ -244,7 +244,7 @@ public class PaymentServices {
 				response.put("PlanName", getOrdersDetails.getPlans().getPlansName());
 				response.put("PlanPrice", getOrdersDetails.getPlans().getPlansRs());
 				response.put("workingTime",getOrdersDetails.getPlans().getTimeDuration());
-				response.put("date", getOrdersDetails.getCreatedAt().toLocalDate().toString());
+				response.put("date", Utils.formatDateTime(getOrdersDetails.getCreatedAt()));
 				response.put("notificationKey", "Order");
 			//	response.put("CustomerDetails", CustomerDetails);
 			//	response.put("PlansDetails", plansDetails);
@@ -335,7 +335,8 @@ public class PaymentServices {
 				plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
 
 				response.put("OrderNumber", getOrdersDetails.getOrderId());
-				response.put("OrderStatus", getOrdersDetails.getOrderStatus());
+				response.put("order_Status", getOrdersDetails.getOrderStatus());
+				response.put("date",Utils.formatDateTime(getOrdersDetails.getCreatedAt()));
 				response.put("CustomerDetails", CustomerDetails);
 				response.put("agentDetails", agentDetails);
 				response.put("PlansDetails", plansDetails);
@@ -365,7 +366,7 @@ public class PaymentServices {
 				
 				// if order has been assigned for some one 
 				
-				if(getOrdersDetails.getOrderStatus().equals("ASSIGNED")) {
+				if(getOrdersDetails.getOrderStatus().equals("ACCEPTED")) {
 					synchronized (upComingOrdersStored) {
 					    boolean removed = upComingOrdersStored.removeIf(order -> 
 					        OrderNumber.equals(order.get("OrderNumber")) // Compare OrderNumber correctly
@@ -382,7 +383,7 @@ public class PaymentServices {
 					return ResponseEntity.ok(response);
 				}
 				
-				getOrdersDetails.setOrderStatus("ASSIGNED");
+				getOrdersDetails.setOrderStatus("ACCEPTED");
 				getOrdersDetails.setAgentMain(agentMain);
 				double distanceKm = this.locationService.calculateDistance(getOrdersDetails.getLatitude(),getOrdersDetails.getLongtitude(), agentMain.getLatitude(), agentMain.getLongitude());
 				getOrdersDetails.setKm(distanceKm);
@@ -397,6 +398,8 @@ public class PaymentServices {
 				
 				Map<String, Object> orderDetails = new HashMap<String, Object>();
 				orderDetails.put("OrderNumber", saveOrders.getOrderId());
+				orderDetails.put("order_status", saveOrders.getOrderStatus());
+				orderDetails.put("date", Utils.formatDateTime(saveOrders.getCreatedAt()));
 
 				Map<String, Object> CustomerDetails = new HashMap<String, Object>();
 				CustomerDetails.put("customerName", customerMain.getFirstName() + " " + customerMain.getLastName());
@@ -461,15 +464,16 @@ public class PaymentServices {
 		    for (Order order : getOrdersDetails) {
 		        Map<String, Object> orderDetails = new HashMap<>();
 		        orderDetails.put("OrderNumber", order.getOrderId());
-		        orderDetails.put("OrderStatus", order.getOrderStatus());
+		        orderDetails.put("order_status", order.getOrderStatus());
 		        orderDetails.put("Location", order.getAddress());
 		        orderDetails.put("Latitude", order.getLatitude());
 		        orderDetails.put("Longitude", order.getLongtitude());
 		        orderDetails.put("workingTime",order.getPlans().getTimeDuration());
-		        orderDetails.put("date", order.getCreatedAt().toLocalDate().toString());
+		        orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
 		        orderDetails.put("Km", Utils.decimalFormat(order.getKm()) + " KM");
 		        orderDetails.put("PlanName", order.getPlans().getPlansName());
 		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+		        orderDetails.put("status", true);
 		        ordersList.add(orderDetails);
 		    }
 	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
@@ -491,8 +495,9 @@ public class PaymentServices {
 				
 				Map<String, Object> orderDetails = new HashMap<String, Object>();
 				orderDetails.put("OrderNumber", getOrdersDetails.getOrderId());
-			    orderDetails.put("date", getOrdersDetails.getCreatedAt().toLocalDate().toString());
-				
+			    orderDetails.put("date", Utils.formatDateTime(getOrdersDetails.getCreatedAt()));
+			    orderDetails.put("order_status", getOrdersDetails.getOrderStatus());
+
 
 				Map<String, Object> CustomerDetails = new HashMap<String, Object>();
 				CustomerDetails.put("customerName", getOrdersDetails.getCustomerMain().getFirstName() + " " + getOrdersDetails.getCustomerMain().getLastName());
@@ -536,7 +541,7 @@ public class PaymentServices {
 				
 //				// if order has been assigned for some one 
 //				
-//				if(getOrdersDetails.getOrderStatus().equals("ASSIGNED")) {
+//				if(getOrdersDetails.getorder_status().equals("ACCEPTED")) {
 //					synchronized (upComingOrdersStored) {
 //					    boolean removed = upComingOrdersStored.removeIf(order -> 
 //					        OrderNumber.equals(order.get("OrderNumber")) // Compare OrderNumber correctly
@@ -555,7 +560,7 @@ public class PaymentServices {
 				
 				AgentMain getAssignOrderAgent = getOrdersDetails.getAgentMain();
 				
-				getOrdersDetails.setOrderStatus("NOT_ASSIGNED");
+				getOrdersDetails.setOrderStatus("NOT_ACCPETED");
 				getOrdersDetails.setAgentMain(null);
 
 				Order saveOrders = this.orderRepo.save(getOrdersDetails);
@@ -567,7 +572,7 @@ public class PaymentServices {
 				rejectedOrders.setOrders(saveOrders);
 				rejectedOrders.setReason(reason);
 				rejectedOrders.setCreatedAt(LocalDateTime.now());
-				rejectedOrders.setOrderStatus("REJECTED_ORDER");
+				rejectedOrders.setOrderStatus("CANCELED");
 				this.rejectedOrdersRepo.save(rejectedOrders);
 				
 				
@@ -638,8 +643,8 @@ public class PaymentServices {
 					response.put("notify", notify);
 					response.put("notificationKey", "Order");
 					response.put("OrderNumber", getOrdersDetails.getOrderId());
-					response.put("OrderStatus", getOrdersDetails.getOrderStatus());
-					response.put("date", getOrdersDetails.getCreatedAt().toLocalDate().toString());
+					response.put("order_status", getOrdersDetails.getOrderStatus());
+					response.put("date", Utils.formatDateTime(getOrdersDetails.getCreatedAt()));
 					response.put("Location", getOrdersDetails.getAddress());
 					response.put("Latitude", getOrdersDetails.getLatitude());
 					response.put("Longitude", getOrdersDetails.getLongtitude());
@@ -651,7 +656,7 @@ public class PaymentServices {
 //					response.put("notify", notify);
 //					response.put("notificationKey", "OrderNotification");
 //					response.put("OrderNumber", getOrdersDetails.getOrderId());
-//					response.put("OrderStatus", getOrdersDetails.getOrderStatus());
+//					response.put("order_status", getOrdersDetails.getorder_status());
 //					response.put("CustomerDetails", CustomerDetails);
 //					response.put("PlansDetails", plansDetails);
 					response.put("status", true);
@@ -695,8 +700,8 @@ public class PaymentServices {
 		    for (RejectedOrders rejectedOrder : getOrdersDetails) {
 		        Map<String, Object> orderDetails = new HashMap<>();
 		        orderDetails.put("OrderNumber", rejectedOrder.getOrderNumber());
-		        orderDetails.put("OrderStatus", rejectedOrder.getOrderStatus());
-		        orderDetails.put("date", rejectedOrder.getCreatedAt().toLocalDate().toString());
+		        orderDetails.put("order_status", rejectedOrder.getOrderStatus());
+		        orderDetails.put("date", Utils.formatDateTime(rejectedOrder.getCreatedAt()));
 		        orderDetails.put("Location", rejectedOrder.getOrders().getAddress());
 		        orderDetails.put("Latitude", rejectedOrder.getOrders().getLatitude());
 		        orderDetails.put("Longitude", rejectedOrder.getOrders().getLongtitude());
@@ -735,7 +740,7 @@ public class PaymentServices {
 				String notify = sendNotificationToAgent(null, getOrdersDetails.getCustomerMain(), "Reached Location",
 						"Gardener has reached your location. You can start the work now.", "ReachedLocationNotify",orderNumber);
 				response.put("notify", notify);
-				response.put("message", "Gardener has reached the location.");
+				response.put("message", "Gardener has been reached the your location.");
 				response.put("status", true);
 			} else {
 				response.put("message", "Move closer to the customer's location.");
@@ -768,9 +773,9 @@ public class PaymentServices {
 			}
 			if (otpCode.equals(getOrdersDetails.getShareCode())) {
 				// status changed
-				getOrdersDetails.setOrderStatus("WORKING_MODE");
+				getOrdersDetails.setOrderStatus("START");
 				Order saveOrders = this.orderRepo.save(getOrdersDetails);
-				response.put("OrderStatus", saveOrders.getOrderStatus());
+				response.put("order_status", saveOrders.getOrderStatus());
 				response.put("message", "Otp Code has been matched , Now you can start the work");
 				response.put("status", true);
 			} else {
@@ -829,9 +834,9 @@ public class PaymentServices {
 			workCompletedPhoto.setOrders(getOrdersDetails);
 			this.workCompletedPhotoRepo.save(workCompletedPhoto);
 
-			getOrdersDetails.setOrderStatus("TASK_COMPLETED");
+			getOrdersDetails.setOrderStatus("COMPLETED");
 			Order saveOrders = this.orderRepo.save(getOrdersDetails);
-			response.put("OrderStatus", saveOrders.getOrderStatus());
+			response.put("order_status", saveOrders.getOrderStatus());
 			response.put("message", "Order has been Compelted");
 			response.put("status", true);
 		} catch (Exception e) {
@@ -862,12 +867,12 @@ public class PaymentServices {
 		    for (Order order : getOrdersDetails) {
 		        Map<String, Object> orderDetails = new HashMap<>();
 		        orderDetails.put("OrderNumber", order.getOrderId());
-		        orderDetails.put("OrderStatus", order.getOrderStatus());
+		        orderDetails.put("order_status", order.getOrderStatus());
 		        orderDetails.put("Location", order.getAddress());
 		        orderDetails.put("Latitude", order.getLatitude());
 		        orderDetails.put("Longitude", order.getLongtitude());
 		        orderDetails.put("Km", Utils.decimalFormat(order.getKm()) + " KM");
-		        orderDetails.put("date", order.getCreatedAt().toLocalDate().toString());
+		        orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
 		        orderDetails.put("workingTime", order.getPlans().getTimeDuration());
 		        orderDetails.put("PlanName", order.getPlans().getPlansName());
 		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());

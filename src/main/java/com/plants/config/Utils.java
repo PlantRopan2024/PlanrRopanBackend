@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +48,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.core.io.Resource;
 
 public class Utils {
+	
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 
 	public static String saveImgFile(MultipartFile file, String baseDirectory,String subDirectoryFolderName,String fileName) throws IOException {
         if (file == null || file.isEmpty()) {
@@ -424,4 +429,8 @@ public class Utils {
 		    pagination.put("total", totalItems);
 		return pagination;
 	}
+	
+	 public static String formatDateTime(LocalDateTime dateTime) {
+	        return dateTime.format(FORMATTER);
+	    }
 }

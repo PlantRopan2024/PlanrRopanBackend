@@ -10,6 +10,6 @@ import com.plants.entities.RejectedOrders;
 
 public interface RejectedOrdersRepo extends JpaRepository<RejectedOrders, Integer> {
 	
-	 @Query("SELECT o FROM RejectedOrders o WHERE o.agents.AgentIDPk = :agentPk and o.orderStatus = 'REJECTED_ORDER'")
+	 @Query("SELECT o FROM RejectedOrders o WHERE o.agents.AgentIDPk = :agentPk and o.orderStatus = 'CANCELED'")
 	 Page<RejectedOrders> getRejectedOrderListPaganation(@Param("agentPk") int agentPk, Pageable pageable);
 }
