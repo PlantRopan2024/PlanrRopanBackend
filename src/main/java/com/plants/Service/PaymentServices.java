@@ -155,7 +155,7 @@ public class PaymentServices {
 			response.put("amount", saveOrders.getTotalAmount());
 			response.put("OrderId", saveOrders.getOrderId());
 			response.put("orderStatus", saveOrders.getOrderStatus());
-			response.put("date", saveOrders.getCreatedAt());
+			response.put("date", saveOrders.getCreatedAt().toLocalDate().toString());
 			response.put("paymentMethod", savePayment.getPaymentMethod());
 			response.put("customerName", exitsCustomer.getFirstName() + " " + exitsCustomer.getLastName());
 			response.put("paymentStatus", savePayment.getPaymentStatus());
@@ -243,6 +243,8 @@ public class PaymentServices {
 				response.put("Km", Utils.decimalFormat(distanceKm) + " KM");
 				response.put("PlanName", getOrdersDetails.getPlans().getPlansName());
 				response.put("PlanPrice", getOrdersDetails.getPlans().getPlansRs());
+				response.put("workingTime",getOrdersDetails.getPlans().getTimeDuration());
+				response.put("date", getOrdersDetails.getCreatedAt().toLocalDate().toString());
 				response.put("notificationKey", "Order");
 			//	response.put("CustomerDetails", CustomerDetails);
 			//	response.put("PlansDetails", plansDetails);
@@ -298,7 +300,7 @@ public class PaymentServices {
 	}
 
 
-	public ResponseEntity<Map<String, Object>> OrderAssigned(CustomerMain exitsCustomer, Map<String, Object> request) {
+	public ResponseEntity<Map<String, Object>> checkOrderAssigned(CustomerMain exitsCustomer, Map<String, Object> request) {
 		Map<String, Object> response = new HashMap<>();
 		String OrderNumber = (String) request.get("OrderNumber");
 		try{
@@ -463,7 +465,9 @@ public class PaymentServices {
 		        orderDetails.put("Location", order.getAddress());
 		        orderDetails.put("Latitude", order.getLatitude());
 		        orderDetails.put("Longitude", order.getLongtitude());
-		        orderDetails.put("Km", order.getKm());
+		        orderDetails.put("workingTime",order.getPlans().getTimeDuration());
+		        orderDetails.put("date", order.getCreatedAt().toLocalDate().toString());
+		        orderDetails.put("Km", Utils.decimalFormat(order.getKm()) + " KM");
 		        orderDetails.put("PlanName", order.getPlans().getPlansName());
 		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
 		        ordersList.add(orderDetails);
@@ -487,19 +491,22 @@ public class PaymentServices {
 				
 				Map<String, Object> orderDetails = new HashMap<String, Object>();
 				orderDetails.put("OrderNumber", getOrdersDetails.getOrderId());
+			    orderDetails.put("date", getOrdersDetails.getCreatedAt().toLocalDate().toString());
+				
 
 				Map<String, Object> CustomerDetails = new HashMap<String, Object>();
 				CustomerDetails.put("customerName", getOrdersDetails.getCustomerMain().getFirstName() + " " + getOrdersDetails.getCustomerMain().getLastName());
 				CustomerDetails.put("address", getOrdersDetails.getAddress());
 				CustomerDetails.put("latitudeCus", getOrdersDetails.getLatitude());
 				CustomerDetails.put("longtitudeCus", getOrdersDetails.getLongtitude());
+				CustomerDetails.put("Km", Utils.decimalFormat(getOrdersDetails.getKm()) + " KM");
 				CustomerDetails.put("mobileNUmber", getOrdersDetails.getCustomerMain().getMobileNumber());
 
 				Map<String, Object> plansDetails = new HashMap<String, Object>();
 				plansDetails.put("planName", getOrdersDetails.getPlans().getPlansName());
 				plansDetails.put("planRs", getOrdersDetails.getPlans().getPlansRs());
 				plansDetails.put("pots", getOrdersDetails.getPlans().getUptoPots());
-				plansDetails.put("plansDuration", getOrdersDetails.getPlans().getTimeDuration());
+				plansDetails.put("workingTime", getOrdersDetails.getPlans().getTimeDuration());
 				plansDetails.put("frequency", "1 times");
 				plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
 
@@ -632,10 +639,12 @@ public class PaymentServices {
 					response.put("notificationKey", "Order");
 					response.put("OrderNumber", getOrdersDetails.getOrderId());
 					response.put("OrderStatus", getOrdersDetails.getOrderStatus());
+					response.put("date", getOrdersDetails.getCreatedAt().toLocalDate().toString());
 					response.put("Location", getOrdersDetails.getAddress());
 					response.put("Latitude", getOrdersDetails.getLatitude());
 					response.put("Longitude", getOrdersDetails.getLongtitude());
 					response.put("Km", Utils.decimalFormat(distanceKm) + " KM");
+					response.put("workingTime", getOrdersDetails.getPlans().getTimeDuration());
 					response.put("PlanName", getOrdersDetails.getPlans().getPlansName());
 					response.put("PlanPrice", getOrdersDetails.getPlans().getPlansRs());
 					
@@ -687,12 +696,14 @@ public class PaymentServices {
 		        Map<String, Object> orderDetails = new HashMap<>();
 		        orderDetails.put("OrderNumber", rejectedOrder.getOrderNumber());
 		        orderDetails.put("OrderStatus", rejectedOrder.getOrderStatus());
+		        orderDetails.put("date", rejectedOrder.getCreatedAt().toLocalDate().toString());
 		        orderDetails.put("Location", rejectedOrder.getOrders().getAddress());
 		        orderDetails.put("Latitude", rejectedOrder.getOrders().getLatitude());
 		        orderDetails.put("Longitude", rejectedOrder.getOrders().getLongtitude());
-		        orderDetails.put("Km", rejectedOrder.getOrders().getKm());
+		        orderDetails.put("Km", Utils.decimalFormat(rejectedOrder.getOrders().getKm()) + " KM");
 		        orderDetails.put("PlanName", rejectedOrder.getOrders().getPlans().getPlansName());
 		        orderDetails.put("PlanPrice", rejectedOrder.getOrders().getPlans().getPlansRs());
+		        orderDetails.put("workingTime", rejectedOrder.getOrders().getPlans().getTimeDuration());
 		        ordersList.add(orderDetails);
 		    }
 	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
@@ -855,7 +866,9 @@ public class PaymentServices {
 		        orderDetails.put("Location", order.getAddress());
 		        orderDetails.put("Latitude", order.getLatitude());
 		        orderDetails.put("Longitude", order.getLongtitude());
-		        orderDetails.put("Km", order.getKm());
+		        orderDetails.put("Km", Utils.decimalFormat(order.getKm()) + " KM");
+		        orderDetails.put("date", order.getCreatedAt().toLocalDate().toString());
+		        orderDetails.put("workingTime", order.getPlans().getTimeDuration());
 		        orderDetails.put("PlanName", order.getPlans().getPlansName());
 		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
 		        ordersList.add(orderDetails);

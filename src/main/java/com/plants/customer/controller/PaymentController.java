@@ -106,7 +106,7 @@ public class PaymentController {
 		if (Objects.isNull(exitsCustomer) || !jwtToken.equals(exitsCustomer.getToken())) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 		}
-		ResponseEntity<Map<String, Object>> response = paymentServices.OrderAssigned(exitsCustomer, request);
+		ResponseEntity<Map<String, Object>> response = paymentServices.checkOrderAssigned(exitsCustomer, request);
 		return ResponseEntity.ok(response.getBody());
 	}
 	
