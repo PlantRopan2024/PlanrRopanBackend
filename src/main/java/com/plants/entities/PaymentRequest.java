@@ -3,7 +3,7 @@ package com.plants.entities;
 public class PaymentRequest {
 	
 	private OrderSummaryRequest orderSummaryRequest;
-	private String OfferCode;
+	private String offerCode;
 	private String planId;
 	private String address;
     private String paymentMethod;  // UPI / Card / Net Banking
@@ -18,11 +18,11 @@ public class PaymentRequest {
 		this.orderSummaryRequest = orderSummaryRequest;
 	}
 	
-	public String getOfferCode() {
-		return OfferCode;
+	public String getofferCode() {
+		return offerCode;
 	}
-	public void setOfferCode(String offerCode) {
-		OfferCode = offerCode;
+	public void setofferCode(String offerCode) {
+		this.offerCode = offerCode;
 	}
 	public String getAddress() {
 		return address;

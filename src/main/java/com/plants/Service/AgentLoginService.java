@@ -1,5 +1,7 @@
 package com.plants.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -16,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plants.Dao.AppRatingRepo;
+import com.plants.Dao.LoginHoursRepo;
 import com.plants.Dao.MobileApiDao;
 import com.plants.Dao.userDao;
 import com.plants.config.JwtUtil;
@@ -24,6 +27,7 @@ import com.plants.entities.AgentJsonRequest;
 import com.plants.entities.AgentMain;
 import com.plants.entities.AppRating;
 import com.plants.entities.CustomerMain;
+import com.plants.entities.LoginHours;
 
 import jakarta.transaction.Transactional;
 
@@ -61,6 +65,9 @@ public class AgentLoginService {
 	
 	@Autowired
 	private S3Service s3Service;
+	
+	@Autowired
+	LoginHoursRepo loginHoursRepo;
 
 	public ResponseEntity<Map<String, String>> sentOtp(String mobileNumber) {
 		Map<String, String> response = new HashMap<>();
@@ -286,29 +293,58 @@ public class AgentLoginService {
 	}
 
 	public ResponseEntity<Map<String, String>> activeAgentToggle(AgentMain existingAgent, Map<String, String> request) {
-		Map<String, String> response = new HashMap<>();
-		boolean isActiveAgent = Boolean.parseBoolean(request.get("isActiveAgent"));
-		String Agentlatitude = request.get("Agentlatitude");
-		String AgentLongtitude = request.get("AgentLongtitude");
-		if (Objects.nonNull(existingAgent)) {
-			AgentMain agentMain = null;
-			agentMain = existingAgent; // Update existing agent
-			if (isActiveAgent) {
-				agentMain.setActiveAgent(isActiveAgent);
-				agentMain.setLatitude(Double.parseDouble(Agentlatitude));
-				agentMain.setLongitude(Double.parseDouble(AgentLongtitude));
-				this.userdao.save(agentMain);
-				response.put("message", "Agent Active.");
-			} else {
-				agentMain.setActiveAgent(isActiveAgent);
-				this.userdao.save(agentMain);
-				response.put("message", "Agent Deactive");
-			}
+	    Map<String, String> response = new HashMap<>();
+	    boolean isActiveAgent = Boolean.parseBoolean(request.get("isActiveAgent"));
+	    String agentLatitude = request.get("Agentlatitude");
+	    String agentLongitude = request.get("AgentLongtitude");
 
-		} else {
-			response.put("message", "No Record Found Agent");
-		}
-		return ResponseEntity.ok(response);
+	    LocalDateTime currentTime = LocalDateTime.now(); // Capture current timestamp
+
+	    if (Objects.nonNull(existingAgent)) {
+	        AgentMain agentMain = existingAgent; // Update existing agent
+
+	        if (isActiveAgent) {
+	            // Activate Agent
+	            agentMain.setActiveAgent(true);
+	            agentMain.setLatitude(Double.parseDouble(agentLatitude));
+	            agentMain.setLongitude(Double.parseDouble(agentLongitude));
+	            this.userdao.save(agentMain);
+
+	            // Create new login record
+	            LoginHours loginHours = new LoginHours();
+	            loginHours.setLoginTime(currentTime);
+	            loginHours.setAgentMain(agentMain);
+	            loginHours.setCreatedAt(currentTime);
+	            this.loginHoursRepo.save(loginHours);
+
+	            response.put("message", "Agent Active.");
+	        } else {
+	            // Deactivate Agent
+	            agentMain.setActiveAgent(false);
+	            this.userdao.save(agentMain);
+
+	            // Fetch the latest login record where logout time is NULL
+	            LoginHours getLoginHours = this.loginHoursRepo.getLatestActiveLogin(existingAgent.getAgentIDPk());
+
+	            if (getLoginHours != null) {
+	                // Set logout time and calculate duration
+	                getLoginHours.setLogoutTime(currentTime);
+	                Duration duration = Duration.between(getLoginHours.getLoginTime(), currentTime);
+	               
+	                getLoginHours.setHr(duration.toHours());
+	                getLoginHours.setMinutes(duration.toMinutes());
+	                getLoginHours.setSeconds(duration.getSeconds());
+	                
+	                // Convert duration to "0 Hour 5 minutes 41 seconds"
+	                getLoginHours.setFormattedLoginHours(Utils.formatDurationMessage(duration));
+	                this.loginHoursRepo.save(getLoginHours);
+	            }
+	            response.put("message", "Agent Deactive");
+	        }
+	    } else {
+	        response.put("message", "No Record Found for Agent");
+	    }
+	    return ResponseEntity.ok(response);
 	}
 
 	public ResponseEntity<Map<String, String>> getFirebaseDeviceToken(AgentMain existingAgent,

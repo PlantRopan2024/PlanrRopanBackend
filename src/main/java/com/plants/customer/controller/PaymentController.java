@@ -63,7 +63,7 @@ public class PaymentController {
 		return ResponseEntity.ok(response.getBody());
 	}
 
-	@PostMapping("/sendOrderNotifactionAgent")
+	/*@PostMapping("/sendOrderNotifactionAgent")
 	public ResponseEntity<Map<String, Object>> sendOrderNotifactionAgent(
 			@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody Map<String, Object> request) {
 		String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
@@ -75,7 +75,7 @@ public class PaymentController {
 		}
 		ResponseEntity<Map<String, Object>> response = paymentServices.OrderAssignedNotify(exitsCustomer, request);
 		return ResponseEntity.ok(response.getBody());
-	}
+	} */
 	
 	@GetMapping("upComingOrders")
 	public ResponseEntity<Map<String, Object>> upComingOrders(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,

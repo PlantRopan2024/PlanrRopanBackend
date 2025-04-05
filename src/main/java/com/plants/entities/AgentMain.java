@@ -81,6 +81,9 @@ public class AgentMain {
     private List<Notification> notification = new ArrayList<>();
 	
 	private String workStatus;
+	
+	private double totalLoginHoursCount;
+
 	public AgentMain() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -95,7 +98,7 @@ public class AgentMain {
 			String ifscCode, String bankPassBookImage, String bankPassBookImage_type, String bankPassBookImagePath,
 			boolean isProfileCompleted, String fcmTokenAgent, boolean isProfileInfoStepFirst,
 			boolean isAadharInfoStepSecond, boolean isBankInfoStepThird, String agentReferralCode,
-			List<WalletHistory> referralHistory, List<Notification> notification,boolean isReferral,String workStatus) {
+			List<WalletHistory> referralHistory, List<Notification> notification,boolean isReferral,String workStatus,double totalLoginHoursCount) {
 		super();
 		AgentIDPk = agentIDPk;
 		this.firstName = firstName;
@@ -139,6 +142,7 @@ public class AgentMain {
 		this.notification = notification;
 		this.isReferral= isReferral;
 		this.workStatus =workStatus;
+		this.totalLoginHoursCount=totalLoginHoursCount;
 	}
 	public int getAgentIDPk() {
 		return AgentIDPk;
@@ -395,6 +399,15 @@ public class AgentMain {
 	public void setWorkStatus(String workStatus) {
 		this.workStatus = workStatus;
 	}
+	
+	public double getTotalLoginHoursCount() {
+		return totalLoginHoursCount;
+	}
+
+	public void setTotalLoginHoursCount(double totalLoginHoursCount) {
+		this.totalLoginHoursCount = totalLoginHoursCount;
+	}
+
 	@Override
 	public String toString() {
 		return "AgentMain [AgentIDPk=" + AgentIDPk + ", firstName=" + firstName + ", lastName=" + lastName + ", gender="

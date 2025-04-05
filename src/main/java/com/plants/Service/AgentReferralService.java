@@ -32,6 +32,7 @@ import com.plants.Dao.WalletHistoryRepo;
 import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
 import com.plants.entities.AgentReferral;
+import com.plants.entities.Order;
 import com.plants.entities.WalletHistory;
 
 @Service
@@ -129,109 +130,108 @@ public class AgentReferralService {
 	}
 
 	public ResponseEntity<Map<String, Object>> walletHistoryAgent(AgentMain existingAgent, int page, int size) {
-	    Map<String, Object> response = new HashMap<>();
-	    double totalAmount = 0.0;
-	    List<Map<String, Object>> historyList = new ArrayList<>();
+		Map<String, Object> response = new HashMap<>();
+		double totalAmount = 0.0;
+		List<Map<String, Object>> historyList = new ArrayList<>();
 
-	    try {
-	        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-	        Page<WalletHistory> walletPage = walletHistoryRepo.findByAgentMain(existingAgent, pageable);
+		try {
+			Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+			Page<WalletHistory> walletPage = walletHistoryRepo.findByAgentMain(existingAgent, pageable);
 
-	        if (walletPage == null || walletPage.isEmpty()) {
-	            response.put("status", true);
-	            response.put("message", "No Wallet found");
-	            response.put("totalWalletBalance", totalAmount);
-	            response.put("referralHistory", historyList);
-	            response.put("currentPage", 0);
-	            response.put("totalPages", 0);
-	            response.put("totalElements", 0);
-	            response.put("nextPageUrl", null);
-	            response.put("prevPageUrl", null);
-	            return ResponseEntity.ok(response);
-	        }
+			if (walletPage == null || walletPage.isEmpty()) {
+				response.put("status", true);
+				response.put("message", "No Wallet found");
+				response.put("totalWalletBalance", totalAmount);
+				response.put("referralHistory", historyList);
+				response.put("currentPage", 0);
+				response.put("totalPages", 0);
+				response.put("totalElements", 0);
+				response.put("nextPageUrl", null);
+				response.put("prevPageUrl", null);
+				return ResponseEntity.ok(response);
+			}
 
-	        for (WalletHistory walletHistory : walletPage.getContent()) {
-	            Map<String, Object> historyEntry = new HashMap<>();
-	            historyEntry.put("id", walletHistory.getId());
-	            historyEntry.put("description", walletHistory.getDescription());
-	            historyEntry.put("amount", walletHistory.getAmount());
-	            historyEntry.put("transactionType", walletHistory.getTransactionType());
-	            historyEntry.put("createdAt", walletHistory.getCreatedAt());
+			for (WalletHistory walletHistory : walletPage.getContent()) {
+				Map<String, Object> historyEntry = new HashMap<>();
+				historyEntry.put("id", walletHistory.getId());
+				historyEntry.put("description", walletHistory.getDescription());
+				historyEntry.put("amount", walletHistory.getAmount());
+				historyEntry.put("transactionType", walletHistory.getTransactionType());
+				historyEntry.put("createdAt", walletHistory.getCreatedAt());
 
-	            totalAmount += walletHistory.getAmount();
-	            historyList.add(historyEntry);
-	        }
+				totalAmount += walletHistory.getAmount();
+				historyList.add(historyEntry);
+			}
 
-	        response.put("status", true);
-	        response.put("message", "Wallet found");
-	        response.put("totalWalletBalance", totalAmount);
-	        response.put("referralHistory", historyList);
-	        response.put("currentPage", walletPage.getNumber());
-	        response.put("totalPages", walletPage.getTotalPages());
-	        response.put("totalElements", walletPage.getTotalElements());
+			response.put("status", true);
+			response.put("message", "Wallet found");
+			response.put("totalWalletBalance", totalAmount);
+			response.put("referralHistory", historyList);
+			response.put("currentPage", walletPage.getNumber());
+			response.put("totalPages", walletPage.getTotalPages());
+			response.put("totalElements", walletPage.getTotalElements());
 
-	        // **Add Next Page URL**
-	        if (walletPage.hasNext()) {
-	            String nextPageUrl = "/agentReferral/getWalletHistoryAgent?pageNumber=" + (walletPage.getNumber() + 1) + "&pageSize=" + size;
-	            response.put("nextPageUrl", nextPageUrl);
-	        } else {
-	            response.put("nextPageUrl", null);
-	        }
+			// **Add Next Page URL**
+			if (walletPage.hasNext()) {
+				String nextPageUrl = "/agentReferral/getWalletHistoryAgent?pageNumber=" + (walletPage.getNumber() + 1)
+						+ "&pageSize=" + size;
+				response.put("nextPageUrl", nextPageUrl);
+			} else {
+				response.put("nextPageUrl", null);
+			}
 
-	        // **Add Previous Page URL**
-	        if (walletPage.hasPrevious()) {
-	            String prevPageUrl = "/agentReferral/getWalletHistoryAgent?pageNumber=" + (walletPage.getNumber() - 1) + "&pageSize=" + size;
-	            response.put("prevPageUrl", prevPageUrl);
-	        } else {
-	            response.put("prevPageUrl", null);
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        response.put("status", false);
-	        response.put("message", "Something Went Wrong!");
-	    }
-	    return ResponseEntity.ok(response);
+			// **Add Previous Page URL**
+			if (walletPage.hasPrevious()) {
+				String prevPageUrl = "/agentReferral/getWalletHistoryAgent?pageNumber=" + (walletPage.getNumber() - 1)
+						+ "&pageSize=" + size;
+				response.put("prevPageUrl", prevPageUrl);
+			} else {
+				response.put("prevPageUrl", null);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put("status", false);
+			response.put("message", "Something Went Wrong!");
+		}
+		return ResponseEntity.ok(response);
 	}
 
-
-	public ResponseEntity<Map<String, Object>> getNotificationHistoryAgent(AgentMain existingAgent, int page,int size) {
+	public ResponseEntity<Map<String, Object>> getNotificationHistoryAgent(AgentMain existingAgent, int pageNumber,
+			int pageSize, String baseUrl) {
 		Map<String, Object> response = new HashMap<>();
-		Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-		Page<com.plants.entities.Notification> notificationPage = notificationRepo.findByAgentMainAndTypeIId(existingAgent, "Agent", pageable);
-		List<Map<String, Object>> notifyList = new ArrayList<>();
-		for (com.plants.entities.Notification notification : notificationPage.getContent()) {
-			Map<String, Object> notifyHist = new HashMap<>();
-			notifyHist.put("id", notification.getId());
-			notifyHist.put("message", notification.getMessage());
-			notifyHist.put("title", notification.getTitle());
-			notifyHist.put("date", notification.getCreatedAt());
-			notifyHist.put("isRead", notification.isRead());
-			notifyList.add(notifyHist);
-		}
+		try {
+			int pageIndex = Math.max(pageNumber - 1, 0);
+			Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
+			Page<com.plants.entities.Notification> notificationPage = notificationRepo.findByAgentMainAndTypeIId(existingAgent, "Agent", pageable);
 
-		response.put("notifyHistory", notifyList);
-		response.put("message", notificationPage.isEmpty() ? "No Notifications found" : "Notifications found");
-		response.put("status", !notificationPage.isEmpty());
-		response.put("currentPage", notificationPage.getNumber());
-		response.put("totalPages", notificationPage.getTotalPages());
-		response.put("totalElements", notificationPage.getTotalElements());
+			if (notificationPage.isEmpty()) {
+				List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+				Map<String, Object> pagination = Utils.buildPaginationResponse(notificationPage, baseUrl, pageSize,
+						emptyOrdersList);
+				pagination.put("message", "No Notifications found");
+				response.put("success", true);
+				response.put("response", pagination);
+				return ResponseEntity.ok(response);
+			}
 
-		// Add Next Page URL
-		if (notificationPage.getNumber() + 1 < notificationPage.getTotalPages()) {
-			String nextPageUrl = "/agentReferral/getNotificationHistoryAgent?pageNumber=" + (notificationPage.getNumber() + 1)
-					+ "&pageSize=" + size;
-			response.put("nextPageUrl", nextPageUrl);
-		} else {
-			response.put("nextPageUrl", null);
-		}
-
-		// Previous Page URL
-		if (notificationPage.getNumber() > 0) {
-			String prevPageUrl = "/agentReferral/getNotificationHistoryAgent?pageNumber=" + (notificationPage.getNumber() - 1)
-					+ "&pageSize=" + size;
-			response.put("prevPageUrl", prevPageUrl);
-		} else {
-			response.put("prevPageUrl", null);
+			List<Map<String, Object>> notifyList = new ArrayList<>();
+			for (com.plants.entities.Notification notification : notificationPage) {
+				Map<String, Object> notifyHist = new HashMap<>();
+				notifyHist.put("id", notification.getId());
+				notifyHist.put("message", notification.getMessage());
+				notifyHist.put("title", notification.getTitle());
+				notifyHist.put("date", notification.getCreatedAt());
+				notifyHist.put("isRead", notification.isRead());
+				notifyList.add(notifyHist);
+			}
+			Map<String, Object> pagination = Utils.buildPaginationResponse(notificationPage, baseUrl, pageSize,
+					notifyList);
+			response.put("success", true);
+			response.put("response", pagination);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put("success", false);
+			response.put("message", "Something went wrong.");
 		}
 		return ResponseEntity.ok(response);
 	}

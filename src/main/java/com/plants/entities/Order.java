@@ -28,12 +28,9 @@ public class Order {
 
 	@Column(unique = true, nullable = false)
 	private String orderId; // Unique Order ID
-	private double servicesCharges;
-	private double platformfees;
-	private double gstAmount;
+	
 	private boolean couponApplied;
-	private double coupanAmount;
-	private double totalAmount;
+	
 	private String offerCode;
 	private LocalDateTime createdAt;
 	private String orderStatus; // PENDING, SUCCESS, FAILED
@@ -70,20 +67,14 @@ public class Order {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Order(int primary_key, String orderId, double servicesCharges, double platformfees, double gstAmount,
-			boolean couponApplied, double coupanAmount, double totalAmount, String offerCode, LocalDateTime createdAt,
+	public Order(int primary_key, String orderId,boolean couponApplied, String offerCode, LocalDateTime createdAt,
 			String orderStatus, String address, double latitude, double longtitude, String shareCode, Payment payment,
 			AgentMain agentMain, CustomerMain customerMain, List<OrderFertilizers> orderFertilizers,
 			List<WorkCompletedPhoto> workCompletedPhoto, Plans plans, double Km) {
 		super();
 		this.primary_key = primary_key;
 		this.orderId = orderId;
-		this.servicesCharges = servicesCharges;
-		this.platformfees = platformfees;
-		this.gstAmount = gstAmount;
 		this.couponApplied = couponApplied;
-		this.coupanAmount = coupanAmount;
-		this.totalAmount = totalAmount;
 		this.offerCode = offerCode;
 		this.createdAt = createdAt;
 		this.orderStatus = orderStatus;
@@ -116,52 +107,13 @@ public class Order {
 		this.orderId = orderId;
 	}
 
-	public double getServicesCharges() {
-		return servicesCharges;
-	}
-
-	public void setServicesCharges(double servicesCharges) {
-		this.servicesCharges = servicesCharges;
-	}
-
-	public double getPlatformfees() {
-		return platformfees;
-	}
-
-	public void setPlatformfees(double platformfees) {
-		this.platformfees = platformfees;
-	}
-
-	public double getGstAmount() {
-		return gstAmount;
-	}
-
-	public void setGstAmount(double gstAmount) {
-		this.gstAmount = gstAmount;
-	}
-
+	
 	public boolean isCouponApplied() {
 		return couponApplied;
 	}
 
 	public void setCouponApplied(boolean couponApplied) {
 		this.couponApplied = couponApplied;
-	}
-
-	public double getCoupanAmount() {
-		return coupanAmount;
-	}
-
-	public void setCoupanAmount(double coupanAmount) {
-		this.coupanAmount = coupanAmount;
-	}
-
-	public double getTotalAmount() {
-		return totalAmount;
-	}
-
-	public void setTotalAmount(double totalAmount) {
-		this.totalAmount = totalAmount;
 	}
 
 	public LocalDateTime getCreatedAt() {

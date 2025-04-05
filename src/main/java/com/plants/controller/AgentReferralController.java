@@ -21,6 +21,8 @@ import com.plants.Service.AgentReferralService;
 import com.plants.config.JwtUtil;
 import com.plants.entities.AgentMain;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/agentReferral")
 public class AgentReferralController {
@@ -77,14 +79,18 @@ public class AgentReferralController {
 	@GetMapping("/getNotificationHistoryAgent")
 	public ResponseEntity<Map<String, Object>> getNotificationHistoryAgent(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
 			@RequestParam(value = "pageNumber",defaultValue = "0" ,required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize",defaultValue = "15" ,required = false) Integer pageSize) {
+			@RequestParam(value = "pageSize",defaultValue = "15" ,required = false) Integer pageSize,HttpServletRequest request) {
 	    String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 	    String mobileNumber = jwtUtil.extractUsername(jwtToken);
 	    AgentMain agentRecords = mobileApiDao.findMobileNumberValidateToken(mobileNumber);
 	    if (Objects.isNull(agentRecords) || !jwtToken.equals(agentRecords.getToken())) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired token"));
 	    }
-	    return agentReferralService.getNotificationHistoryAgent(agentRecords,pageNumber,pageSize);
+	    
+	    String baseUrl = request.getScheme() + "://" + request.getServerName() +
+	            (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort()) +
+	            request.getContextPath() + "/agentReferral/getNotificationHistoryAgent";
+	    return agentReferralService.getNotificationHistoryAgent(agentRecords,pageNumber,pageSize,baseUrl);
 	}
 
 }
