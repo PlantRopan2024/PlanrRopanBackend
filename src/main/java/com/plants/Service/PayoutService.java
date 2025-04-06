@@ -127,7 +127,7 @@ public class PayoutService {
 	        response.put("incentivestotal", totalIncentives);
 	        response.put("orderEarningsPerDay", Utils.decimalFormat(agentPerOrderEarningRs));
 	        response.put("gardenersTips", totalTips);
-	        response.put("todayDate", localDate);
+	        response.put("todayDate", Utils.formatDate(localDate));
 	        response.put("workingHours", formattedWorkingTime);
 	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
 	        //response.put("fertilizerEarning", agentFertilizer);
@@ -218,8 +218,8 @@ public class PayoutService {
 	        response.put("gardenersTips", totalTips);
 	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
 	    //    response.put("fertilizerEarning", agentFertilizer);
-	        response.put("startOfWeek", startOfWeek);
-	        response.put("endOfWeek", endOfWeek);
+	        response.put("startOfWeek", Utils.formatDate(startOfWeek));
+	        response.put("endOfWeek", Utils.formatDate(endOfWeek));
 	        response.put("workingHours", formattedWorkingTime);
 	        response.put("loginHours", totalLoginhr);
 	        response.put("status", true);
@@ -304,8 +304,8 @@ public class PayoutService {
 	        response.put("gardenersTips", totalTips);
 	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
 	        response.put("fertilizerEarning", agentFertilizer);
-	        response.put("startOfMonth", startOfMonth);
-	        response.put("endOfMonth", endOfMonth);
+	        response.put("startOfMonth", Utils.formatDate(startOfMonth));
+	        response.put("endOfMonth", Utils.formatDate(endOfMonth));
 	        response.put("workingHours", formattedWorkingTime);
 	        response.put("loginHours", totalLoginhr);
 	        response.put("status", true);

@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -50,7 +51,8 @@ import org.springframework.core.io.Resource;
 
 public class Utils {
 
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd");
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+	private static final DateTimeFormatter FORMATTER_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 	public static String saveImgFile(MultipartFile file, String baseDirectory, String subDirectoryFolderName,
 			String fileName) throws IOException {
@@ -438,6 +440,10 @@ public class Utils {
 
 	public static String formatDateTime(LocalDateTime dateTime) {
 		return dateTime.format(FORMATTER);
+	}
+	
+	public static String formatDate(LocalDate date) {
+		return date.format(FORMATTER_DATE);
 	}
 
 	public static String formatDurationMessage(Duration duration) {
