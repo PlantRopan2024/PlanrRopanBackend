@@ -1,7 +1,9 @@
 package com.plants.Service;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,7 +75,8 @@ public class PayoutService {
 	        double totalIncentives = 0.0;
 	        double totalTips = 0.0;
 	        int completedOrders = 0;
-	        double workingHours=0.0;
+	        long totalWorkingMinutes = 0;
+
 
 	        long hr = 0;
 	        long minutes = 0;
@@ -85,18 +88,29 @@ public class PayoutService {
 	            }
 
 	            agentPerOrderEarningRs += orderEarning.getAgentEarningRs();
+	         // Calculate duration between start and end time
+                LocalTime startTime = orderEarning.getOrders().getStartTime();
+                LocalTime endTime = orderEarning.getOrders().getEndTime();
 
-	            if (orderEarning.getOrders() != null && orderEarning.getOrders().getOrderFertilizers() != null) {
-	                for (OrderFertilizers fert : orderEarning.getOrders().getOrderFertilizers()) {
-	                    agentFertilizer += fert.getEarningMalliFertilizer();
-	                }
-	            }
+                if (startTime != null && endTime != null && endTime.isAfter(startTime)) {
+                    Duration duration = Duration.between(startTime, endTime);
+                    totalWorkingMinutes += duration.toMinutes();
+                }	            
+//	            if (orderEarning.getOrders() != null && orderEarning.getOrders().getOrderFertilizers() != null) {
+//	                for (OrderFertilizers fert : orderEarning.getOrders().getOrderFertilizers()) {
+//	                    agentFertilizer += fert.getEarningMalliFertilizer();
+//	                }
+//	            }
 
 	           
 	        }
+	        
+	        long totalWorkingHours = totalWorkingMinutes / 60;
+	        long remainingMinutes = totalWorkingMinutes % 60;
+	        String formattedWorkingTime = String.format("%02d:%02d", totalWorkingHours, remainingMinutes);
 
 	        // Total earnings = per order + tips + incentives
-	        agentTotalEarningRs = agentPerOrderEarningRs +agentFertilizer+ totalTips + totalIncentives;
+	        agentTotalEarningRs = agentPerOrderEarningRs + totalTips + totalIncentives;
 
 	        // Login hours calculation
 	        List<LoginHours> getLoginHours = this.loginHoursRepo.getCountActiveLogin(existingAgent.getAgentIDPk(), localDate);
@@ -114,9 +128,9 @@ public class PayoutService {
 	        response.put("orderEarningsPerDay", Utils.decimalFormat(agentPerOrderEarningRs));
 	        response.put("gardenersTips", totalTips);
 	        response.put("todayDate", localDate);
-	        response.put("workingHours", workingHours);
+	        response.put("workingHours", formattedWorkingTime);
 	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
-	        response.put("fertilizerEarning", agentFertilizer);
+	        //response.put("fertilizerEarning", agentFertilizer);
 	        response.put("loginHours", totalLoginhr);
 	        response.put("status", true);
 
@@ -151,13 +165,11 @@ public class PayoutService {
 
 	        double agentTotalEarningRs = 0.0;
 	        double agentPerOrderEarningRs = 0.0;
-	        double agentFertilizer = 0.0;
+	     //   double agentFertilizer = 0.0;
 	        double totalIncentives = 0.0;
 	        double totalTips = 0.0;
 	        int completedOrders = 0;
-	        double workingHours=0.0;
-
-
+	        long totalWorkingMinutes = 0;
 	        long hr = 0;
 	        long minutes = 0;
 
@@ -167,16 +179,27 @@ public class PayoutService {
 	            }
 
 	            agentPerOrderEarningRs += orderEarning.getAgentEarningRs();
+	            
+	            LocalTime startTime = orderEarning.getOrders().getStartTime();
+                LocalTime endTime = orderEarning.getOrders().getEndTime();
 
-	            if (orderEarning.getOrders() != null && orderEarning.getOrders().getOrderFertilizers() != null) {
-	                for (OrderFertilizers fert : orderEarning.getOrders().getOrderFertilizers()) {
-	                    agentFertilizer += fert.getEarningMalliFertilizer();
-	                }
-	            }
+                if (startTime != null && endTime != null && endTime.isAfter(startTime)) {
+                    Duration duration = Duration.between(startTime, endTime);
+                    totalWorkingMinutes += duration.toMinutes();
+                }	
+//	            if (orderEarning.getOrders() != null && orderEarning.getOrders().getOrderFertilizers() != null) {
+//	                for (OrderFertilizers fert : orderEarning.getOrders().getOrderFertilizers()) {
+//	                    agentFertilizer += fert.getEarningMalliFertilizer();
+//	                }
+//	            }
 	        }
+	        
+	        long totalWorkingHours = totalWorkingMinutes / 60;
+	        long remainingMinutes = totalWorkingMinutes % 60;
+	        String formattedWorkingTime = String.format("%02d:%02d", totalWorkingHours, remainingMinutes);
 
 	        // Total earnings
-	        agentTotalEarningRs = agentPerOrderEarningRs + agentFertilizer + totalTips + totalIncentives;
+	        agentTotalEarningRs = agentPerOrderEarningRs  + totalTips + totalIncentives;
 
 	        // Get weekly login hours
 	        List<LoginHours> getLoginHours = loginHoursRepo.getLoginHoursBetweenDates(existingAgent.getAgentIDPk(), startOfWeek, endOfWeek);
@@ -194,10 +217,10 @@ public class PayoutService {
 	        response.put("orderEarningsPerDay", Utils.decimalFormat(agentPerOrderEarningRs));
 	        response.put("gardenersTips", totalTips);
 	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
-	        response.put("fertilizerEarning", agentFertilizer);
+	    //    response.put("fertilizerEarning", agentFertilizer);
 	        response.put("startOfWeek", startOfWeek);
 	        response.put("endOfWeek", endOfWeek);
-	        response.put("workingHours", workingHours);
+	        response.put("workingHours", formattedWorkingTime);
 	        response.put("loginHours", totalLoginhr);
 	        response.put("status", true);
 
@@ -234,8 +257,7 @@ public class PayoutService {
 	        double totalIncentives = 0.0;
 	        double totalTips = 0.0;
 	        int completedOrders = 0;
-	        double workingHours=0.0;
-
+	        long totalWorkingMinutes = 0;
 	        long hr = 0;
 	        long minutes = 0;
 
@@ -245,15 +267,27 @@ public class PayoutService {
 	            }
 
 	            agentPerOrderEarningRs += orderEarning.getAgentEarningRs();
+	            
+	            LocalTime startTime = orderEarning.getOrders().getStartTime();
+                LocalTime endTime = orderEarning.getOrders().getEndTime();
 
-	            if (orderEarning.getOrders() != null && orderEarning.getOrders().getOrderFertilizers() != null) {
-	                for (OrderFertilizers fert : orderEarning.getOrders().getOrderFertilizers()) {
-	                    agentFertilizer += fert.getEarningMalliFertilizer();
-	                }
-	            }
+                if (startTime != null && endTime != null && endTime.isAfter(startTime)) {
+                    Duration duration = Duration.between(startTime, endTime);
+                    totalWorkingMinutes += duration.toMinutes();
+                }	
+//	            if (orderEarning.getOrders() != null && orderEarning.getOrders().getOrderFertilizers() != null) {
+//	                for (OrderFertilizers fert : orderEarning.getOrders().getOrderFertilizers()) {
+//	                    agentFertilizer += fert.getEarningMalliFertilizer();
+//	                }
+//	            }
 	        }
+	        
+	        long totalWorkingHours = totalWorkingMinutes / 60;
+	        long remainingMinutes = totalWorkingMinutes % 60;
+	        String formattedWorkingTime = String.format("%02d:%02d", totalWorkingHours, remainingMinutes);
 
-	        agentTotalEarningRs = agentPerOrderEarningRs + agentFertilizer + totalTips + totalIncentives;
+	        
+	        agentTotalEarningRs = agentPerOrderEarningRs + totalTips + totalIncentives;
 
 	        // Fetch login hours in the month
 	        List<LoginHours> getLoginHours = loginHoursRepo.getLoginHoursBetweenDates(existingAgent.getAgentIDPk(), startOfMonth, endOfMonth);
@@ -272,7 +306,7 @@ public class PayoutService {
 	        response.put("fertilizerEarning", agentFertilizer);
 	        response.put("startOfMonth", startOfMonth);
 	        response.put("endOfMonth", endOfMonth);
-	        response.put("workingHours", workingHours);
+	        response.put("workingHours", formattedWorkingTime);
 	        response.put("loginHours", totalLoginhr);
 	        response.put("status", true);
 

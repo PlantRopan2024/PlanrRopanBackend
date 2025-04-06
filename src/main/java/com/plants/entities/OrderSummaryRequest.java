@@ -5,7 +5,7 @@ import java.util.List;
 public class OrderSummaryRequest {
 	
 	private double servicesCharges;
-	private List<FertilizerRequest> fertilizers;
+	//private List<FertilizerRequest> fertilizers;
 	private double platformfees;
 	private double gstAmount;
 	private boolean couponApplied;
@@ -17,12 +17,12 @@ public class OrderSummaryRequest {
 	public void setServicesCharges(double servicesCharges) {
 		this.servicesCharges = servicesCharges;
 	}
-	public List<FertilizerRequest> getFertilizers() {
-		return fertilizers;
-	}
-	public void setFertilizers(List<FertilizerRequest> fertilizers) {
-		this.fertilizers = fertilizers;
-	}
+//	public List<FertilizerRequest> getFertilizers() {
+//		return fertilizers;
+//	}
+//	public void setFertilizers(List<FertilizerRequest> fertilizers) {
+//		this.fertilizers = fertilizers;
+//	}
 	public double getPlatformfees() {
 		return platformfees;
 	}

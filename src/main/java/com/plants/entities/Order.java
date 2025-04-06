@@ -1,6 +1,7 @@
 package com.plants.entities;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,9 @@ public class Order {
 	
 	private String offerCode;
 	private LocalDateTime createdAt;
+	private LocalTime startTime;
+	private LocalTime endTime;;
+
 	private String orderStatus; // PENDING, SUCCESS, FAILED
 	private String address;
 	private double latitude;
@@ -67,20 +71,26 @@ public class Order {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Order(int primary_key, String orderId,boolean couponApplied, String offerCode, LocalDateTime createdAt,
-			String orderStatus, String address, double latitude, double longtitude, String shareCode, Payment payment,
-			AgentMain agentMain, CustomerMain customerMain, List<OrderFertilizers> orderFertilizers,
-			List<WorkCompletedPhoto> workCompletedPhoto, Plans plans, double Km) {
+	
+
+	public Order(int primary_key, String orderId, boolean couponApplied, String offerCode, LocalDateTime createdAt,
+			LocalTime startTime, LocalTime endTime, String orderStatus, String address, double latitude,
+			double longtitude, double km, String shareCode, Payment payment, AgentMain agentMain,
+			CustomerMain customerMain, List<OrderFertilizers> orderFertilizers,
+			List<WorkCompletedPhoto> workCompletedPhoto, Plans plans) {
 		super();
 		this.primary_key = primary_key;
 		this.orderId = orderId;
 		this.couponApplied = couponApplied;
 		this.offerCode = offerCode;
 		this.createdAt = createdAt;
+		this.startTime = startTime;
+		this.endTime = endTime;
 		this.orderStatus = orderStatus;
 		this.address = address;
 		this.latitude = latitude;
 		this.longtitude = longtitude;
+		this.Km = km;
 		this.shareCode = shareCode;
 		this.payment = payment;
 		this.agentMain = agentMain;
@@ -88,8 +98,8 @@ public class Order {
 		this.orderFertilizers = orderFertilizers;
 		this.workCompletedPhoto = workCompletedPhoto;
 		this.plans = plans;
-		this.Km=Km;
 	}
+
 
 	public int getPrimary_key() {
 		return primary_key;
@@ -214,5 +224,17 @@ public class Order {
 	}
 	public void setKm(double km) {
 		Km = km;
+	}
+	public LocalTime getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(LocalTime startTime) {
+		this.startTime = startTime;
+	}
+	public LocalTime getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(LocalTime endTime) {
+		this.endTime = endTime;
 	}
 }

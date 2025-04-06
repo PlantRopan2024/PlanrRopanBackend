@@ -2,6 +2,7 @@ package com.plants.Service;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -72,6 +73,9 @@ public class PaymentServices {
 	@Value("${margin.serviceCharges.per.order}")
 	private int marginServiceChargesPerOrderPercent;
 
+	@Value("${reached.location.meter}")
+	private double reachedLocation;
+	
 	@Autowired
 	private CustomerDao customerDao;
 
@@ -163,14 +167,14 @@ public class PaymentServices {
 			Order saveOrders = this.orderRepo.save(orders);
 
 			// fertilizers save
-			for (FertilizerRequest fertilizerRequest : request.getOrderSummaryRequest().getFertilizers()) {
-				OrderFertilizers ordersFertilizers = new OrderFertilizers();
-				ordersFertilizers.setFertilizerName(fertilizerRequest.getName());
-				ordersFertilizers.setAmount(fertilizerRequest.getPrice());
-				ordersFertilizers.setKg(fertilizerRequest.getQuantity());
-				ordersFertilizers.setOrders(saveOrders);
-				this.orderFertilizersRepo.save(ordersFertilizers);
-			}
+//			for (FertilizerRequest fertilizerRequest : request.getOrderSummaryRequest().getFertilizers()) {
+//				OrderFertilizers ordersFertilizers = new OrderFertilizers();
+//				ordersFertilizers.setFertilizerName(fertilizerRequest.getName());
+//				ordersFertilizers.setAmount(fertilizerRequest.getPrice());
+//				ordersFertilizers.setKg(fertilizerRequest.getQuantity());
+//				ordersFertilizers.setOrders(saveOrders);
+//				this.orderFertilizersRepo.save(ordersFertilizers);
+//			}
 
 			// then payment save objects
 			Payment payment = new Payment();
@@ -435,8 +439,8 @@ public class PaymentServices {
 				Order saveOrders = this.orderRepo.save(getOrdersDetails);
 				CustomerMain customerMain = this.customerDao.findbyPrimaryKey(saveOrders.getCustomerMain().getPrimarykey());
 				// send notification to customer your order has been accpeted
-				String notify = sendNotificationToAgent(null, customerMain, "You Order have been assigned",
-						"Please check the app for details.", "OrderRecived",OrderNumber);
+			//	String notify = sendNotificationToAgent(null, customerMain, "You Order have been assigned",
+				//		"Please check the app for details.", "OrderRecived",OrderNumber);
 				
 				Map<String, Object> orderDetails = new HashMap<String, Object>();
 				orderDetails.put("OrderNumber", saveOrders.getOrderId());
@@ -457,20 +461,20 @@ public class PaymentServices {
 				plansDetails.put("plansDuration", getOrdersDetails.getPlans().getTimeDuration());
 				plansDetails.put("frequency", "1 times");
 				 // Fertilizer details
-		        List<Map<String, Object>> fertilizerList = new ArrayList<>();
-		        for (OrderFertilizers orderfer : getOrdersDetails.getOrderFertilizers()) {
-		            Map<String, Object> fertilizerMap = new HashMap<>();
-		            fertilizerMap.put("fertilizerName", orderfer.getFertilizerName());
-		            fertilizerMap.put("earningMalliFertilizer", orderfer.getAmount()- marginEachFertilizer);
-		            fertilizerMap.put("quantity", orderfer.getKg());
-		            fertilizerList.add(fertilizerMap);
-		        }
+//		        List<Map<String, Object>> fertilizerList = new ArrayList<>();
+//		        for (OrderFertilizers orderfer : getOrdersDetails.getOrderFertilizers()) {
+//		            Map<String, Object> fertilizerMap = new HashMap<>();
+//		            fertilizerMap.put("fertilizerName", orderfer.getFertilizerName());
+//		            fertilizerMap.put("earningMalliFertilizer", orderfer.getAmount()- marginEachFertilizer);
+//		            fertilizerMap.put("quantity", orderfer.getKg());
+//		            fertilizerList.add(fertilizerMap);
+//		        }
 
-		        response.put("fertilizerDetails", fertilizerList);
+		      //  response.put("fertilizerDetails", fertilizerList);
 				response.put("OderDetails", orderDetails);
 				response.put("customerDetails", CustomerDetails);
 				response.put("PlansDetails", plansDetails);
-				response.put("notify", notify);
+			//	response.put("notify", notify);
 				response.put("status", true);
 				response.put("message", "Order has been Assigned ");
 				
@@ -566,16 +570,16 @@ public class PaymentServices {
 				plansDetails.put("frequency", "1 times");
 				
 				 // Fertilizer details
-		        List<Map<String, Object>> fertilizerList = new ArrayList<>();
-		        for (OrderFertilizers orderfer : getOrdersDetails.getOrderFertilizers()) {
-		            Map<String, Object> fertilizerMap = new HashMap<>();
-		            fertilizerMap.put("fertilizerName", orderfer.getFertilizerName());
-		            fertilizerMap.put("earningMalliFertilizer", orderfer.getAmount()- marginEachFertilizer);
-		            fertilizerMap.put("quantity", orderfer.getKg());
-		            fertilizerList.add(fertilizerMap);
-		        }
+//		        List<Map<String, Object>> fertilizerList = new ArrayList<>();
+//		        for (OrderFertilizers orderfer : getOrdersDetails.getOrderFertilizers()) {
+//		            Map<String, Object> fertilizerMap = new HashMap<>();
+//		            fertilizerMap.put("fertilizerName", orderfer.getFertilizerName());
+//		            fertilizerMap.put("earningMalliFertilizer", orderfer.getAmount()- marginEachFertilizer);
+//		            fertilizerMap.put("quantity", orderfer.getKg());
+//		            fertilizerList.add(fertilizerMap);
+//		        }
 
-		        response.put("fertilizerDetails", fertilizerList);
+		   //     response.put("fertilizerDetails", fertilizerList);
 				response.put("OderDetails", orderDetails);
 				response.put("customerDetails", CustomerDetails);
 				response.put("PlansDetails", plansDetails);
@@ -619,7 +623,7 @@ public class PaymentServices {
 //					return ResponseEntity.ok(response);
 //				}
 				
-				AgentMain getAssignOrderAgent = getOrdersDetails.getAgentMain();
+			//	AgentMain getAssignOrderAgent = getOrdersDetails.getAgentMain();
 				
 				getOrdersDetails.setOrderStatus("NOT_ACCPETED");
 				getOrdersDetails.setAgentMain(null);
@@ -699,7 +703,7 @@ public class PaymentServices {
 					Map<String, Object> plansDetails = new HashMap<String, Object>();
 					plansDetails.put("planName", getOrdersDetails.getPlans().getPlansName());
 					plansDetails.put("planRs", getOrdersDetails.getPlans().getPlansRs());
-					plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
+				//	plansDetails.put("fertilizer", getOrdersDetails.getOrderFertilizers());
 					
 					response.put("notify", notify);
 					response.put("notificationKey", "Order");
@@ -782,7 +786,47 @@ public class PaymentServices {
 	    }
 	    return ResponseEntity.ok(response);
 	}
+	
+	public ResponseEntity<Map<String, Object>> wayToLocation(AgentMain agentMain, Map<String, Object> request) {
+		Map<String, Object> response = new HashMap<>();
+		String orderNumber = (String) request.get("OrderNumber");
+		double latitude = (double) request.get("latitude");
+		double longitude = (double) request.get("longitude");
+		try {
+			Order getOrdersDetails = this.orderRepo.getOrderNumber(orderNumber);
+			if (getOrdersDetails == null) {
+				response.put("status", false);
+				response.put("message", "Order details not found");
+				return ResponseEntity.ok(response);
+			}
+			double getEstimatetime = this.locationService.estimateArrivalTime(getOrdersDetails.getLatitude(),getOrdersDetails.getLongtitude(), latitude, longitude);
+			
+			int roundedTime = (int) Math.ceil(getEstimatetime);
+			getOrdersDetails.setOrderStatus("START");
+			Order save = this.orderRepo.save(getOrdersDetails);
+			
+			String message = "Reminder Alert!\n\n"
+					+"Hello " + getOrdersDetails.getCustomerMain().getFirstName() + ",\n\n"
+			        + "Your assigned malli is currently en route and is expected to arrive in approximately "
+			        + roundedTime + " minutes.\n\n"
+			        + "Please ensure access to the location is available. Thank you for choosing our service!";
 
+				String notify = sendNotificationToAgent(null, getOrdersDetails.getCustomerMain(), "Way Location",message, "WayNotiy",orderNumber);
+				
+				response.put("order_Number", save.getOrderId());
+				response.put("order_status", save.getOrderStatus());
+				response.put("notify", notify);
+				response.put("message", "Gardener has way to your location.");
+				response.put("status", true);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+			response.put("status", false);
+			response.put("message", "Something Went Worng");
+		}
+		return ResponseEntity.ok(response);
+	}
+	
 	public ResponseEntity<Map<String, Object>> reachedLocation(AgentMain agentMain, Map<String, Object> request) {
 		Map<String, Object> response = new HashMap<>();
 		String orderNumber = (String) request.get("OrderNumber");
@@ -797,15 +841,29 @@ public class PaymentServices {
 			}
 			double distanceKm = this.locationService.calculateDistance(getOrdersDetails.getLatitude(),getOrdersDetails.getLongtitude(), latitude, longitude);
 			System.out.println("Distance km -- " + distanceKm);
-			if (distanceKm <= 1.0) {
+			
+			if (distanceKm <= reachedLocation) {  // 200 meter  reached.location.meter
+				int distanceMeters = (int) Math.round(distanceKm * 1000);
+			
+				// save status reached location 
+				getOrdersDetails.setOrderStatus("REACHED");
+				Order save = this.orderRepo.save(getOrdersDetails);
+				
+				String notifyMsg = "Your assigned maali has arrived at your location "
+		                 + "(approximately " + distanceMeters + " meters away). "
+		                 + "Now you can start the work. Thank you for choosing our service.";
+				
 				String notify = sendNotificationToAgent(null, getOrdersDetails.getCustomerMain(), "Reached Location",
-						"Gardener has reached your location. You can start the work now.", "ReachedLocationNotify",orderNumber);
+						notifyMsg, "ReachedNotify",orderNumber);
+				
 				response.put("notify", notify);
+				response.put("order_Number", save.getOrderId());
+				response.put("order_status", save.getOrderStatus());
 				response.put("message", "Gardener has been reached the your location.");
 				response.put("status", true);
 			} else {
 				response.put("message", "Move closer to the customer's location.");
-				response.put("status", false);
+				response.put("status", true);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -834,9 +892,14 @@ public class PaymentServices {
 			}
 			if (otpCode.equals(getOrdersDetails.getShareCode())) {
 				// status changed
-				getOrdersDetails.setOrderStatus("START");
+				LocalTime currentTime = LocalTime.now();
+
+				getOrdersDetails.setOrderStatus("START_TIME");
+				getOrdersDetails.setStartTime(currentTime);
 				Order saveOrders = this.orderRepo.save(getOrdersDetails);
+				response.put("order_Number", saveOrders.getOrderId());
 				response.put("order_status", saveOrders.getOrderStatus());
+				response.put("currentTime", saveOrders.getStartTime());
 				response.put("message", "Otp Code has been matched , Now you can start the work");
 				response.put("status", true);
 			} else {
@@ -850,7 +913,35 @@ public class PaymentServices {
 		}
 		return ResponseEntity.ok(response);
 	}
+	
+	public ResponseEntity<Map<String, Object>> endTimeWork(AgentMain agentMain, Map<String, Object> request) {
+		Map<String, Object> response = new HashMap<>();
+		String OrderNumber = (String) request.get("OrderNumber");
+		try {
+			
+			Order getOrdersDetails = this.orderRepo.getOrderNumber(OrderNumber);
+			if (getOrdersDetails == null) {
+				response.put("message", "Order not found.");
+				response.put("status", false);
+				return ResponseEntity.ok(response);
+			}
+				// status changed
+				LocalTime currentTime = LocalTime.now();
 
+				getOrdersDetails.setOrderStatus("END_TIME");
+				getOrdersDetails.setEndTime(currentTime);
+				Order saveOrders = this.orderRepo.save(getOrdersDetails);
+				response.put("order_Number", saveOrders.getOrderId());
+				response.put("order_status", saveOrders.getOrderStatus());
+				response.put("message", "Now you can Upload the Photo what you work!");
+				response.put("status", true);
+		}catch(Exception e) {
+			e.printStackTrace();
+			response.put("status", false);
+			response.put("message", "Something Went Worng");
+		}
+		return ResponseEntity.ok(response);
+	}
 	public ResponseEntity<Map<String, Object>> workPhotoUpload(AgentMain existingAgent, String OrderNumber,
 			MultipartFile workCompletdPhoto1, MultipartFile workCompletdPhoto2) {
 		Map<String, Object> response = new HashMap<>();
@@ -897,28 +988,28 @@ public class PaymentServices {
 
 			getOrdersDetails.setOrderStatus("COMPLETED");
 			Order saveOrders = this.orderRepo.save(getOrdersDetails);
-			double totalMalliFertilizer=0;
-			double totalCompanyFertilizer=0;
-			// fertilizer earning 
-			for(OrderFertilizers orderFertilizers : getOrdersDetails.getOrderFertilizers()) {
-				double getMalliCost = orderFertilizers.getAmount()-marginEachFertilizer;
-				double getCompanyCost = orderFertilizers.getAmount()-getMalliCost;
-				orderFertilizers.setEarningMalliFertilizer(getMalliCost);
-				orderFertilizers.setCompanyEarningFertilizer(getCompanyCost);
-				orderFertilizers.setMargineachFertilizer(marginEachFertilizer);
-				OrderFertilizers save = this.orderFertilizersRepo.save(orderFertilizers);	
-				
-				totalMalliFertilizer += save.getEarningMalliFertilizer();
-				totalCompanyFertilizer += save.getCompanyEarningFertilizer();
-			}
+		//	double totalMalliFertilizer=0;
+		//	double totalCompanyFertilizer=0;
+//			// fertilizer earning 
+//			for(OrderFertilizers orderFertilizers : getOrdersDetails.getOrderFertilizers()) {
+//				double getMalliCost = orderFertilizers.getAmount()-marginEachFertilizer;
+//				double getCompanyCost = orderFertilizers.getAmount()-getMalliCost;
+//				orderFertilizers.setEarningMalliFertilizer(getMalliCost);
+//				orderFertilizers.setCompanyEarningFertilizer(getCompanyCost);
+//				orderFertilizers.setMargineachFertilizer(marginEachFertilizer);
+//				OrderFertilizers save = this.orderFertilizersRepo.save(orderFertilizers);	
+//				
+//				totalMalliFertilizer += save.getEarningMalliFertilizer();
+//				totalCompanyFertilizer += save.getCompanyEarningFertilizer();
+//			}
 			
 			// agent amount rs  get account
 			OrderEarning getOrderEarning = this.orderEarningRepo.getbyOrderNumber(OrderNumber);
 			getOrderEarning.setAgentEarningRs(getOrderEarning.getPlansRs()-getOrderEarning.getCompanyEarningRs());
 			getOrderEarning.setAgentMain(existingAgent);
 			getOrderEarning.setEarningStatus("COMPLETED");
-			getOrderEarning.setCompanyEarningFertilizer(totalCompanyFertilizer);
-			getOrderEarning.setEarningMalliFertilizer(totalMalliFertilizer);
+			//getOrderEarning.setCompanyEarningFertilizer(totalCompanyFertilizer);
+		//	getOrderEarning.setEarningMalliFertilizer(totalMalliFertilizer);
 			getOrderEarning.setCreatedAt(LocalDateTime.now());
 			
 			this.orderEarningRepo.save(getOrderEarning);
