@@ -897,7 +897,8 @@ public class PaymentServices {
 
 			getOrdersDetails.setOrderStatus("COMPLETED");
 			Order saveOrders = this.orderRepo.save(getOrdersDetails);
-			
+			double totalMalliFertilizer=0;
+			double totalCompanyFertilizer=0;
 			// fertilizer earning 
 			for(OrderFertilizers orderFertilizers : getOrdersDetails.getOrderFertilizers()) {
 				double getMalliCost = orderFertilizers.getAmount()-marginEachFertilizer;
@@ -905,7 +906,10 @@ public class PaymentServices {
 				orderFertilizers.setEarningMalliFertilizer(getMalliCost);
 				orderFertilizers.setCompanyEarningFertilizer(getCompanyCost);
 				orderFertilizers.setMargineachFertilizer(marginEachFertilizer);
-				this.orderFertilizersRepo.save(orderFertilizers);	
+				OrderFertilizers save = this.orderFertilizersRepo.save(orderFertilizers);	
+				
+				totalMalliFertilizer += save.getEarningMalliFertilizer();
+				totalCompanyFertilizer += save.getCompanyEarningFertilizer();
 			}
 			
 			// agent amount rs  get account
@@ -913,7 +917,10 @@ public class PaymentServices {
 			getOrderEarning.setAgentEarningRs(getOrderEarning.getPlansRs()-getOrderEarning.getCompanyEarningRs());
 			getOrderEarning.setAgentMain(existingAgent);
 			getOrderEarning.setEarningStatus("COMPLETED");
+			getOrderEarning.setCompanyEarningFertilizer(totalCompanyFertilizer);
+			getOrderEarning.setEarningMalliFertilizer(totalMalliFertilizer);
 			getOrderEarning.setCreatedAt(LocalDateTime.now());
+			
 			this.orderEarningRepo.save(getOrderEarning);
 			
 			response.put("order_status", saveOrders.getOrderStatus());

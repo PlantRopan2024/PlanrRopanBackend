@@ -31,6 +31,12 @@ public class OrderEarning {
 	
 	private String earningStatus;
 	
+	@Column(name = "earning_malli_fertilizer", columnDefinition = "DOUBLE PRECISION DEFAULT 0")
+	private double earningMalliFertilizer;
+	
+	@Column(name = "company_earning_fertilizer", columnDefinition = "DOUBLE PRECISION DEFAULT 0")
+	private double companyEarningFertilizer;
+	
 	private LocalDateTime createdAt;
 	
 	@Column(unique = true, nullable = false)
@@ -52,11 +58,11 @@ public class OrderEarning {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
-
 	public OrderEarning(int primaryKey, double grandTotalAmount, double plansRs, double marginPercentPerOrder,
 			double companyEarningRs, double agentEarningRs, double platformFess, double gstPercentFees,
-			double gstAmountRs, double couponAppliedRs, String orderNumber, Order orders, AgentMain agentMain,String earningStatus,LocalDateTime createdAt) {
+			double gstAmountRs, double couponAppliedRs, String earningStatus, 
+			double earningMalliFertilizer, double companyEarningFertilizer, LocalDateTime createdAt, String orderNumber,
+			Order orders, AgentMain agentMain) {
 		super();
 		this.primaryKey = primaryKey;
 		this.grandTotalAmount = grandTotalAmount;
@@ -68,11 +74,13 @@ public class OrderEarning {
 		this.gstPercentFees = gstPercentFees;
 		this.gstAmountRs = gstAmountRs;
 		this.couponAppliedRs = couponAppliedRs;
+		this.earningStatus = earningStatus;
+		this.earningMalliFertilizer = earningMalliFertilizer;
+		this.companyEarningFertilizer = companyEarningFertilizer;
+		this.createdAt = createdAt;
 		this.orderNumber = orderNumber;
 		this.orders = orders;
 		this.agentMain = agentMain;
-		this.earningStatus=earningStatus;
-		this.createdAt=createdAt;
 	}
 
 	public int getPrimaryKey() {
@@ -190,6 +198,19 @@ public class OrderEarning {
 	}
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public double getEarningMalliFertilizer() {
+		return earningMalliFertilizer;
+	}
+	public void setEarningMalliFertilizer(double earningMalliFertilizer) {
+		this.earningMalliFertilizer = earningMalliFertilizer;
+	}
+	public double getCompanyEarningFertilizer() {
+		return companyEarningFertilizer;
+	}
+	public void setCompanyEarningFertilizer(double companyEarningFertilizer) {
+		this.companyEarningFertilizer = companyEarningFertilizer;
 	}	
 	
 }

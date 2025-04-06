@@ -1,5 +1,6 @@
 package com.plants.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -14,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import com.plants.Dao.LoginHoursRepo;
 import com.plants.Dao.OrderEarningRepo;
+import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
+import com.plants.entities.DailyOrder;
 import com.plants.entities.LoginHours;
 import com.plants.entities.OrderEarning;
 import com.plants.entities.OrderFertilizers;
@@ -28,6 +31,32 @@ public class PayoutService {
 	@Autowired
 	LoginHoursRepo loginHoursRepo;
 	
+	public void insertDataOrderDaily() {
+	    try {
+	        LocalDate localDate = LocalDate.now(); 
+
+	        // Fetch completed order earnings for the agent on that date
+	      //  List<OrderEarning> getTodayOrderComing = orderEarningRepo.getdailyOrderCurrentDate(localDate);
+
+	    //    DailyOrder dailyOrder = new DailyOrder();
+	        
+	       
+
+	    } catch (Exception e) {
+	        e.printStackTrace(); 
+	    }
+	}
+
+
+
+	public void insertDataOrderWeekly() {
+		
+	}
+
+
+	public void insertDataOrderMonthly() {
+		
+	}
 	
 	public ResponseEntity<Map<String, Object>> dailyOrderEarning(AgentMain existingAgent, String date) {
 	    Map<String, Object> response = new HashMap<>();
@@ -44,6 +73,7 @@ public class PayoutService {
 	        double totalIncentives = 0.0;
 	        double totalTips = 0.0;
 	        int completedOrders = 0;
+
 	        long hr = 0;
 	        long minutes = 0;
 
@@ -57,24 +87,17 @@ public class PayoutService {
 
 	            agentPerOrderEarningRs += orderEarning.getAgentEarningRs();
 
-	            double fertilizerEarning = 0.0;
 	            if (orderEarning.getOrders() != null && orderEarning.getOrders().getOrderFertilizers() != null) {
 	                for (OrderFertilizers fert : orderEarning.getOrders().getOrderFertilizers()) {
-	                    fertilizerEarning += fert.getEarningMalliFertilizer();
 	                    agentFertilizer += fert.getEarningMalliFertilizer();
 	                }
 	            }
 
-	            // Add individual order entry
-	            Map<String, Object> orderMap = new HashMap<>();
-	            orderMap.put("orderNumber", orderEarning.getOrders().getOrderId());
-	            orderMap.put("agentEarningRs", orderEarning.getAgentEarningRs());
-	            orderMap.put("fertilizerEarning", fertilizerEarning);
-	            orderDetailsList.add(orderMap);
+	           
 	        }
 
 	        // Total earnings = per order + tips + incentives
-	        agentTotalEarningRs = agentPerOrderEarningRs + totalTips + totalIncentives;
+	        agentTotalEarningRs = agentPerOrderEarningRs +agentFertilizer+ totalTips + totalIncentives;
 
 	        // Login hours calculation
 	        List<LoginHours> getLoginHours = this.loginHoursRepo.getCountActiveLogin(existingAgent.getAgentIDPk(), localDate);
@@ -89,12 +112,158 @@ public class PayoutService {
 	        // Prepare response map
 	        response.put("completedOrder", completedOrders);
 	        response.put("incentivestotal", totalIncentives);
-	        response.put("orderEarningsPerDay", agentPerOrderEarningRs);
+	        response.put("orderEarningsPerDay", Utils.decimalFormat(agentPerOrderEarningRs));
 	        response.put("gardenersTips", totalTips);
-	        response.put("agentOrderEarningsTotal", agentTotalEarningRs);
+	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
 	        response.put("fertilizerEarning", agentFertilizer);
 	        response.put("loginHours", totalLoginhr);
-	        response.put("orderDetails", orderDetailsList); // Include order list
+	        response.put("status", true);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("message", "Something Went Wrong");
+	        response.put("status", false);
+	    }
+	    return ResponseEntity.ok(response);
+	}
+
+
+	public ResponseEntity<Map<String, Object>> weeklyOrderEarning(AgentMain existingAgent, String date) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	        LocalDate inputDate = LocalDate.parse(date, formatter);
+
+	        System.out.println(" inputDate  of date " + inputDate);
+
+	        // Get start (Monday) and end (Sunday) of the week
+	        LocalDate startOfWeek = inputDate.with(DayOfWeek.MONDAY);
+	        
+	        System.out.println(" start of week " + startOfWeek);
+	        LocalDate endOfWeek = inputDate.with(DayOfWeek.SUNDAY);
+	        
+	        System.out.println(" endOfWeek of week " + endOfWeek);
+
+
+	        // Fetch weekly order earnings
+	        List<OrderEarning> getOrderEarning = orderEarningRepo.getWeeklyOrderEarn(existingAgent.getAgentIDPk(), startOfWeek, endOfWeek);
+
+	        double agentTotalEarningRs = 0.0;
+	        double agentPerOrderEarningRs = 0.0;
+	        double agentFertilizer = 0.0;
+	        double totalIncentives = 0.0;
+	        double totalTips = 0.0;
+	        int completedOrders = 0;
+
+	        long hr = 0;
+	        long minutes = 0;
+
+	        for (OrderEarning orderEarning : getOrderEarning) {
+	            if ("COMPLETED".equalsIgnoreCase(orderEarning.getEarningStatus())) {
+	                completedOrders++;
+	            }
+
+	            agentPerOrderEarningRs += orderEarning.getAgentEarningRs();
+
+	            if (orderEarning.getOrders() != null && orderEarning.getOrders().getOrderFertilizers() != null) {
+	                for (OrderFertilizers fert : orderEarning.getOrders().getOrderFertilizers()) {
+	                    agentFertilizer += fert.getEarningMalliFertilizer();
+	                }
+	            }
+	        }
+
+	        // Total earnings
+	        agentTotalEarningRs = agentPerOrderEarningRs + agentFertilizer + totalTips + totalIncentives;
+
+	        // Get weekly login hours
+	        List<LoginHours> getLoginHours = loginHoursRepo.getLoginHoursBetweenDates(existingAgent.getAgentIDPk(), startOfWeek, endOfWeek);
+	        for (LoginHours loginhr : getLoginHours) {
+	            hr += loginhr.getHr();
+	            minutes += loginhr.getMinutes();
+	        }
+
+	        // Format login hours
+	        String totalLoginhr = String.format("%02d:%02d", hr, minutes);
+
+	        // Final response
+	        response.put("completedOrder", completedOrders);
+	        response.put("incentivestotal", totalIncentives);
+	        response.put("orderEarningsPerDay", Utils.decimalFormat(agentPerOrderEarningRs));
+	        response.put("gardenersTips", totalTips);
+	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
+	        response.put("fertilizerEarning", agentFertilizer);
+	        response.put("loginHours", totalLoginhr);
+	        response.put("status", true);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("message", "Something Went Wrong");
+	        response.put("status", false);
+	    }
+	    return ResponseEntity.ok(response);
+	}
+
+	public ResponseEntity<Map<String, Object>> monthlyOrderEarning(AgentMain existingAgent, String date) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	        LocalDate inputDate = LocalDate.parse(date, formatter);
+	        
+	        System.out.println(" input date " + inputDate);
+
+	        LocalDate startOfMonth = inputDate.withDayOfMonth(1);
+	        
+	        System.out.println(" startOfMonth   date " + startOfMonth);
+
+	        LocalDate endOfMonth = inputDate.withDayOfMonth(inputDate.lengthOfMonth());
+	        
+	        System.out.println(" endOfMonthdate " + endOfMonth);
+
+
+	        List<OrderEarning> orderEarnings = orderEarningRepo.getMonthlyOrderEarn(existingAgent.getAgentIDPk(), startOfMonth, endOfMonth);
+
+	        double agentTotalEarningRs = 0.0;
+	        double agentPerOrderEarningRs = 0.0;
+	        double agentFertilizer = 0.0;
+	        double totalIncentives = 0.0;
+	        double totalTips = 0.0;
+	        int completedOrders = 0;
+
+	        long hr = 0;
+	        long minutes = 0;
+
+	        for (OrderEarning orderEarning : orderEarnings) {
+	            if ("COMPLETED".equalsIgnoreCase(orderEarning.getEarningStatus())) {
+	                completedOrders++;
+	            }
+
+	            agentPerOrderEarningRs += orderEarning.getAgentEarningRs();
+
+	            if (orderEarning.getOrders() != null && orderEarning.getOrders().getOrderFertilizers() != null) {
+	                for (OrderFertilizers fert : orderEarning.getOrders().getOrderFertilizers()) {
+	                    agentFertilizer += fert.getEarningMalliFertilizer();
+	                }
+	            }
+	        }
+
+	        agentTotalEarningRs = agentPerOrderEarningRs + agentFertilizer + totalTips + totalIncentives;
+
+	        // Fetch login hours in the month
+	        List<LoginHours> getLoginHours = loginHoursRepo.getLoginHoursBetweenDates(existingAgent.getAgentIDPk(), startOfMonth, endOfMonth);
+	        for (LoginHours loginhr : getLoginHours) {
+	            hr += loginhr.getHr();
+	            minutes += loginhr.getMinutes();
+	        }
+
+	        String totalLoginhr = String.format("%02d:%02d", hr, minutes);
+
+	        response.put("completedOrder", completedOrders);
+	        response.put("incentivestotal", totalIncentives);
+	        response.put("orderEarningsPerDay", Utils.decimalFormat(agentPerOrderEarningRs));
+	        response.put("gardenersTips", totalTips);
+	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
+	        response.put("fertilizerEarning", agentFertilizer);
+	        response.put("loginHours", totalLoginhr);
 	        response.put("status", true);
 
 	    } catch (Exception e) {

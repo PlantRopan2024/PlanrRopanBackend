@@ -17,5 +17,9 @@ public interface LoginHoursRepo extends JpaRepository<LoginHours, Integer>{
 	
 	@Query("SELECT lh FROM LoginHours lh WHERE lh.agentMain.AgentIDPk = :agentID AND FUNCTION('DATE', lh.createdAt) = :date AND lh.logoutTime IS NOT NULL")
 	List<LoginHours> getCountActiveLogin(@Param("agentID") int agentID, @Param("date") LocalDate date);
+	
+	@Query("SELECT l FROM LoginHours l WHERE l.agentMain.AgentIDPk = :agentId AND FUNCTION('DATE', l.createdAt) BETWEEN :startDate AND :endDate AND l.logoutTime IS NOT NULL")
+	List<LoginHours> getLoginHoursBetweenDates(@Param("agentId") int agentId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
 
 }
