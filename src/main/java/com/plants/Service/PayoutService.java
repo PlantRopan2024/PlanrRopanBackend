@@ -73,12 +73,11 @@ public class PayoutService {
 	        double totalIncentives = 0.0;
 	        double totalTips = 0.0;
 	        int completedOrders = 0;
+	        double workingHours=0.0;
 
 	        long hr = 0;
 	        long minutes = 0;
 
-	        // Prepare individual order data
-	        List<Map<String, Object>> orderDetailsList = new ArrayList<>();
 
 	        for (OrderEarning orderEarning : getOrderEarning) {
 	            if ("COMPLETED".equalsIgnoreCase(orderEarning.getEarningStatus())) {
@@ -114,6 +113,8 @@ public class PayoutService {
 	        response.put("incentivestotal", totalIncentives);
 	        response.put("orderEarningsPerDay", Utils.decimalFormat(agentPerOrderEarningRs));
 	        response.put("gardenersTips", totalTips);
+	        response.put("todayDate", localDate);
+	        response.put("workingHours", workingHours);
 	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
 	        response.put("fertilizerEarning", agentFertilizer);
 	        response.put("loginHours", totalLoginhr);
@@ -154,6 +155,8 @@ public class PayoutService {
 	        double totalIncentives = 0.0;
 	        double totalTips = 0.0;
 	        int completedOrders = 0;
+	        double workingHours=0.0;
+
 
 	        long hr = 0;
 	        long minutes = 0;
@@ -192,6 +195,9 @@ public class PayoutService {
 	        response.put("gardenersTips", totalTips);
 	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
 	        response.put("fertilizerEarning", agentFertilizer);
+	        response.put("startOfWeek", startOfWeek);
+	        response.put("endOfWeek", endOfWeek);
+	        response.put("workingHours", workingHours);
 	        response.put("loginHours", totalLoginhr);
 	        response.put("status", true);
 
@@ -228,6 +234,7 @@ public class PayoutService {
 	        double totalIncentives = 0.0;
 	        double totalTips = 0.0;
 	        int completedOrders = 0;
+	        double workingHours=0.0;
 
 	        long hr = 0;
 	        long minutes = 0;
@@ -263,6 +270,9 @@ public class PayoutService {
 	        response.put("gardenersTips", totalTips);
 	        response.put("agentOrderEarningsTotal", Utils.decimalFormat(agentTotalEarningRs));
 	        response.put("fertilizerEarning", agentFertilizer);
+	        response.put("startOfMonth", startOfMonth);
+	        response.put("endOfMonth", endOfMonth);
+	        response.put("workingHours", workingHours);
 	        response.put("loginHours", totalLoginhr);
 	        response.put("status", true);
 
