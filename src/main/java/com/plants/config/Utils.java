@@ -18,6 +18,8 @@ import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.HashMap;
@@ -50,8 +52,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.core.io.Resource;
 
 public class Utils {
-
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+	
+    private static final DateTimeFormatter FORMATTER_AM = DateTimeFormatter.ofPattern("hh:mm:ss a dd-MM-yyyy");
+	private static final DateTimeFormatter FORMATTER_PM = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
 	private static final DateTimeFormatter FORMATTER_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 	public static String saveImgFile(MultipartFile file, String baseDirectory, String subDirectoryFolderName,
@@ -438,9 +441,16 @@ public class Utils {
 		return pagination;
 	}
 
-	public static String formatDateTime(LocalDateTime dateTime) {
-		return dateTime.format(FORMATTER);
-	}
+	 public static String formatDateTime(LocalDateTime dateTime) {
+	        try {
+	            ZonedDateTime istDateTime = dateTime.atZone(ZoneId.of("UTC"))
+	                                                 .withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
+	            return istDateTime.format(FORMATTER_AM);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return dateTime.toString(); // fallback
+	        }
+	    }
 	
 	public static String formatDate(LocalDate date) {
 		return date.format(FORMATTER_DATE);
@@ -453,4 +463,30 @@ public class Utils {
 
 		return String.format("%d Hour %d minutes %d seconds", hours, minutes, seconds);
 	}
+	
+	
+	public static String convertToIST(String dateStr) {
+        try {
+            // Input format: 24-hour format
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+
+            // Output format: 12-hour format with AM/PM
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("hh:mm:ss a dd-MM-yyyy");
+
+            // Parse the server time
+            LocalDateTime localDateTime = LocalDateTime.parse(dateStr, inputFormatter);
+
+            // Assume server time is UTC. Change to your server's timezone if different.
+            ZonedDateTime utcDateTime = localDateTime.atZone(ZoneId.of("UTC"));
+
+            // Convert to IST
+            ZonedDateTime istDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
+
+            // Format to desired output
+            return istDateTime.format(outputFormatter);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return dateStr; // fallback
+        }
+    }
 }

@@ -3,10 +3,12 @@ package com.plants.Service;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
@@ -319,32 +321,46 @@ public class PaymentServices {
 
 	    try {
 	        synchronized (upComingOrdersStored) {
-	            List<Map<String, Object>> ordersList = new ArrayList<>(upComingOrdersStored); // Creating a copy
+	            List<Map<String, Object>> ordersList = new ArrayList<>(upComingOrdersStored); // Create a copy to avoid thread issues
+	            // Sort by date in descending order (latest first)
+	            ordersList.sort((o1, o2) -> {
+	                try {
+	                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm:ss a dd-MM-yyyy", Locale.ENGLISH);
+	                    LocalDateTime d1 = LocalDateTime.parse(o1.get("date").toString(), formatter);
+	                    LocalDateTime d2 = LocalDateTime.parse(o2.get("date").toString(), formatter);
+	                    return d2.compareTo(d1); // Descending order
+	                } catch (Exception e) {
+	                    e.printStackTrace(); // Log for debugging
+	                    return 0;
+	                }
+	            });
 
+	            // Handle empty list
 	            if (ordersList.isEmpty()) {
 	                List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
-	                Map<String, Object> pagination = Utils.buildPaginationResponse(ordersList, baseUrl, pageNumber,pageSize, emptyOrdersList);
+	                Map<String, Object> pagination = Utils.buildPaginationResponse(ordersList, baseUrl, pageNumber, pageSize, emptyOrdersList);
 	                pagination.put("message", "You have no upcoming orders.");
-	                
+
 	                response.put("success", true);
 	                response.put("response", pagination);
 	                return ResponseEntity.ok(response);
 	            }
-	            Map<String, Object> pagination = Utils.buildPaginationResponse(ordersList, baseUrl,pageNumber, pageSize, ordersList);
+
+	            // Build paginated response
+	            Map<String, Object> pagination = Utils.buildPaginationResponse(ordersList, baseUrl, pageNumber, pageSize, ordersList);
 	            pagination.put("message", "Upcoming orders available.");
 
 	            response.put("success", true);
 	            response.put("response", pagination);
 	        }
 	    } catch (Exception e) {
-	        e.printStackTrace();
+	        e.printStackTrace(); // log exception
 	        response.put("success", false);
 	        response.put("message", "Something went wrong.");
 	    }
 
 	    return ResponseEntity.ok(response);
 	}
-
 
 	public ResponseEntity<Map<String, Object>> checkOrderAssigned(CustomerMain exitsCustomer, Map<String, Object> request) {
 		Map<String, Object> response = new HashMap<>();
