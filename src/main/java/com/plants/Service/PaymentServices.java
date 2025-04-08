@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -322,20 +324,28 @@ public class PaymentServices {
 	    try {
 	        synchronized (upComingOrdersStored) {
 	            List<Map<String, Object>> ordersList = new ArrayList<>(upComingOrdersStored); // Create a copy to avoid thread issues
-	            // Sort by date in descending order (latest first)
-	            ordersList.sort((o1, o2) -> {
-	                try {
-	                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm:ss a dd-MM-yyyy", Locale.ENGLISH);
-	                    LocalDateTime d1 = LocalDateTime.parse(o1.get("date").toString(), formatter);
-	                    LocalDateTime d2 = LocalDateTime.parse(o2.get("date").toString(), formatter);
-	                    return d2.compareTo(d1); // Descending order
-	                } catch (Exception e) {
-	                    e.printStackTrace(); // Log for debugging
-	                    return 0;
+	            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss a dd-MM-yyyy");
+
+	            Collections.sort(ordersList, new Comparator<Map<String, Object>>() {
+	                @Override
+	                public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+	                    try {
+	                        String dateStr1 = ((String) o1.get("date")).toUpperCase();
+	                        String dateStr2 = ((String) o2.get("date")).toUpperCase();
+
+	                        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss a dd-MM-yyyy");
+	                        Date date1 = sdf.parse(dateStr1);
+	                        Date date2 = sdf.parse(dateStr2);
+
+	                        return date1.compareTo(date2); // ascending
+	                    } catch (Exception e) {
+	                        e.printStackTrace();
+	                        return 0;
+	                    }
 	                }
 	            });
 
-	            // Handle empty list
+
 	            if (ordersList.isEmpty()) {
 	                List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
 	                Map<String, Object> pagination = Utils.buildPaginationResponse(ordersList, baseUrl, pageNumber, pageSize, emptyOrdersList);
@@ -346,7 +356,6 @@ public class PaymentServices {
 	                return ResponseEntity.ok(response);
 	            }
 
-	            // Build paginated response
 	            Map<String, Object> pagination = Utils.buildPaginationResponse(ordersList, baseUrl, pageNumber, pageSize, ordersList);
 	            pagination.put("message", "Upcoming orders available.");
 
@@ -354,13 +363,14 @@ public class PaymentServices {
 	            response.put("response", pagination);
 	        }
 	    } catch (Exception e) {
-	        e.printStackTrace(); // log exception
+	        e.printStackTrace();
 	        response.put("success", false);
 	        response.put("message", "Something went wrong.");
 	    }
 
 	    return ResponseEntity.ok(response);
 	}
+
 
 	public ResponseEntity<Map<String, Object>> checkOrderAssigned(CustomerMain exitsCustomer, Map<String, Object> request) {
 		Map<String, Object> response = new HashMap<>();
@@ -910,9 +920,9 @@ public class PaymentServices {
 			if (otpCode.equals(getOrdersDetails.getShareCode())) {
 				// status changed
 				LocalTime currentTime = LocalTime.now();
-
+				
 				getOrdersDetails.setOrderStatus("START_TIME");
-				getOrdersDetails.setStartTime(currentTime);
+				getOrdersDetails.setStartTime(Utils.formatTimetoIst(currentTime));
 				Order saveOrders = this.orderRepo.save(getOrdersDetails);
 				response.put("order_Number", saveOrders.getOrderId());
 				response.put("order_status", saveOrders.getOrderStatus());
@@ -946,7 +956,7 @@ public class PaymentServices {
 				LocalTime currentTime = LocalTime.now();
 
 				getOrdersDetails.setOrderStatus("END_TIME");
-				getOrdersDetails.setEndTime(currentTime);
+				getOrdersDetails.setEndTime(Utils.formatTimetoIst(currentTime));
 				Order saveOrders = this.orderRepo.save(getOrdersDetails);
 				response.put("order_Number", saveOrders.getOrderId());
 				response.put("order_status", saveOrders.getOrderStatus());

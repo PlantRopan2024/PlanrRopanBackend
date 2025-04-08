@@ -81,7 +81,7 @@ public class MobileLoginApiCont {
 			data.put("gender", agentRecords.getGender());
 			data.put("selfieImg", agentRecords.getSelfieImg());
 			data.put("selfieImg_type", agentRecords.getSelfieImg_type());
-			data.put("selfiImageUrlPath", agentRecords.getSelfieImagePath());
+		//	data.put("selfiImageUrlPath", agentRecords.getSelfieImagePath());
 			data.put("emailId", agentRecords.getEmailId());
 			data.put("mobileNumber", agentRecords.getMobileNumber());
 			data.put("agentApproved", agentRecords.isAgentApproved());
@@ -99,10 +99,10 @@ public class MobileLoginApiCont {
 			data.put("aadhaarNumber", agentRecords.getAadhaarNumber());
 			data.put("aadharImgFrontSide", agentRecords.getAadharImgFrontSide());
 			data.put("aadharImgFrontSide_type", agentRecords.getAadharImgFrontSide_type());
-			data.put("aadharImgFrontSideUrlPath", agentRecords.getAadharImagFrontSidePath());
+		//	data.put("aadharImgFrontSideUrlPath", agentRecords.getAadharImagFrontSidePath());
 			data.put("aadharImgBackSide", agentRecords.getAadharImgBackSide());
 			data.put("aadharImgBackSide_type", agentRecords.getAadharImgBackSide_type());
-			data.put("aadharImgBackSideUrlPath", agentRecords.getAadharImagBackSidePath());
+		//	data.put("aadharImgBackSideUrlPath", agentRecords.getAadharImagBackSidePath());
 			data.put("token", agentRecords.getToken());
 			data.put("accHolderName", agentRecords.getAccHolderName());
 			data.put("accNumber", agentRecords.getAccNumber());
@@ -110,7 +110,6 @@ public class MobileLoginApiCont {
 			data.put("ifscCode", agentRecords.getIfscCode());
 			data.put("bankPassBookImage", agentRecords.getBankPassBookImage());
 			data.put("bankPassBookImage_type", agentRecords.getBankPassBookImage_type());
-			data.put("bankPassBookImageUrlPath", agentRecords.getBankPassBookImagePath());
 			data.put("profileCompleted", agentRecords.isProfileCompleted());
 			data.put("fcmTokenAgent", agentRecords.getFcmTokenAgent());
 			data.put("profileInfoStepFirst", agentRecords.isProfileInfoStepFirst());

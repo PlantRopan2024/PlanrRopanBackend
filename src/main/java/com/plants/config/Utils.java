@@ -18,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -56,6 +57,8 @@ public class Utils {
     private static final DateTimeFormatter FORMATTER_AM = DateTimeFormatter.ofPattern("hh:mm:ss a dd-MM-yyyy");
 	private static final DateTimeFormatter FORMATTER_PM = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
 	private static final DateTimeFormatter FORMATTER_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+	private static final DateTimeFormatter FORMATTER_TIME_AM = DateTimeFormatter.ofPattern("hh:mm a");
+
 
 	public static String saveImgFile(MultipartFile file, String baseDirectory, String subDirectoryFolderName,
 			String fileName) throws IOException {
@@ -153,6 +156,9 @@ public class Utils {
 			String fileName) {
 		try {
 			Path filePath = Paths.get(baseDirectory, folderName, fileName).normalize();
+			System.out.println(" file pth -----" + filePath);
+			System.out.println(" file pth uri -----" + filePath.toUri());
+
 			Resource resource = new UrlResource(filePath.toUri());
 
 			if (!resource.exists()) {
@@ -186,7 +192,7 @@ public class Utils {
 
 			String fileUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
 					+ "/uploads/" + folderName + "/" + fileName;
-
+			
 			return ResponseEntity.ok(fileUrl);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating file URL");
@@ -451,6 +457,38 @@ public class Utils {
 	            return dateTime.toString(); // fallback
 	        }
 	    }
+	 
+	 public static String formatTime(LocalTime time) {
+		    try {
+		        // Combine with current date to form a LocalDateTime
+		        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(ZoneId.of("UTC")), time);
+		        
+		        // Convert from UTC to IST
+		        ZonedDateTime utcZoned = localDateTime.atZone(ZoneId.of("UTC"));
+		        ZonedDateTime istZoned = utcZoned.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
+		        
+		        return istZoned.format(FORMATTER_TIME_AM); // formatted string like "04:15 PM"
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        return time.toString(); // fallback to raw time string
+		    }
+		}
+	 
+	 public static LocalTime formatTimetoIst(LocalTime time) {
+		    try {
+		        // Combine with current date to form a LocalDateTime
+		        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(ZoneId.of("UTC")), time);
+		        
+		        // Convert from UTC to IST
+		        ZonedDateTime utcZoned = localDateTime.atZone(ZoneId.of("UTC"));
+		        ZonedDateTime istZoned = utcZoned.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
+		        
+		        return istZoned.toLocalTime(); // return IST time
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        return time; // fallback to original
+		    }
+		}
 	
 	public static String formatDate(LocalDate date) {
 		return date.format(FORMATTER_DATE);
