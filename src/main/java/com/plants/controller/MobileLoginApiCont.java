@@ -69,10 +69,10 @@ public class MobileLoginApiCont {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 			}
 			
-			String selfieImageUrl = Utils.findImgPath(uploadDir, agentRecords.getMobileNumber(), agentRecords.getSelfieImg());
-			String aadharFrontImageUrl = Utils.findImgPath(uploadDir, agentRecords.getMobileNumber(), agentRecords.getAadharImgFrontSide());
-			String aadharBackImageUrl = Utils.findImgPath(uploadDir, agentRecords.getMobileNumber(), agentRecords.getAadharImgBackSide());
-			String bankImageUrl = Utils.findImgPath(uploadDir, agentRecords.getMobileNumber(), agentRecords.getBankPassBookImage());
+			String selfieImageUrl = Utils.findImgPath(request,uploadDir, agentRecords.getMobileNumber(), agentRecords.getSelfieImg());
+			String aadharFrontImageUrl = Utils.findImgPath(request,uploadDir, agentRecords.getMobileNumber(), agentRecords.getAadharImgFrontSide());
+			String aadharBackImageUrl = Utils.findImgPath(request,uploadDir, agentRecords.getMobileNumber(), agentRecords.getAadharImgBackSide());
+			String bankImageUrl = Utils.findImgPath(request,uploadDir, agentRecords.getMobileNumber(), agentRecords.getBankPassBookImage());
 
 			Map<String, Object> data = new HashMap<>();
 			data.put("agentIDPk", agentRecords.getAgentIDPk());
@@ -81,7 +81,6 @@ public class MobileLoginApiCont {
 			data.put("gender", agentRecords.getGender());
 			data.put("selfieImg", agentRecords.getSelfieImg());
 			data.put("selfieImg_type", agentRecords.getSelfieImg_type());
-		//	data.put("selfiImageUrlPath", agentRecords.getSelfieImagePath());
 			data.put("emailId", agentRecords.getEmailId());
 			data.put("mobileNumber", agentRecords.getMobileNumber());
 			data.put("agentApproved", agentRecords.isAgentApproved());

@@ -199,10 +199,12 @@ public class Utils {
 		}
 	}
 
-	public static String findImgPath(String baseDirectory, String folderName, String fileName) {
-		return ServletUriComponentsBuilder.fromCurrentContextPath().path("/" + baseDirectory + "/" + folderName)
-				.path(fileName).toUriString();
+	public static String findImgPath(HttpServletRequest request, String baseDirectory, String folderName, String fileName) {
+		//http://103.25.130.57//opt/UploadQaPlantRoanFiles//+918565933042/+9185659330421743998451474_image_cropper_1743998432160.jpg
+	    String serverUrl = request.getScheme() + "://" + request.getServerName();
+	    return serverUrl  + baseDirectory + folderName + "/" + fileName;
 	}
+
 
 	public static MediaType getFileExtensionName(String fileName) {
 		String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
