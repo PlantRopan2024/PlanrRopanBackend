@@ -2,7 +2,6 @@ package com.plants.customer.controller;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -19,8 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.plants.Dao.CustomerDao;
 import com.plants.Service.cusReferralService;
 import com.plants.config.JwtUtil;
-import com.plants.entities.AgentMain;
 import com.plants.entities.CustomerMain;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/cusReferral")
@@ -86,8 +86,8 @@ public class CusReferralController {
 	
 	@GetMapping("/getNotificationHistoryCus")
 	public ResponseEntity<Map<String, Object>> getNotificationHistoryCus(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-			@RequestParam(value = "pageNumber",defaultValue = "0" ,required = false) Integer pageNumber,
-			@RequestParam(value = "pageSize",defaultValue = "15" ,required = false) Integer pageSize) {
+			@RequestParam(defaultValue = "0" ,required = false) Integer pageNumber,
+			@RequestParam(defaultValue = "15" ,required = false) Integer pageSize,HttpServletRequest request) {
 	    Map<String, Object> response = new HashMap<>();
 	    String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
 	    String mobileNumber = jwtUtil.extractUsername(jwtToken);
@@ -97,7 +97,12 @@ public class CusReferralController {
 	        response.put("error", "Invalid or expired token");
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 	    }
-	    return cusreferralService.getNotificationHistoryCus(exitsCustomer,pageNumber,pageSize);
+	    
+	 // **Construct Dynamic Base URL**
+	 		String baseUrl = request.getScheme() + "://" + request.getServerName()
+	 				+ (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort())
+	 				+ request.getContextPath() + "/cusReferral/getNotificationHistoryCus";
+	    return cusreferralService.getNotificationHistoryCus(exitsCustomer,pageNumber,pageSize,baseUrl);
 	}
 
 

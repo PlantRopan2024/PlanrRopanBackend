@@ -105,7 +105,7 @@ public class cusReferralService {
 		                 "Happy Gardening,\n" +
 		                 "Team Plant Ropan";
 	        try {
-	            sendNotificationToAgent(cusMainReferral, "Referral Reward Earned 🎉", message);
+	            sendNotificationToCust(cusMainReferral, "Referral Reward Earned 🎉", message);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            response.put("notification_status", "failed");
@@ -187,56 +187,49 @@ public class cusReferralService {
 	    }
 	    return ResponseEntity.ok(response);
 	}
-
-	public ResponseEntity<Map<String, Object>> getNotificationHistoryCus(CustomerMain existingCustomer, int page, int size) {
-	    Map<String, Object> response = new HashMap<>();
-	    List<Map<String, Object>> notifyList = new ArrayList<>();
-	    try {
-	        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+	
+	
+	public ResponseEntity<Map<String, Object>> getNotificationHistoryCus(CustomerMain existingCustomer, int pageNumber,
+			int pageSize, String baseUrl) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			int pageIndex = Math.max(pageNumber - 1, 0);
+			Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
 	        Page<com.plants.entities.Notification> notificationPage = notificationRepo.findByCustomerMainAndTypeIId(existingCustomer, "Customer", pageable);
+	       
+			if (notificationPage.isEmpty()) {
+				List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+				Map<String, Object> pagination = Utils.buildPaginationResponse(notificationPage, baseUrl, pageSize,
+						emptyOrdersList);
+				pagination.put("message", "No Notifications found");
+				response.put("success", true);
+				response.put("response", pagination);
+				return ResponseEntity.ok(response);
+			}
 
-	        for (com.plants.entities.Notification notification : notificationPage.getContent()) {
-	            Map<String, Object> notifyHist = new HashMap<>();
-	            notifyHist.put("id", notification.getId());
-	            notifyHist.put("message", notification.getMessage());
-	            notifyHist.put("title", notification.getTitle());
-	            notifyHist.put("date", notification.getCreatedAt());
-	            notifyHist.put("isRead", notification.isRead());
-	            notifyList.add(notifyHist);
-	        }
-
-	        response.put("notifyHistory", notifyList);
-	        response.put("message", notificationPage.isEmpty() ? "No Notifications found" : "Notifications found");
-	        response.put("status", !notificationPage.isEmpty());
-	        response.put("currentPage", notificationPage.getNumber());
-	        response.put("totalPages", notificationPage.getTotalPages());
-	        response.put("totalElements", notificationPage.getTotalElements());
-
-	        // Next Page URL
-	        if (notificationPage.hasNext()) {
-	            String nextPageUrl = "/cusReferral/getNotificationHistoryCus?pageNumber=" + (notificationPage.getNumber() + 1) + "&pageSize=" + size;
-	            response.put("nextPageUrl", nextPageUrl);
-	        } else {
-	            response.put("nextPageUrl", null);
-	        }
-
-	        // Previous Page URL
-	        if (notificationPage.hasPrevious()) {
-	            String prevPageUrl = "/cusReferral/getNotificationHistoryCus?pageNumber=" + (notificationPage.getNumber() - 1) + "&pageSize=" + size;
-	            response.put("prevPageUrl", prevPageUrl);
-	        } else {
-	            response.put("prevPageUrl", null);
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        response.put("status", false);
-	        response.put("message", "Something went wrong!");
-	    }
-
-	    return ResponseEntity.ok(response);
+			List<Map<String, Object>> notifyList = new ArrayList<>();
+			for (com.plants.entities.Notification notification : notificationPage) {
+				Map<String, Object> notifyHist = new HashMap<>();
+				notifyHist.put("id", notification.getId());
+				notifyHist.put("message", notification.getMessage());
+				notifyHist.put("title", notification.getTitle());
+				notifyHist.put("date", notification.getCreatedAt());
+				notifyHist.put("isRead", notification.isRead());
+				notifyList.add(notifyHist);
+			}
+			Map<String, Object> pagination = Utils.buildPaginationResponse(notificationPage, baseUrl, pageSize,
+					notifyList);
+			response.put("success", true);
+			response.put("response", pagination);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put("success", false);
+			response.put("message", "Something went wrong.");
+		}
+		return ResponseEntity.ok(response);
 	}
 
-	public String sendNotificationToAgent(CustomerMain customerMain, String title, String message) {
+	public String sendNotificationToCust(CustomerMain customerMain, String title, String message) {
 	    String response = "";
 	    try {
 	    	if (customerMain.getFirebasetokenCus() == null || customerMain.getFirebasetokenCus().isEmpty()) {

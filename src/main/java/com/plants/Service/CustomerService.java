@@ -13,12 +13,17 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.plants.Dao.AppRatingRepo;
 import com.plants.Dao.CustomerDao;
 import com.plants.Dao.OffersAppliedRepo;
+import com.plants.Dao.OrderRepo;
 import com.plants.Dao.userDao;
 import com.plants.config.JwtUtil;
 import com.plants.config.Utils;
@@ -29,6 +34,7 @@ import com.plants.entities.CustomerMain;
 import com.plants.entities.FertilizerRequest;
 import com.plants.entities.Offers;
 import com.plants.entities.OffersApplied;
+import com.plants.entities.Order;
 import com.plants.entities.Plans;
 
 @Service
@@ -69,6 +75,9 @@ public class CustomerService {
 
 	@Autowired
 	private JwtUtil jwtUtil;
+	
+	@Autowired
+	private OrderRepo orderRepo;
 
 	@Autowired
 	OfferService offerService;
@@ -552,5 +561,82 @@ public class CustomerService {
 			}
 		}
 		return unusedOffers;
+	}
+	
+	public ResponseEntity<Map<String, Object>> getActiveOrder(CustomerMain exitsCustomer, int pageNumber, int pageSize, String baseUrl) {
+	    Map<String, Object> response = new HashMap<>();
+
+	    try {
+	        int pageIndex = Math.max(pageNumber - 1, 0);
+	        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
+	        Page<Order> getOrdersDetails = orderRepo.geActiveOrderCustomer(exitsCustomer.getPrimarykey(), pageable);
+
+	        if (getOrdersDetails.isEmpty()) {
+	            List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+	            Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, emptyOrdersList);
+	            pagination.put("message", "You have no orders."); 
+	            response.put("success", true);
+	            response.put("response", pagination);
+	            return ResponseEntity.ok(response);
+	        }
+	        List<Map<String, Object>> ordersList = new ArrayList<>();
+		    for (Order order : getOrdersDetails) {
+		        Map<String, Object> orderDetails = new HashMap<>();
+		        orderDetails.put("OrderNumber", order.getOrderId());
+		        orderDetails.put("order_status", order.getOrderStatus());
+		        orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
+		        orderDetails.put("PlanName", order.getPlans().getPlansName());
+		        orderDetails.put("serviceName", order.getPlans().getServicesName().getName());
+		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+		        orderDetails.put("status", true);
+		        ordersList.add(orderDetails);
+		    }
+	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
+	        response.put("success", true);
+	        response.put("response", pagination);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("success", false);
+	        response.put("message", "Something went wrong.");
+	    }
+	    return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, Object>> getCompeletedOrder(CustomerMain exitsCustomer, int pageNumber, int pageSize, String baseUrl) {
+	    Map<String, Object> response = new HashMap<>();
+
+	    try {
+	        int pageIndex = Math.max(pageNumber - 1, 0);
+	        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
+	        Page<Order> getOrdersDetails = orderRepo.getCompletedOrderCus(exitsCustomer.getPrimarykey(), pageable);
+
+	        if (getOrdersDetails.isEmpty()) {
+	            List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+	            Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, emptyOrdersList);
+	            pagination.put("message", "You have No Order."); 
+	            response.put("success", true);
+	            response.put("response", pagination);
+	            return ResponseEntity.ok(response);
+	        }
+	        List<Map<String, Object>> ordersList = new ArrayList<>();
+		    for (Order order : getOrdersDetails) {
+		        Map<String, Object> orderDetails = new HashMap<>();
+		        orderDetails.put("OrderNumber", order.getOrderId());
+		        orderDetails.put("order_status", order.getOrderStatus());
+		        orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
+		        orderDetails.put("PlanName", order.getPlans().getPlansName());
+		        orderDetails.put("ServiceName", order.getPlans().getServicesName().getName());
+		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+		        ordersList.add(orderDetails);
+		    }
+	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
+	        response.put("success", true);
+	        response.put("response", pagination);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.put("success", false);
+	        response.put("message", "Something went wrong.");
+	    }
+	    return ResponseEntity.ok(response);
 	}
 }
