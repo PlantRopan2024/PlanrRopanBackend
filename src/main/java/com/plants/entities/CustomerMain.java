@@ -22,6 +22,7 @@ public class CustomerMain {
 	private String firstName;
 	private String lastName;
 	private String emailId;
+	private String gender;
 	@Column(unique = true)
 	private String mobileNumber;
 	private String address;
@@ -54,7 +55,7 @@ public class CustomerMain {
 	public CustomerMain(int primarykey, String firstName, String lastName, String emailId, String mobileNumber,
 			String address, String city, double latitude, double loggitude, String token, String firebasetokenCus,
 			boolean isProfileCompleted, String cusReferralCode, List<WalletHistory> referralHistory,
-			List<Notification> notification,boolean isReferral) {
+			List<Notification> notification,boolean isReferral,String gender) {
 		super();
 		this.primarykey = primarykey;
 		this.firstName = firstName;
@@ -72,6 +73,7 @@ public class CustomerMain {
 		this.referralHistory = referralHistory;
 		this.notification = notification;
 		this.isReferral=isReferral;
+		this.gender=gender;
 	}
 
 	public String getToken() {
@@ -185,7 +187,12 @@ public class CustomerMain {
 	public void setReferral(boolean isReferral) {
 		this.isReferral = isReferral;
 	}
-	
-	
-	
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
 }

@@ -56,6 +56,8 @@ import com.plants.entities.Plans;
 import com.plants.entities.RejectedOrders;
 import com.plants.entities.WorkCompletedPhoto;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Service
 public class PaymentServices {
 
@@ -132,13 +134,20 @@ public class PaymentServices {
 				response.put("message", "Plans are not avaialbe");
 				return ResponseEntity.ok(response);
 			}
+			
+			Offers offer = null;
+			
 			System.out.println("  offer cide  = "+ request.getofferCode());
-			Offers offer = offerService.getOffersCode(request.getofferCode());
-			if (offer == null) {
-				response.put("status", false);
-				response.put("message", "Offers code are not avaialbe");
-				return ResponseEntity.ok(response);
+			
+			if(request.getOrderSummaryRequest().isCouponApplied()) {
+				 offer = offerService.getOffersCode(request.getofferCode());
+				if (offer == null) {
+					response.put("status", false);
+					response.put("message", "Offers code are not avaialbe");
+					return ResponseEntity.ok(response);
+				}
 			}
+			
 			
 			OrderSummaryRequest orderSummaryRequest = request.getOrderSummaryRequest();
 
@@ -198,7 +207,9 @@ public class PaymentServices {
 			
 			calculateOrderEarning(request,saveOrders);
 			// coupun applied by the customer
-			appliedOffers(request,saveOrders,offer,exitsCustomer);
+			if(request.getOrderSummaryRequest().isCouponApplied()) {
+				appliedOffers(request,saveOrders,offer,exitsCustomer);
+			}
 			
 
 		//	response.put("amount", saveOrders.getTotalAmount());
@@ -372,7 +383,7 @@ public class PaymentServices {
 	}
 
 
-	public ResponseEntity<Map<String, Object>> checkOrderAssigned(CustomerMain exitsCustomer, Map<String, Object> request) {
+	public ResponseEntity<Map<String, Object>> checkOrderAssigned(CustomerMain exitsCustomer, Map<String, Object> request,HttpServletRequest requestUrl) {
 		Map<String, Object> response = new HashMap<>();
 		String OrderNumber = (String) request.get("OrderNumber");
 		try{
@@ -386,12 +397,16 @@ public class PaymentServices {
 				int roundedTime = (int) Math.ceil(getEstimatetime);
 
 				System.out.println(" get estimate time --- " + roundedTime);
+				
+				String selfieImageUrl = Utils.findImgPath(requestUrl,uploadDir, getOrdersDetails.getAgentMain().getMobileNumber(), getOrdersDetails.getAgentMain().getSelfieImg());
 
+				
 				// order assigned has been get all details
 				Map<String, Object> agentDetails = new HashMap<String, Object>();
 				agentDetails.put("agentName", "I'm " + getOrdersDetails.getAgentMain().getFirstName() + " "
 						+ getOrdersDetails.getAgentMain().getLastName() + ", your gardner");
 				agentDetails.put("agentMobileNo", getOrdersDetails.getAgentMain().getMobileNumber());
+				agentDetails.put("selfieImageUrl", selfieImageUrl);
 				agentDetails.put("otpCode", getOrdersDetails.getShareCode());
 				agentDetails.put("arrivalTime", "Arriving in " + roundedTime + " minutes");
 

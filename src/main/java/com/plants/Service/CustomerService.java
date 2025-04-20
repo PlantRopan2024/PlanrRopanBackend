@@ -140,6 +140,7 @@ public class CustomerService {
 				customermain.setFirstName(RequestcustomerMain.getFirstName());
 				customermain.setLastName(RequestcustomerMain.getLastName());
 				customermain.setEmailId(RequestcustomerMain.getEmailId());
+				customermain.setGender(RequestcustomerMain.getGender());
 				customermain.setAddress(RequestcustomerMain.getAddress());
 				customermain.setCity(RequestcustomerMain.getCity());
 				customermain.setLatitude(RequestcustomerMain.getLatitude());
@@ -584,6 +585,7 @@ public class CustomerService {
 		        Map<String, Object> orderDetails = new HashMap<>();
 		        orderDetails.put("OrderNumber", order.getOrderId());
 		        orderDetails.put("order_status", order.getOrderStatus());
+		        orderDetails.put("address", order.getAddress());
 		        orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
 		        orderDetails.put("PlanName", order.getPlans().getPlansName());
 		        orderDetails.put("serviceName", order.getPlans().getServicesName().getName());
@@ -624,6 +626,7 @@ public class CustomerService {
 		        orderDetails.put("OrderNumber", order.getOrderId());
 		        orderDetails.put("order_status", order.getOrderStatus());
 		        orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
+		        orderDetails.put("address", order.getAddress());
 		        orderDetails.put("PlanName", order.getPlans().getPlansName());
 		        orderDetails.put("ServiceName", order.getPlans().getServicesName().getName());
 		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
