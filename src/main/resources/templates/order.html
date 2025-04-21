@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="order">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+	<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+	<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
+	<link rel="stylesheet" href="css/order.css" th:href="@{/css/order.css}" />
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/1c26fb5c51.js" th:src="@{js/1c26fb5c51.js}"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>\
+	<script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
+	<script src="/js/order.js" th:src="@{js/order.js}"></script>
+	<title>Welcome to Plant Ropan</title>
+</head>
+
+<body ng-controller="orders">
+	<!--  header.html  -->
+	<div th:include="header :: nav-bar"></div>
+
+	<!--  side nav bar  -->
+	<div th:include="sideNavbar :: sidenav-bar"></div>
+
+	<main class="mt-5 pt-3">
+		<div class="container-fluid">
+
+			<div class="select-container">
+				<div class="row mt-5">
+					<div class="col-md-12">
+						<ul class="nav nav-tabs" id="myTab" role="tablist">
+							<li class="nav-item" role="presentation">
+								<button class="nav-link  active" id="pending-order" data-bs-toggle="tab"
+									data-bs-target="#pending-order-pane" type="button" role="tab"
+									aria-controls="pending-order-pane" aria-selected="true">
+									Pendings Orders</button>
+							</li>
+							<li class="nav-item" role="presentation">
+								<button class="nav-link " id="accpeted-order" data-bs-toggle="tab"
+									data-bs-target="#accpeted-order-pane" type="button" role="tab"
+									aria-controls="accpeted-order-pane" aria-selected="false">Accpeted Orders </button>
+							</li>
+							<li class="nav-item" role="presentation">
+								<button class="nav-link " id="completed-order" data-bs-toggle="tab"
+									data-bs-target="#completed-order-pane" type="button" role="tab"
+									aria-controls="completed-order-pane" aria-selected="false">Completed Orders
+								</button>
+							</li>
+
+							<li class="nav-item" role="presentation">
+								<button class="nav-link " id="rejected-order" data-bs-toggle="tab"
+									data-bs-target="#rejected-order-pane" type="button" role="tab"
+									aria-controls="rejected-order-pane" aria-selected="false">Rejected Orders </button>
+							</li>
+
+
+						</ul>
+						<div class="tab-content" id="myTabContent">
+							<div class="tab-pane fade show active" id="pending-order-pane" role="tabpanel"
+								aria-labelledby="pending-order" tabindex="0">
+								<div class="table-responsive">
+									<table class="table table-responsive table-striped">
+										<thead class="table-dark">
+											<tr>
+												<th scope="col">Order ID</th>
+												<th scope="col">Customer Details</th>
+												<th scope="col">Maali Details</th>
+												<th scope="col">Plan Details</th>
+												<th scope="col">Order Status</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-if="pendingOrders.length === 0">
+												<td colspan="4" class="text-center">{{ pendingMessage || 'No pending
+													orders available.' }}</td>
+											</tr>
+											<tr ng-repeat="order in pendingOrders">
+												<td>{{ order.OrderNumber }}</td>
+												<td>{{ order.customerName }}<br>{{ order.customerPhone }}</td>
+												<td>{{ order.maaliName }}<br>{{ order.maaliPhone }}</td>
+												<td>{{ order.planName }}<br>{{ order.planAmount }}</td>
+												<td>{{ order.order_Status }}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="accpeted-order-pane" role="tabpanel"
+								aria-labelledby="accpeted-order" tabindex="0">
+								<div class="table-responsive">
+									<table class="table table-responsive table-striped">
+										<thead class="table-dark">
+											<tr>
+												<th scope="col">Order ID</th>
+												<th scope="col">Customer Details</th>
+												<th scope="col">Maali Details</th>
+												<th scope="col">Plan Details</th>
+												<th scope="col">Order Status</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-if="accpetedOrders.length === 0">
+												<td colspan="4" class="text-center">{{ accpetedMessage || 'No Accpeted orders available.' }}</td>
+											</tr>
+											<tr ng-repeat="order in accpetedOrders">
+												<td>{{ order.OrderNumber }}</td>
+												<td>{{ order.customerName }}<br>{{ order.customerPhone }}</td>
+												<td>{{ order.maaliName }}<br>{{ order.maaliPhone }}</td>
+												<td>{{ order.planName }}<br>{{ order.planAmount }}</td>
+												<td>{{ order.order_Status }}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="completed-order-pane" role="tabpanel"
+								aria-labelledby="completed-order" tabindex="0">
+								<div class="table-responsive">
+									<table class="table table-responsive table-striped">
+										<thead class="table-dark">
+											<tr>
+												<th scope="col">Order ID</th>
+												<th scope="col">Customer Details</th>
+												<th scope="col">Maali Details</th>
+												<th scope="col">Plan Details</th>
+												<th scope="col">Order Status</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-if="completedOrders.length === 0">
+												<td colspan="4" class="text-center">{{ completedMessage || 'No orders completed available.' }}</td>
+											</tr>
+											<tr ng-repeat="order in completedOrders">
+												<td>{{ order.OrderNumber }}</td>
+												<td>{{ order.customerName }}<br>{{ order.customerPhone }}</td>
+												<td>{{ order.maaliName }}<br>{{ order.maaliPhone }}</td>
+												<td>{{ order.planName }}<br>{{ order.planAmount }}</td>
+												<td>{{ order.order_status }}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="tab-pane fade" id="rejected-order-pane" role="tabpanel"
+								aria-labelledby="rejected-order" tabindex="0">
+								<div class="table-responsive">
+									<table class="table table-responsive table-striped">
+										<thead class="table-dark">
+											<tr>
+												<th scope="col">Order ID</th>
+												<th scope="col">Customer Details</th>
+												<th scope="col">Maali Details</th>
+												<th scope="col">Plan Details</th>
+												<th scope="col">Order Status</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-if="rejectedOrders.length === 0">
+												<td colspan="4" class="text-center">{{ rejectedMessage || 'No orders Rejected available.' }}</td>
+											</tr>
+											<tr ng-repeat="order in rejectedOrders">
+												<td>{{ order.OrderNumber }}</td>
+												<td>{{ order.customerName }}<br>{{ order.customerPhone }}</td>
+												<td>{{ order.maaliName }}<br>{{ order.maaliPhone }}</td>
+												<td>{{ order.planName }}<br>{{ order.planAmount }}</td>
+												<td>{{ order.order_status }}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+	<!--Main Container End-->
+</body>
+
+</html>

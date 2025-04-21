@@ -65,6 +65,7 @@ public class CusMobLoginApi {
 			data.put("emailId", exitsCustomer.getEmailId());
 			data.put("mobileNumber", exitsCustomer.getMobileNumber());
 			data.put("address", exitsCustomer.getAddress());
+			data.put("gender", exitsCustomer.getGender());
 			data.put("city", exitsCustomer.getCity());
 			data.put("latitude", exitsCustomer.getLatitude());
 			data.put("loggitude", exitsCustomer.getLoggitude());

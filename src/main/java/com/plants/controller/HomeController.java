@@ -69,4 +69,9 @@ public class HomeController {
 	public  String addOffers() {
 		return "addOffers";
 	}
+	
+	@GetMapping("/order")
+	public  String orders() {
+		return "order";
+	}
 }

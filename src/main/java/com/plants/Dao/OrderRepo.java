@@ -26,12 +26,18 @@ public interface OrderRepo extends JpaRepository<Order, Integer>{
 	@Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk AND o.orderStatus IN ('ACCEPTED','START','REACHED','START_TIME','END_TIME')")
 	Page<Order> getOrderAssignedListPaganation(@Param("agentPk") int agentPk, Pageable pageable);
 	
+	@Query("SELECT o FROM Order o WHERE o.orderStatus IN ('ACCEPTED','START','REACHED','START_TIME','END_TIME')")
+	Page<Order> getOrderAssignedListWebPaganation(Pageable pageable);
+	
 	@Query("SELECT o FROM Order o WHERE o.customerMain.primarykey = :cusPk AND o.orderStatus IN ('NOT_ACCPETED','ACCEPTED','START','REACHED','START_TIME','END_TIME')")
 	Page<Order> geActiveOrderCustomer(@Param("cusPk") int cusPk, Pageable pageable);
 
     
     @Query("SELECT o FROM Order o WHERE o.agentMain.AgentIDPk = :agentPk and o.orderStatus = 'COMPLETED'")
     Page<Order> getOrderCompletedListPaganation(@Param("agentPk") int agentPk, Pageable pageable);
+    
+    @Query("SELECT o FROM Order o WHERE o.orderStatus = 'COMPLETED'")
+    Page<Order> getOrderCompletedListWebPaganation(Pageable pageable);
     
     @Query("SELECT o FROM Order o WHERE o.customerMain.primarykey = :cusPk and o.orderStatus = 'COMPLETED'")
     Page<Order> getCompletedOrderCus(@Param("cusPk") int cusPk, Pageable pageable);
