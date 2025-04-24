@@ -430,7 +430,10 @@ public class PaymentServices {
 				response.put("status", true);
 
 			} else {
-				response.put("message", "Please wait for this Order gardner assigning");
+				Map<String, Object> notAssignedResponse = new HashMap<String, Object>();
+				notAssignedResponse.put("message", "Please wait for this Order gardner assigning");
+				notAssignedResponse.put("status", false);
+				response.put("data", notAssignedResponse);
 				response.put("status", true);
 			}
 			// response.put("agentsWithinRange", agentsWithinRange); // Send the list of
