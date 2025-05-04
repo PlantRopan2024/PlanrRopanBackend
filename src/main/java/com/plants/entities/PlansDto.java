@@ -1,121 +1,123 @@
 package com.plants.entities;
 
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PlansDto {
 
-    private int servicesName;
-    private String plansName;
+	private String plansName;
+    private String planPacks;
     private String plansRs;
     private String timeDuration;
-
+    
     @JsonProperty("UptoPots") 
     private String uptoPots;
-
-    private String includingServicesName;
     private String planType;
-    private String planPacks;
-
-    @JsonProperty("isActive")
-    private boolean active;
-
-    private List<FertilizerDTO> fertilizers;
+	private String servicesName;
+	private String serviceNamePk;
+    private List<IncludingServiceDto> includingServicesList; // Including services
+    private MultipartFile imageFile; // Image file for the plan
 
     // Getters and Setters
-    public int getServicesName() {
-        return servicesName;
-    }
-
-    public void setServicesName(int servicesName) {
-        this.servicesName = servicesName;
-    }
-
     public String getPlansName() {
-        return plansName;
-    }
+		return plansName;
+	}
 
-    public void setPlansName(String plansName) {
-        this.plansName = plansName;
-    }
+	public void setPlansName(String plansName) {
+		this.plansName = plansName;
+	}
 
-    public String getPlansRs() {
-        return plansRs;
-    }
+	public String getPlanPacks() {
+		return planPacks;
+	}
 
-    public void setPlansRs(String plansRs) {
-        this.plansRs = plansRs;
-    }
+	public void setPlanPacks(String planPacks) {
+		this.planPacks = planPacks;
+	}
 
-    public String getTimeDuration() {
-        return timeDuration;
-    }
+	public String getPlansRs() {
+		return plansRs;
+	}
 
-    public void setTimeDuration(String timeDuration) {
-        this.timeDuration = timeDuration;
-    }
+	public void setPlansRs(String plansRs) {
+		this.plansRs = plansRs;
+	}
 
-    public String getUptoPots() {
-        return uptoPots;
-    }
+	public String getUptoPots() {
+		return uptoPots;
+	}
 
-    public void setUptoPots(String uptoPots) {
-        this.uptoPots = uptoPots;
-    }
+	public void setUptoPots(String uptoPots) {
+		this.uptoPots = uptoPots;
+	}
 
-    public String getIncludingServicesName() {
-        return includingServicesName;
-    }
+	public String getTimeDuration() {
+		return timeDuration;
+	}
 
-    public void setIncludingServicesName(String includingServicesName) {
-        this.includingServicesName = includingServicesName;
-    }
+	public void setTimeDuration(String timeDuration) {
+		this.timeDuration = timeDuration;
+	}
 
-    public String getPlanType() {
-        return planType;
-    }
+	public String getPlanType() {
+		return planType;
+	}
 
-    public void setPlanType(String planType) {
-        this.planType = planType;
-    }
+	public void setPlanType(String planType) {
+		this.planType = planType;
+	}
 
-    public String getPlanPacks() {
-        return planPacks;
-    }
+	public String getServicesName() {
+		return servicesName;
+	}
 
-    public void setPlanPacks(String planPacks) {
-        this.planPacks = planPacks;
-    }
+	public void setServicesName(String servicesName) {
+		this.servicesName = servicesName;
+	}
 
-    public boolean isActive() {
-        return active;
-    }
+	public String getServiceNamePk() {
+		return serviceNamePk;
+	}
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+	public void setServiceNamePk(String serviceNamePk) {
+		this.serviceNamePk = serviceNamePk;
+	}
 
-    public List<FertilizerDTO> getFertilizers() {
-        return fertilizers;
-    }
+	public List<IncludingServiceDto> getIncludingServicesList() {
+		return includingServicesList;
+	}
 
-    public void setFertilizers(List<FertilizerDTO> fertilizers) {
-        this.fertilizers = fertilizers;
-    }
+	public void setIncludingServicesList(List<IncludingServiceDto> includingServicesList) {
+		this.includingServicesList = includingServicesList;
+	}
 
-    @Override
-    public String toString() {
-        return "PlansDto{" +
-                "servicesName=" + servicesName +
-                ", plansName='" + plansName + '\'' +
-                ", plansRs='" + plansRs + '\'' +
-                ", timeDuration='" + timeDuration + '\'' +
-                ", uptoPots='" + uptoPots + '\'' +
-                ", includingServicesName='" + includingServicesName + '\'' +
-                ", planType='" + planType + '\'' +
-                ", planPacks='" + planPacks + '\'' +
-                ", active=" + active +
-                ", fertilizers=" + fertilizers +
-                '}';
+	public MultipartFile getImageFile() {
+		return imageFile;
+	}
+
+	public void setImageFile(MultipartFile imageFile) {
+		this.imageFile = imageFile;
+	}
+
+    public static class IncludingServiceDto {
+        public String getHeaderName() {
+			return headerName;
+		}
+		public void setHeaderName(String headerName) {
+			this.headerName = headerName;
+		}
+		public Integer getPrimaryKey() {
+			return primaryKey;
+		}
+		public void setPrimaryKey(Integer primaryKey) {
+			this.primaryKey = primaryKey;
+		}
+		private String headerName;
+        private Integer primaryKey;
+
+        // Getters and Setters
     }
 }

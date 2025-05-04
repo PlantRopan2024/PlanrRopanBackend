@@ -58,47 +58,47 @@ public class PlansAdd {
 	@Autowired
 	PlansServices plansServices;
 	
-	@PostMapping("/addPlans")
-	@ResponseBody
-	public Map<String, String> addPlan(@RequestBody PlansDto plans) {
-		Map<String, String> response = new HashMap<>();
-		try {
-		    serviceName serviceList = this.serviceNameDao.getServiceId(plans.getServicesName());
-		    Plans savePlan = new Plans();
-			savePlan.setPlansName(plans.getPlansName());
-			savePlan.setPlanPacks(plans.getPlanPacks());
-			savePlan.setPlansRs(plans.getPlansRs());
-			savePlan.setPlanType(plans.getPlanType());
-			savePlan.setTimeDuration(plans.getTimeDuration());
-			savePlan.setUptoPots(plans.getUptoPots());
-			savePlan.setActive(plans.isActive());
-			savePlan.setIncludingServicesName(plans.getIncludingServicesName());
-			savePlan.setServicesName(serviceList);
-			
-	        List<Fertilizer> fertilizers = plans.getFertilizers().stream().map(fertilizerDto -> {
-	            Fertilizer fertilizer = new Fertilizer();
-	            fertilizer.setFertilizerName(fertilizerDto.getFertilizerName());
-	            fertilizer.setAmount(fertilizerDto.getAmount());
-	            fertilizer.setKg(fertilizerDto.getKg());
-	            return fertilizer;
-	        }).collect(Collectors.toList());
-
-	        savePlan.setFertilizers(fertilizers);
-			Plans savedPlan = this.userdao.save(savePlan);
-			for(Fertilizer fera : fertilizers) {
-				fera.setAmount(fera.getAmount());
-				fera.setFertilizerName(fera.getFertilizerName());
-				fera.setKg(fera.getKg());
-				fera.setPlans(savedPlan);
-				this.fertlizerRepo.save(fera);
-			}
-			response.put("message", "Plans Add Successfully");
-		} catch (Exception e) {
-			e.printStackTrace();
-			response.put("message", "Error while adding plans");
-		}
-		return response;
-	}
+//	@PostMapping("/addPlans")
+//	@ResponseBody
+//	public Map<String, String> addPlan(@RequestBody PlansDto plans) {
+//		Map<String, String> response = new HashMap<>();
+//		try {
+//		    serviceName serviceList = this.serviceNameDao.getServiceId(plans.getServicesName());
+//		    Plans savePlan = new Plans();
+//			savePlan.setPlansName(plans.getPlansName());
+//			savePlan.setPlanPacks(plans.getPlanPacks());
+//			savePlan.setPlansRs(plans.getPlansRs());
+//			savePlan.setPlanType(plans.getPlanType());
+//			savePlan.setTimeDuration(plans.getTimeDuration());
+//			savePlan.setUptoPots(plans.getUptoPots());
+//			savePlan.setActive(plans.isActive());
+//			//savePlan.setIncludingServicesName(plans.getIncludingServicesName());
+//			savePlan.setServicesName(serviceList);
+//			
+////	        List<Fertilizer> fertilizers = plans.getFertilizers().stream().map(fertilizerDto -> {
+////	            Fertilizer fertilizer = new Fertilizer();
+////	            fertilizer.setFertilizerName(fertilizerDto.getFertilizerName());
+////	            fertilizer.setAmount(fertilizerDto.getAmount());
+////	            fertilizer.setKg(fertilizerDto.getKg());
+////	            return fertilizer;
+////	        }).collect(Collectors.toList());
+//
+//	        savePlan.setFertilizers(fertilizers);
+//			Plans savedPlan = this.userdao.save(savePlan);
+//			for(Fertilizer fera : fertilizers) {
+//				fera.setAmount(fera.getAmount());
+//				fera.setFertilizerName(fera.getFertilizerName());
+//				fera.setKg(fera.getKg());
+//				fera.setPlans(savedPlan);
+//				this.fertlizerRepo.save(fera);
+//			}
+//			response.put("message", "Plans Add Successfully");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			response.put("message", "Error while adding plans");
+//		}
+//		return response;
+//	}
 	
 	@GetMapping("/getServiceName")
 	public ResponseEntity<Map<String, Object>> getServiceName() {

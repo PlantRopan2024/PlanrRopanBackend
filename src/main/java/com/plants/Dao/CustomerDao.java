@@ -42,5 +42,8 @@ public interface CustomerDao extends CrudRepository<CustomerMain, Integer> {
 	@Query("select e FROM Plans e WHERE e.primaryKey = :id")
 	public Plans getPlansId(@Param("id") String id);
 	
+	@Query("select e FROM Plans e WHERE e.primaryKey = :id")
+	public Plans getPlansByPk(@Param("id") int id);
+	
 
 }

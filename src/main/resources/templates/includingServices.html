@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="viewIncludingService">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+	<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+	<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
+	<link rel="stylesheet" href="css/includingServices.css" th:href="@{/css/includingServices.css}" />
+	<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/1c26fb5c51.js" th:src="@{js/1c26fb5c51.js}"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>
+	<script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/ui-router/1.0.0-beta.3/angular-ui-router.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.29/angular-ui-router.min.js"></script>
+	<script src="/js/includingServices.js" th:src="@{js/includingServices.js}"></script>
+	<title>Welcome to Plant Ropan</title>
+</head>
+
+<body ng-controller="viewIncludingServicesCont">
+	<!--  header.html  -->
+	<div th:include="header :: nav-bar"></div>
+
+	<!--  side nav bar  -->
+	<div th:include="sideNavbar :: sidenav-bar"></div>
+
+	<main class="mt-5 pt-3">
+		<div class="container-fluid">
+			<!-- Cards -->
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<!-- Add Offers-->
+							<button type="button" class="btn btn-primary" data-bs-toggle="modal"
+								data-bs-target="#addIncludingService">
+								Add Incuding Service
+							</button>
+						</div>
+
+						<div class="card-body">
+							<div class="select-container">
+								<div class="table-responsive">
+									<table class="table table-responsive table-striped">
+										<thead class="table-dark">
+											<tr>
+												<th scope="col">Including Service Name</th>		
+                                                <th scope="col">Including Service Details</th>																						
+												<th scope="col">Is Active</th>
+												<th scope="col">Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="viewIncudingServiceMainDatas in viewIncudingServiceMainData">
+												<td>{{viewIncudingServiceMainDatas.headerName}}</td>
+                                                <td>{{viewIncudingServiceMainDatas.headerNameDetails}}</td>
+												<td>{{ viewIncudingServiceMainDatas.active }}</td>
+												<td>
+													<button type="button" class="btn btn-success" ng-click="handleAction(viewIncudingServiceMainDatas.primaryKey, 'like')">
+                                                        <img th:src="@{/images/like.png}" alt="Icon" style="width: 16px; height: 16px;">
+                                                    </button>
+                                                   <button type="button" class="btn btn-success" ng-click="handleAction(viewIncudingServiceMainDatas.primaryKey, 'dislike')">
+                                                       <img th:src="@{/images/dislike.png}" alt="Icon" style="width: 16px; height: 16px;">
+                                                   </button>   
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<div class="modal fade" id="addIncludingService" tabindex="-1" aria-labelledby="addIncludingServiceLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addIncludingServiceLabel">Add Including Service</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form name="myIncludingServiceMainForm" ng-submit="submitIncludingServiceMain()">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="mb-3">
+									<input type="text" class="form-control" name="headerName"
+										   ng-model="headerName" placeholder="Enter the Service Including Name"
+										   required />
+									<div ng-show="myIncludingServiceMainForm.headerName.$touched && myIncludingServiceMainForm.headerName.$error.required"
+										 class="text-danger">
+										Service Name is required.
+									</div>
+								</div>
+                                <div class="mb-3">
+									<input type="text" class="form-control" name="nameDetails"
+										   ng-model="nameDetails" placeholder="Enter the Service Including Details"/>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<button id="myButton" type="submit" name="submit" class="btn btn-success">
+									Add
+								</button>
+								<button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

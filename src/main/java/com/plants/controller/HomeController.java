@@ -1,10 +1,7 @@
 package com.plants.controller;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -15,7 +12,7 @@ public class HomeController {
 	//@Value("${app.name}")
 	//private String appName;
 	
-	@RequestMapping("/login")
+	@GetMapping("/login")
 	public  String login() {
 		return "login";
 	}
@@ -73,5 +70,21 @@ public class HomeController {
 	@GetMapping("/order")
 	public  String orders() {
 		return "order";
+	}
+	
+	@GetMapping("/viewService")
+	public  String viewService() {
+		return "viewService";
+	}
+	
+	@GetMapping("/viewPlans")
+	public  String viewPlans() {
+		System.out.println(" templeate uview  plasna");
+		return "viewPlans";
+	}
+	
+	@GetMapping("/includingServices")
+	public  String includingServices() {
+		return "includingServices";
 	}
 }

@@ -19,5 +19,10 @@ public interface serviceNameDao extends JpaRepository<serviceName, Integer>{
 	
 	@Query("select e FROM serviceName e WHERE e.primaryKey = :id")
 	public serviceName getServiceId(@Param("id") int id);
-
+	
+	@Query("select e FROM serviceName e WHERE e.primaryKey = :id")
+	public serviceName getServicePk(@Param("id") String id);
+	
+	@Query("select e FROM serviceName e ")
+	public List<serviceName> getallViewService();
 }

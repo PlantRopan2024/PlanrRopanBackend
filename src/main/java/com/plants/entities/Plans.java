@@ -1,11 +1,13 @@
 package com.plants.entities;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,6 +35,11 @@ public class Plans {
 	private String reviewsCount;
 	private String ratingStar;
 	
+	private String planImage;
+	@Column(columnDefinition = "TEXT")
+	private String planImagePath;
+	private String planImage_type;   
+	
 	@ManyToOne
 	@JsonIgnore
 	@JoinColumn(name = "FK_SERVICE_NAME_ID")
@@ -46,14 +53,23 @@ public class Plans {
 	
 	@OneToMany(mappedBy = "plans")
     private List<Reviews> reviews = new ArrayList<>();
+	
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 	    
+	@Column(name = "updated_at", nullable = false, updatable = true)
+	private LocalDateTime updatedAt;
+	
 	public Plans() {
 		super();
 	}
 
 	public Plans(int primaryKey, String plansName, String plansRs, String timeDuration, String uptoPots,
 			String includingServicesName, String planType, String planPacks, String workDone, String varietiesTrimmed,
-			boolean isActive, serviceName servicesName,String reviewsCount,String ratingStar, List<Fertilizer> fertilizers, List<Reviews> reviews,List<IncludingService> includingService) {
+			boolean isActive, String reviewsCount, String ratingStar, String planImage, String planImagePath,
+			String planImage_type, serviceName servicesName, List<Fertilizer> fertilizers,
+			List<IncludingService> includingService, List<Reviews> reviews, LocalDateTime createdAt,
+			LocalDateTime updatedAt) {
 		super();
 		this.primaryKey = primaryKey;
 		this.plansName = plansName;
@@ -66,13 +82,20 @@ public class Plans {
 		this.workDone = workDone;
 		this.varietiesTrimmed = varietiesTrimmed;
 		this.isActive = isActive;
+		this.reviewsCount = reviewsCount;
+		this.ratingStar = ratingStar;
+		this.planImage = planImage;
+		this.planImagePath = planImagePath;
+		this.planImage_type = planImage_type;
 		this.servicesName = servicesName;
 		this.fertilizers = fertilizers;
+		this.includingService = includingService;
 		this.reviews = reviews;
-		this.includingService =includingService;
-		this.reviewsCount=reviewsCount;
-		this.ratingStar=ratingStar;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
 	}
+
+
 
 	public int getPrimaryKey() {
 		return primaryKey;
@@ -203,13 +226,52 @@ public class Plans {
 		this.ratingStar = ratingStar;
 	}
 	
-
 	public List<IncludingService> getIncludingService() {
 		return includingService;
 	}
 
 	public void setIncludingService(List<IncludingService> includingService) {
 		this.includingService = includingService;
+	}
+
+	public String getPlanImage() {
+		return planImage;
+	}
+
+	public void setPlanImage(String planImage) {
+		this.planImage = planImage;
+	}
+
+	public String getPlanImagePath() {
+		return planImagePath;
+	}
+
+	public void setPlanImagePath(String planImagePath) {
+		this.planImagePath = planImagePath;
+	}
+
+	public String getPlanImage_type() {
+		return planImage_type;
+	}
+
+	public void setPlanImage_type(String planImage_type) {
+		this.planImage_type = planImage_type;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
 	@Override

@@ -57,7 +57,7 @@ public class CustomerService {
 
 	@Autowired
 	private OTPService otpService;
-	
+
 	@Autowired
 	private SmsService smsService;
 
@@ -90,7 +90,11 @@ public class CustomerService {
 			return ResponseEntity.badRequest().body(Map.of("error", "Mobile number is required"));
 		}
 		String otp = otpService.generateOTP(mobileNumber);
-		this.smsService.sendOtp(mobileNumber, otp);
+		if (mobileNumber.equals("+917860487487")) {
+			response.put("message", "OTP sent successfully!");
+		} else {
+			this.smsService.sendOtp(mobileNumber, otp);
+		}
 		response.put("message", "OTP sent successfully!");
 		return ResponseEntity.ok(response);
 	}
@@ -220,7 +224,8 @@ public class CustomerService {
 		return ResponseEntity.ok(response);
 	}
 
-	public ResponseEntity<Map<String, Object>> orderSummaryCalculation(CustomerMain exitsCustomer,BookingRequest bookingRequest) {
+	public ResponseEntity<Map<String, Object>> orderSummaryCalculation(CustomerMain exitsCustomer,
+			BookingRequest bookingRequest) {
 		Map<String, Object> finalResponse = new HashMap<>();
 		try {
 			// Plans getPlan = this.customerDao.getPlansId(bookingRequest.getPlanId());
@@ -251,8 +256,9 @@ public class CustomerService {
 		}
 		return ResponseEntity.ok(finalResponse);
 	}
-	
-	public ResponseEntity<Map<String, Object>> applyCuopanCalulation(CustomerMain existingCustomer,Map<String, Object> request) {
+
+	public ResponseEntity<Map<String, Object>> applyCuopanCalulation(CustomerMain existingCustomer,
+			Map<String, Object> request) {
 		Map<String, Object> response = new HashMap<>();
 		Map<String, Object> billingDetails = new HashMap<String, Object>();
 		String offerCode = (String) request.get("offerCode");
@@ -284,21 +290,21 @@ public class CustomerService {
 				response.put("message", "Invalid Coupon");
 				return ResponseEntity.ok(response);
 			}
-			
+
 			if ("APPLY".equalsIgnoreCase(typeMessage)) {
-			// Subtract discount from Grand Total if the discount value is not null
-			grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
-			billingDetails.put("Grand Total", Double.parseDouble(String.format("%.2f", grandTotal)));
-			billingDetails.put("Coupon Applied", offer.getDisAmountRs());
-			response.put("message", "Offer applied successfully.");
+				// Subtract discount from Grand Total if the discount value is not null
+				grandTotal = grandTotal.subtract(BigDecimal.valueOf(offer.getDisAmountRs()));
+				billingDetails.put("Grand Total", Double.parseDouble(String.format("%.2f", grandTotal)));
+				billingDetails.put("Coupon Applied", offer.getDisAmountRs());
+				response.put("message", "Offer applied successfully.");
 			}
-			
+
 			if ("REMOVE".equalsIgnoreCase(typeMessage)) {
 				billingDetails.put("Grand Total", grandTotal);
 				billingDetails.put("Coupon Applied", 0.0);
 				response.put("message", "Offer has been removed.");
 			}
-			
+
 //			OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(),existingCustomer.getPrimarykey());
 //			if ("APPLY".equalsIgnoreCase(typeMessage)) {
 //				if (existingAppliedOffer == null) {
@@ -347,7 +353,8 @@ public class CustomerService {
 		return ResponseEntity.ok(response);
 	}
 
-	public ResponseEntity<Map<String, Object>> applyOffersCustomer(CustomerMain existingCustomer,Map<String, Object> request) {
+	public ResponseEntity<Map<String, Object>> applyOffersCustomer(CustomerMain existingCustomer,
+			Map<String, Object> request) {
 		Map<String, Object> response = new HashMap<>();
 		Map<String, Object> billingDetails = new HashMap<String, Object>();
 		String offerCode = (String) request.get("offerCode");
@@ -376,7 +383,8 @@ public class CustomerService {
 				return ResponseEntity.ok(response);
 			}
 
-			OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(),existingCustomer.getPrimarykey());
+			OffersApplied existingAppliedOffer = offersAppliedRepo.getAppliedOffers(offer.getPrimarykey(),
+					existingCustomer.getPrimarykey());
 			if ("APPLY".equalsIgnoreCase(typeMessage)) {
 				if (existingAppliedOffer == null) {
 					OffersApplied appliedOffer = new OffersApplied();
@@ -563,83 +571,89 @@ public class CustomerService {
 		}
 		return unusedOffers;
 	}
-	
-	public ResponseEntity<Map<String, Object>> getActiveOrder(CustomerMain exitsCustomer, int pageNumber, int pageSize, String baseUrl) {
-	    Map<String, Object> response = new HashMap<>();
 
-	    try {
-	        int pageIndex = Math.max(pageNumber - 1, 0);
-	        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
-	        Page<Order> getOrdersDetails = orderRepo.geActiveOrderCustomer(exitsCustomer.getPrimarykey(), pageable);
+	public ResponseEntity<Map<String, Object>> getActiveOrder(CustomerMain exitsCustomer, int pageNumber, int pageSize,
+			String baseUrl) {
+		Map<String, Object> response = new HashMap<>();
 
-	        if (getOrdersDetails.isEmpty()) {
-	            List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
-	            Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, emptyOrdersList);
-	            pagination.put("message", "You have no orders."); 
-	            response.put("success", true);
-	            response.put("response", pagination);
-	            return ResponseEntity.ok(response);
-	        }
-	        List<Map<String, Object>> ordersList = new ArrayList<>();
-		    for (Order order : getOrdersDetails) {
-		        Map<String, Object> orderDetails = new HashMap<>();
-		        orderDetails.put("OrderNumber", order.getOrderId());
-		        orderDetails.put("order_status", order.getOrderStatus());
-		        orderDetails.put("address", order.getAddress());
-		        orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
-		        orderDetails.put("PlanName", order.getPlans().getPlansName());
-		        orderDetails.put("serviceName", order.getPlans().getServicesName().getName());
-		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
-		        orderDetails.put("status", true);
-		        ordersList.add(orderDetails);
-		    }
-	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
-	        response.put("success", true);
-	        response.put("response", pagination);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        response.put("success", false);
-	        response.put("message", "Something went wrong.");
-	    }
-	    return ResponseEntity.ok(response);
+		try {
+			int pageIndex = Math.max(pageNumber - 1, 0);
+			Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
+			Page<Order> getOrdersDetails = orderRepo.geActiveOrderCustomer(exitsCustomer.getPrimarykey(), pageable);
+
+			if (getOrdersDetails.isEmpty()) {
+				List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+				Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize,
+						emptyOrdersList);
+				pagination.put("message", "You have no orders.");
+				response.put("success", true);
+				response.put("response", pagination);
+				return ResponseEntity.ok(response);
+			}
+			List<Map<String, Object>> ordersList = new ArrayList<>();
+			for (Order order : getOrdersDetails) {
+				Map<String, Object> orderDetails = new HashMap<>();
+				orderDetails.put("OrderNumber", order.getOrderId());
+				orderDetails.put("order_status", order.getOrderStatus());
+				orderDetails.put("address", order.getAddress());
+				orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
+				orderDetails.put("PlanName", order.getPlans().getPlansName());
+				orderDetails.put("serviceName", order.getPlans().getServicesName().getName());
+				orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+				orderDetails.put("status", true);
+				ordersList.add(orderDetails);
+			}
+			Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize,
+					ordersList);
+			response.put("success", true);
+			response.put("response", pagination);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put("success", false);
+			response.put("message", "Something went wrong.");
+		}
+		return ResponseEntity.ok(response);
 	}
-	
-	public ResponseEntity<Map<String, Object>> getCompeletedOrder(CustomerMain exitsCustomer, int pageNumber, int pageSize, String baseUrl) {
-	    Map<String, Object> response = new HashMap<>();
 
-	    try {
-	        int pageIndex = Math.max(pageNumber - 1, 0);
-	        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
-	        Page<Order> getOrdersDetails = orderRepo.getCompletedOrderCus(exitsCustomer.getPrimarykey(), pageable);
+	public ResponseEntity<Map<String, Object>> getCompeletedOrder(CustomerMain exitsCustomer, int pageNumber,
+			int pageSize, String baseUrl) {
+		Map<String, Object> response = new HashMap<>();
 
-	        if (getOrdersDetails.isEmpty()) {
-	            List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
-	            Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, emptyOrdersList);
-	            pagination.put("message", "You have No Order."); 
-	            response.put("success", true);
-	            response.put("response", pagination);
-	            return ResponseEntity.ok(response);
-	        }
-	        List<Map<String, Object>> ordersList = new ArrayList<>();
-		    for (Order order : getOrdersDetails) {
-		        Map<String, Object> orderDetails = new HashMap<>();
-		        orderDetails.put("OrderNumber", order.getOrderId());
-		        orderDetails.put("order_status", order.getOrderStatus());
-		        orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
-		        orderDetails.put("address", order.getAddress());
-		        orderDetails.put("PlanName", order.getPlans().getPlansName());
-		        orderDetails.put("ServiceName", order.getPlans().getServicesName().getName());
-		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
-		        ordersList.add(orderDetails);
-		    }
-	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
-	        response.put("success", true);
-	        response.put("response", pagination);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        response.put("success", false);
-	        response.put("message", "Something went wrong.");
-	    }
-	    return ResponseEntity.ok(response);
+		try {
+			int pageIndex = Math.max(pageNumber - 1, 0);
+			Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
+			Page<Order> getOrdersDetails = orderRepo.getCompletedOrderCus(exitsCustomer.getPrimarykey(), pageable);
+
+			if (getOrdersDetails.isEmpty()) {
+				List<Map<String, Object>> emptyOrdersList = new ArrayList<>();
+				Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize,
+						emptyOrdersList);
+				pagination.put("message", "You have No Order.");
+				response.put("success", true);
+				response.put("response", pagination);
+				return ResponseEntity.ok(response);
+			}
+			List<Map<String, Object>> ordersList = new ArrayList<>();
+			for (Order order : getOrdersDetails) {
+				Map<String, Object> orderDetails = new HashMap<>();
+				orderDetails.put("OrderNumber", order.getOrderId());
+				orderDetails.put("order_status", order.getOrderStatus());
+				orderDetails.put("date", Utils.formatDateTime(order.getCreatedAt()));
+				orderDetails.put("address", order.getAddress());
+				orderDetails.put("PlanName", order.getPlans().getPlansName());
+				orderDetails.put("ServiceName", order.getPlans().getServicesName().getName());
+				orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+				ordersList.add(orderDetails);
+			}
+			Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize,
+					ordersList);
+			response.put("success", true);
+			response.put("response", pagination);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put("success", false);
+			response.put("message", "Something went wrong.");
+		}
+		return ResponseEntity.ok(response);
 	}
 }
