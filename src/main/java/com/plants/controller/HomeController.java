@@ -63,28 +63,42 @@ public class HomeController {
         return "redirect:/login";
     }
 	@GetMapping("/addOffers")
-	public  String addOffers() {
+	public String addOffers() {
 		return "addOffers";
 	}
 	
 	@GetMapping("/order")
-	public  String orders() {
+	public String orders() {
 		return "order";
 	}
 	
 	@GetMapping("/viewService")
-	public  String viewService() {
+	public String viewService() {
 		return "viewService";
 	}
 	
 	@GetMapping("/viewPlans")
-	public  String viewPlans() {
-		System.out.println(" templeate uview  plasna");
+	public String viewPlans() {
 		return "viewPlans";
 	}
 	
 	@GetMapping("/includingServices")
-	public  String includingServices() {
+	public String includingServices() {
 		return "includingServices";
+	}
+	
+	@GetMapping("/Role")
+	public String role() {
+		return "Role";
+	}
+	
+	@GetMapping("/addUsers")
+	public String addUsers() {
+		return "addUsers";
+	}
+	
+	@GetMapping("/SubRole")
+	public String SubRole() {
+		return "SubRole";
 	}
 }

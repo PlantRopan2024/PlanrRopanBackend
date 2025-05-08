@@ -18,12 +18,29 @@ app.config(function ($stateProvider, $urlRouterProvider, $locationProvider) {
         });
 });
 
-
-
 app.controller('viewServiceCont', ['$scope', '$state', '$stateParams', '$http', function ($scope, $state, $stateParams, $http) {
 
     $scope.viewServiceData = [];
     $scope.showServiceSection = true;
+
+    $scope.imageSrc = null;
+    $scope.modalImageUrl = "";
+    $scope.isModalOpen = false;
+    $scope.serviceImageShow = '';
+
+
+    $scope.previewImage = function (input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $scope.$apply(function () {
+                    $scope.imageSrc = e.target.result;
+                });
+            };
+            reader.readAsDataURL(input.files[0]);
+            $scope.plan.imageFile = input.files[0];
+        }
+    };
 
     $scope.submitServiceName = function () {
         var formData = new FormData();

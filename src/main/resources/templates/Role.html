@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" ng-app="viewService">
+<html xmlns:th="http://www.thymeleaf.org" ng-app="viewRole">
 
 <head>
 	<meta charset="UTF-8" />
@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
 	<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
 	<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
-	<link rel="stylesheet" href="css/viewService.css" th:href="@{/css/viewService.css}" />
+	<link rel="stylesheet" href="css/Role.css" th:href="@{/css/Role.css}" />
 	<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
@@ -20,28 +20,23 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>
 	<script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/ui-router/1.0.0-beta.3/angular-ui-router.min.js"></script>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.29/angular-ui-router.min.js"></script>
-
-	<script src="/js/viewService.js" th:src="@{js/viewService.js}"></script>
-	<script src="/js/viewPlans.js" th:src="@{js/viewPlans.js}"></script>
-
-	<!-- <script src="/js/RouterLink.js" th:src="@{js/RouterLink.js}"></script> -->
+	<script src="/js/Role.js" th:src="@{js/Role.js}"></script>
 
 	<title>Welcome to Plant Ropan</title>
 </head>
 
-<body ng-controller="viewServiceCont">
+<body ng-controller="viewRoleContr">
 	<!--  header.html  -->
 	<div th:include="header :: nav-bar"></div>
 
 	<!--  side nav bar  -->
 	<div th:include="sideNavbar :: sidenav-bar"></div>
 
-	<main class="mt-5 pt-3" ng-show="showServiceSection">
+	<main class="mt-5 pt-3" ng-show="showRoleSection">
 		<div class="container-fluid">
 			<!-- Cards -->
 			<div class="row">
@@ -50,8 +45,8 @@
 						<div class="card-header">
 							<!-- Add Offers-->
 							<button type="button" class="btn btn-primary" data-bs-toggle="modal"
-								data-bs-target="#addServiceName">
-								Add Service Name
+								data-bs-target="#addRoleName">
+								Add New Role
 							</button>
 						</div>
 
@@ -61,23 +56,23 @@
 									<table class="table table-responsive table-striped">
 										<thead class="table-dark">
 											<tr>
-												<th scope="col">Service Name</th>												
+												<th scope="col">Role Name</th>												
 												<th scope="col">Is Active</th>
 												<th scope="col">Action</th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr ng-repeat="viewServiceDatas in viewServiceData">
-												<td>
-													<a href="" ng-click="getServiceByPlan(viewServiceDatas.primaryKey)">
-														{{viewServiceDatas.name}}
+											<tr ng-repeat="viewRoleDatas in viewRoleData">
+                                                <td>
+													<a href="" ng-click="getRoleBySubROle(viewRoleDatas.primarykey)">
+														{{ viewRoleDatas.roleName}}
 												</td>
-												<td>{{ viewServiceDatas.active }}</td>
+												<td>{{ viewRoleDatas.active }}</td>
 												<td>
-													<button type="button" class="btn btn-success" ng-click="handleAction(viewServiceDatas.primaryKey, 'like')">
+													<button type="button" class="btn btn-success" ng-click="handleAction(viewRoleDatas.primarykey, 'like')">
                                                         <img th:src="@{/images/like.png}" alt="Icon" style="width: 16px; height: 16px;">
                                                     </button>
-                                                   <button type="button" class="btn btn-success" ng-click="handleAction(viewServiceDatas.primaryKey, 'dislike')">
+                                                   <button type="button" class="btn btn-success" ng-click="handleAction(viewRoleDatas.primarykey, 'dislike')">
                                                        <img th:src="@{/images/dislike.png}" alt="Icon" style="width: 16px; height: 16px;">
                                                    </button>   
 												</td>
@@ -93,47 +88,24 @@
 		</div>
 	</main>
 
-	<div class="modal fade" id="addServiceName" tabindex="-1" aria-labelledby="addServiceNameLabel" aria-hidden="true">
+	<div class="modal fade" id="addRoleName" tabindex="-1" aria-labelledby="addRoleNameLabel" aria-hidden="true">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="addServiceNameLabel">Add Service Name</h5>
+					<h5 class="modal-title" id="addRoleNameLabel">Add Role</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<form name="myServiceNameForm" ng-submit="submitServiceName()">
-
-						<div class="row">
-							<!-- Upload Image -->
-							<div class="col-md-6">
-								<div class="mb-3">
-									<label>Upload Image</label>
-									<input type="file" class="form-control" file-input="plan.imageFile"
-										onchange="angular.element(this).scope().previewImage(this)" accept="image/*"
-										required />
-									<div class="text-danger" ng-show="!plan.imageFile">Image is required.</div>
-								</div>
-							</div>
-
-							<!-- Image Preview -->
-							<div class="col-md-6" ng-if="imageSrc">
-								<div class="mb-3">
-									<label>Image Preview:</label><br />
-									<img ng-src="{{imageSrc}}" alt="Image Preview"
-										style="max-width: 100%; max-height: 200px;" />
-								</div>
-							</div>
-						</div>
-
+					<form name="myRoleNameForm" ng-submit="submitRoleName()">
 						<div class="row">
 							<div class="col-md-6">
 								<div class="mb-3">
-									<input type="text" class="form-control" name="serviceName"
-										   ng-model="serviceName" placeholder="Enter the Service Name"
+									<input type="text" class="form-control" name="roleName"
+										   ng-model="roleName" placeholder="Enter the Role Name"
 										   required />
-									<div ng-show="myServiceNameForm.serviceName.$touched && myServiceNameForm.serviceName.$error.required"
+									<div ng-show="myRoleNameForm.roleName.$touched && myRoleNameForm.roleName.$error.required"
 										 class="text-danger">
-										Service Name is required.
+										Role Name is required.
 									</div>
 								</div>
 							</div>
@@ -149,10 +121,8 @@
 			</div>
 		</div>
 	</div>
-	
-	<div ui-view></div> <!-- This is where viewPlans.html will load -->
 
+    <div ui-view></div>  
 
 </body>
-
 </html>

@@ -54,3 +54,35 @@ body {
     margin-left: var(--offcanvas-width);
   }
 }
+
+
+.modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  top: 100px;
+  left: 535px;
+  width: 50%;
+  height : 25%;
+  color: var(--bs-modal-color);
+  pointer-events: auto;
+  background-color: var(--bs-modal-bg);
+  background-clip: padding-box;
+  border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
+  border-radius: var(--bs-modal-border-radius);
+  outline: 0;
+  outline-color: initial;
+  outline-style: initial;
+  outline-width: 0px;
+}
+
+.input-group {
+  position: absolute; /* To position it relative to its nearest positioned ancestor (modal body) */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* This will center the input-group both horizontally and vertically */
+  display: flex;
+  flex-wrap: wrap;
+  width: 80%; /* Adjust width as per requirement */
+  justify-content: center; /* Ensures the button and input are centered */
+}

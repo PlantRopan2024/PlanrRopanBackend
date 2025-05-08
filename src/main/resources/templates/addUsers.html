@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="viewUsers">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+	<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+	<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
+	<link rel="stylesheet" href="css/addUsers.css" th:href="@{/css/addUsers.css}" />
+	<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/1c26fb5c51.js" th:src="@{js/1c26fb5c51.js}"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+		href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>
+	<script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/ui-router/1.0.0-beta.3/angular-ui-router.min.js"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.29/angular-ui-router.min.js"></script>
+	<script src="/js/Role.js" th:src="@{js/Role.js}"></script>
+
+	<title>Welcome to Plant Ropan</title>
+</head>
+
+<body ng-controller="viewUsersContr">
+	<!--  header.html  -->
+	<div th:include="header :: nav-bar"></div>
+
+	<!--  side nav bar  -->
+	<div th:include="sideNavbar :: sidenav-bar"></div>
+
+	<main class="mt-5 pt-3">
+		<div class="container-fluid">
+			<!-- Cards -->
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card">
+							<div class="card-header d-flex justify-content-between align-items-center">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                     data-bs-target="#addUsers">
+                                    Add New Users
+                                </button>
+                                <span> {{subRoleName}}</span>
+                                <button class="btn btn-secondary" ng-click="goBack()">← Back to Sub Role</button>
+                            </div>
+						</div>
+
+						<div class="card-body">
+							<div class="select-container">
+								<div class="table-responsive">
+									<table class="table table-responsive table-striped">
+										<thead class="table-dark">
+											<tr>
+												<th scope="col">User Name</th>		
+												<th scope="col">Is Active</th>
+												<th scope="col">Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="viewUserDatas in viewUserData">
+												<td>{{ viewUserDatas.username}}</td>
+												<td>{{ viewUserDatas.active }}</td>
+												<td>
+													<button type="button" class="btn btn-success" ng-click="handleAction(viewUserDatas.primarykey, 'like')">
+                                                        <img th:src="@{/images/like.png}" alt="Icon" style="width: 16px; height: 16px;">
+                                                    </button>
+                                                   <button type="button" class="btn btn-success" ng-click="handleAction(viewUserDatas.primarykey, 'dislike')">
+                                                       <img th:src="@{/images/dislike.png}" alt="Icon" style="width: 16px; height: 16px;">
+                                                   </button>   
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<div class="modal fade" id="addUsers" tabindex="-1" aria-labelledby="addUsersLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUsersLabel">Add User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="myaddUsersForm" ng-submit="submitUsersAdd()" novalidate>
+                        <div class="row">
+
+                            <div class="col-12 mt-2">
+                                Selected Role: <strong>{{ RoleName }}</strong>
+                            </div>
+                    
+                            <div class="col-12 mt-2">
+                                Selected Sub Role: <strong>{{ subRoleName }}</strong>
+                            </div>
+                    
+                            <div class="col-md-6 mb-3 mt-2">
+                                <input type="text" class="form-control" name="username"
+                                       ng-model="username" placeholder="Enter Username" required />
+                                <div ng-show="myaddUsersForm.username.$touched && myaddUsersForm.username.$error.required" class="text-danger">
+                                    Username is required.
+                                </div>
+                            </div>
+                    
+                            <div class="col-md-6 mb-3">
+                                <input type="text" class="form-control" name="employeename"
+                                       ng-model="employeename" placeholder="Enter Employee Name" required />
+                                <div ng-show="myaddUsersForm.employeename.$touched && myaddUsersForm.employeename.$error.required" class="text-danger">
+                                    Employee Name is required.
+                                </div>
+                            </div>
+                    
+                            <div class="col-md-6 mb-3">
+                                <input type="text" class="form-control" name="mobileNumber"
+                                       ng-model="mobileNumber"
+                                       placeholder="Enter Mobile Number"
+                                       ng-pattern="/^\d{10}$/"
+                                       maxlength="10"
+                                       required />
+                            
+                                <div ng-show="myaddUsersForm.mobileNumber.$touched && myaddUsersForm.mobileNumber.$error.required" class="text-danger">
+                                    Mobile Number is required.
+                                </div>
+                                <div ng-show="myaddUsersForm.mobileNumber.$touched && myaddUsersForm.mobileNumber.$error.pattern" class="text-danger">
+                                    Mobile Number must be exactly 10 digits.
+                                </div>
+                            </div>                            
+                    
+                            <div class="col-md-6 mb-3">
+                                <input type="email" class="form-control" name="email"
+                                       ng-model="email" placeholder="Enter Email" required />
+                                <div ng-show="myaddUsersForm.email.$touched && myaddUsersForm.email.$error.required" class="text-danger">
+                                    Email is required.
+                                </div>
+                            </div>
+                    
+                            <div class="col-md-6 mb-3">
+                                <input type="password" class="form-control" name="password"
+                                       ng-model="password" placeholder="Enter Password" required />
+                                <div ng-show="myaddUsersForm.password.$touched && myaddUsersForm.password.$error.required" class="text-danger">
+                                    Password is required.
+                                </div>
+                            </div>
+                    
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-success" ng-disabled="myaddUsersForm.$invalid">
+                                    Add
+                                </button>
+                                <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                    
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+</body>
+
+</html>

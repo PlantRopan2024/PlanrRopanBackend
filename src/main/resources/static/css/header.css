@@ -1,0 +1,72 @@
+/* Style for search input */
+.search-input {
+    border-radius: 0.375rem 0 0 0.375rem;
+    border-right: none;
+}
+
+/* Style for search button */
+.search-btn {
+    background-color: #007bff;
+    /* Bootstrap primary */
+    color: #fff;
+    border-radius: 0 0.375rem 0.375rem 0;
+    border-left: none;
+    transition: background-color 0.3s ease;
+}
+
+.search-btn:hover {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+
+/* Custom class for the modal */
+.custom-modal {
+    max-width: 600px;
+    /* You can adjust this width as needed */
+    width: 90%;
+    /* Ensures modal is responsive on smaller screens */
+    margin: auto;
+    /* Centers the modal horizontally */
+}
+
+/* Center the modal vertically and horizontally */
+.modal-dialog {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    /* Ensure full screen height */
+    margin: 0;
+    /* Remove any default margin */
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    top: 100px;
+    left: 535px;
+    width: 50%;
+    color: var(--bs-modal-color);
+    pointer-events: auto;
+    background-color: var(--bs-modal-bg);
+    background-clip: padding-box;
+    border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
+    border-radius: var(--bs-modal-border-radius);
+    outline: 0;
+    outline-color: initial;
+    outline-style: initial;
+    outline-width: 0px;
+}
+
+.input-group {
+    position: absolute; /* To position it relative to its nearest positioned ancestor (modal body) */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* This will center the input-group both horizontally and vertically */
+    display: flex;
+    flex-wrap: wrap;
+    width: 80%; /* Adjust width as per requirement */
+    justify-content: center; /* Ensures the button and input are centered */
+}

@@ -1,6 +1,9 @@
 package com.plants.Dao;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,8 +19,14 @@ import jakarta.transaction.Transactional;
 
 public interface userDao extends CrudRepository<user, Integer>{
 	
-	@Query("select e FROM user e WHERE e.username = :username AND e.password = :password")
+	@Query("select e FROM user e WHERE e.username = :username AND e.password = :password AND e.isActive = true")
 	public user finduserNameAndPassword(@Param("username") String username , @Param("password") String password);
+	
+	@Query("select e FROM user e")
+	public List<user> getUserData();
+	
+	@Query("SELECT u from user u Where u.primarykey = :userPk")
+	public user getUserPk(@Param("userPk") String userPk);
 	
 	public AgentMain save(AgentMain agentMain);
 	

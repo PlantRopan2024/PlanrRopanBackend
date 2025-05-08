@@ -1,65 +1,92 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+    <link rel="stylesheet" href="css/header.css" th:href="@{/css/header.css}" />
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
+    <!-- Navbar -->
+    <div th:fragment="nav-bar">
 
-<div th:fragment="nav-bar">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container-fluid">
-        <!--offcanvar trigger start-->
-        <button class="navbar-toggler me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <!--offcanvar trigger start-->
-		<!-- Plant Ropan logo -->
-<!--		       <img th:src="@{/images/plant_ropan.jpg}" class="plant-icon" alt="Plant Ropan Logo" />
--->        <a class="navbar-brand fw-bold text-uppercase me-auto" >Plant Ropan</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+            <div class="container-fluid">
+                <button class="navbar-toggler me-2" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <a class="navbar-brand fw-bold text-uppercase me-auto">Plant Ropan</a>
+                <!-- <img src="images/PLant Ropan Icon.jpg" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2"> -->
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <form class="d-flex ms-auto" role="search">
-                <div class="input-group my-3 my-lg-0">
-                <!--     <input type="text" class="form-control" placeholder="Search" aria-describedby="button-addon2" />  -->
-                  <!--   <button class="btn btn-outline-secondary bg-primary text-white" type="button" id="button-addon2">
-                        <i class="bi bi-search"></i>
-                    </button> -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <div class="d-flex align-items-center ms-auto gap-3">
+                        <!-- Search Icon -->
+                        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#searchModal"
+                            aria-label="Open search modal">
+                            <i class="fa-solid fa-magnifying-glass text-white"></i>
+                        </button>
+                        <!-- Profile Dropdown -->
+                        <ul class="navbar-nav mb-2 mb-lg-0">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <span th:text="${session.sessionCreated.employeename}">User</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="MyProfile">My Profile</a></li>
+                                    <li><a class="dropdown-item" href="changePassword">Change Password</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider" />
+                                    </li>
+                                    <li><a class="dropdown-item" href="logoutUser">Logout</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </form>
+            </div>
+        </nav>
 
-            <ul class="navbar-nav mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                       
-                            
-							<img th:src="@{/images/user.png}" class="user-icon" />
-
-                           
-                       		
-					          <span th:text="${session.sessionCreated.username}"></span>   
-					    
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="MyProfile">My Profle</a></li>
-                        <li><a class="dropdown-item" href="changePassword">Change Password</a></li>
-                        <li>
-                            <hr class="dropdown-divider" />
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="logoutUser">Logout</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+        <!-- Search Modal -->
+        <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable custom-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="searchModalLabel">Search</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search here..." />
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</nav>
-</div>
+        
 
+
+        <!-- Bootstrap JS Bundle -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
+</html>

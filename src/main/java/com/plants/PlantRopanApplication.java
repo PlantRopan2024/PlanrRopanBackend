@@ -2,6 +2,7 @@ package com.plants;
 
 import java.net.InetAddress;
 import java.net.URI;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,11 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
+import com.plants.Dao.RoleRepo;
+import com.plants.Dao.SubRoleRepo;
 import com.plants.Dao.userDao;
+import com.plants.entities.Role;
+import com.plants.entities.SubRole;
 import com.plants.entities.user;
 
 import jakarta.annotation.PostConstruct;
@@ -33,6 +38,15 @@ public class PlantRopanApplication extends SpringBootServletInitializer {
 	
 	@Value("${server.servlet.context-path}") 
 	private String contextPath;
+	
+	@Value("${create.Account.Flag}")
+	private boolean createAccountFlag;
+	
+	@Autowired
+	RoleRepo roleRepo;
+	
+	@Autowired
+	SubRoleRepo subRoleRepo;
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
@@ -46,13 +60,30 @@ public class PlantRopanApplication extends SpringBootServletInitializer {
 	@PostConstruct
 	public void init() {
 		boolean userflag = false;
-		if (userflag == true) {
+		if (createAccountFlag == true) {
+			
+			Role role = new Role();
+			role.setActive(createAccountFlag);
+			role.setRoleName("SUPER_ADMIN");
+			role.setUpdatedAt(LocalDateTime.now());
+			role.setCreatedAt(LocalDateTime.now());
+			
+			Role saveRole = this.roleRepo.save(role);
+			
+			SubRole subRole = new SubRole();
+			subRole.setActive(createAccountFlag);
+			subRole.setSubRoleName("SUPER_ADMIN");
+			subRole.setCreatedAt(LocalDateTime.now());
+			subRole.setRole(saveRole);
+			subRole.setUpdatedAt(LocalDateTime.now());
+			SubRole  saveSubRole =this.subRoleRepo.save(subRole);
 			user us = new user();
-			us.setUsername("admin");
-			us.setPassword("admin");
-			us.setUserrole("ADMIN");
-			us.setEmployeename("ADMIN");
-			us.setEmail("admin@gmail.com");
+			us.setUsername("Ropan_Admin");
+			us.setPassword("Ropan_Admin");
+			us.setActive(createAccountFlag);
+			us.setSubRole(saveSubRole);
+			us.setEmployeename("Ropan Admin");
+			us.setEmail("plantropan24@gmail.com");
 			this.userdao.save(us);
 		}
 	}
