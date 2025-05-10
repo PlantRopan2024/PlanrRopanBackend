@@ -9,6 +9,8 @@
 	<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
 	<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
 	<link rel="stylesheet" href="css/agentVerfication.css" th:href="@{/css/agentVerfication.css}" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
 	<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
@@ -39,16 +41,29 @@
 				<div class="row mt-5">
 					<div class="col-md-12">
 						<ul class="nav nav-tabs" id="myTab" role="tablist">
-							<li class="nav-item" role="presentation">
-								<button class="nav-link  active" id="new-students" data-bs-toggle="tab"
+							<li class="nav-item d-flex align-items-center gap-2" role="presentation">
+								<button class="nav-link active" id="new-students" data-bs-toggle="tab"
 									data-bs-target="#new-students-pane" type="button" role="tab"
 									aria-controls="new-students-pane" aria-selected="true">
-									Pending Verfication</button>
+									Pending Verification
+								</button>
+								<button type="button" class="btn p-0" title="Pending Download Excel file"
+									ng-click="downloadExcelFile('PENDING')">
+									<img th:src="@{/images/excelDownload.png}" alt="Icon"
+										style="width: 25px; height: 25px;">
+								</button>
 							</li>
-							<li class="nav-item" role="presentation">
-								<button class="nav-link " id="recent-loans" data-bs-toggle="tab"
+							<li class="nav-item d-flex align-items-center gap-2" role="presentation">
+								<button class="nav-link" id="recent-loans" data-bs-toggle="tab"
 									data-bs-target="#recent-loans-pane" type="button" role="tab"
-									aria-controls="recent-loans-pane" aria-selected="false">Approved Agent </button>
+									aria-controls="recent-loans-pane" aria-selected="false">
+									Approved Agent
+								</button>
+								<button type="button" class="btn p-0" title="Approved Download Excel file"
+									ng-click="downloadExcelFile('APPROVED')">
+									<img th:src="@{/images/excelDownload.png}" alt="Icon"
+										style="width: 25px; height: 25px;">
+								</button>
 							</li>
 
 						</ul>
@@ -69,7 +84,8 @@
 										<tbody>
 											<tr ng-repeat="pendingVerifications in pendingVerification">
 												<td>
-													<a href="agentDetailPage.html?agentIDPk={{pendingVerifications.agentIDPk}}">{{pendingVerifications.firstName}}</a>
+													<a
+														href="agentDetailPage.html?agentIDPk={{pendingVerifications.agentIDPk}}">{{pendingVerifications.firstName}}</a>
 
 													<!--<a href="" ng-click="openAgentDetailPage(pendingVerifications.agentIDPk)">{{pendingVerifications.firstName }}</a>-->
 												</td>
@@ -77,11 +93,15 @@
 												<td>{{ pendingVerifications.emailId }}</td>
 												<td>{{ pendingVerifications.mobileNumber }}</td>
 												<td>
-													<button type="button" class="btn btn-success" ng-click="handleAction(pendingVerifications.agentIDPk, 'like')">
-													    <img th:src="@{/images/like.png}" alt="Icon" style="width: 16px; height: 16px;">
+													<button type="button" class="btn btn-success"
+														ng-click="handleAction(pendingVerifications.agentIDPk, 'like')">
+														<img th:src="@{/images/like.png}" alt="Icon"
+															style="width: 16px; height: 16px;">
 													</button>
-													<button type="button" class="btn btn-success" ng-click="handleAction(pendingVerifications.agentIDPk, 'dislike')">
-													    <img th:src="@{/images/dislike.png}" alt="Icon" style="width: 16px; height: 16px;">
+													<button type="button" class="btn btn-success"
+														ng-click="handleAction(pendingVerifications.agentIDPk, 'dislike')">
+														<img th:src="@{/images/dislike.png}" alt="Icon"
+															style="width: 16px; height: 16px;">
 													</button>
 												</td>
 											</tr>
@@ -100,25 +120,33 @@
 												<th scope="col">Last Name</th>
 												<th scope="col">Email Id.</th>
 												<th scope="col">Mobile No.</th>
+												<th scope="col">Action</th>
+
 											</tr>
 										</thead>
-											<tbody>
-												<tr ng-repeat="ApprovedAgents in ApprovedAgent">
-													<td>
-														<a href="agentDetailPage.html?agentIDPk={{ApprovedAgents.agentIDPk}}">{{ApprovedAgents.firstName}}</a>
+										<tbody>
+											<tr ng-repeat="ApprovedAgents in ApprovedAgent">
+												<td>
+													<a
+														href="agentDetailPage.html?agentIDPk={{ApprovedAgents.agentIDPk}}">{{ApprovedAgents.firstName}}</a>
 
-														<!--<a href="" ng-click="openAgentDetailPage(ApprovedAgents.agentIDPk)">{{ApprovedAgents.firstName }}</a>-->
-													</td>
-													<td>{{ ApprovedAgents.lastName }}</td>
-													<td>{{ ApprovedAgents.emailId }}</td>
-													<td>{{ ApprovedAgents.mobileNumber }}</td>
-												</tr>
+													<!--<a href="" ng-click="openAgentDetailPage(ApprovedAgents.agentIDPk)">{{ApprovedAgents.firstName }}</a>-->
+												</td>
+												<td>{{ ApprovedAgents.lastName }}</td>
+												<td>{{ ApprovedAgents.emailId }}</td>
+												<td>{{ ApprovedAgents.mobileNumber }}</td>
+												<td>
+													<button type="button" class="btn" title="Download Excel file"
+														ng-click="downloadExcel(ApprovedAgents.agentIDPk)">
+														<img th:src="@{/images/excelDownload.png}" alt="Icon"
+															style="width: 25px; height: 25px;">
+													</button>
+												</td>
+											</tr>
 										</tbody>
 									</table>
 								</div>
 							</div>
-
-
 						</div>
 					</div>
 				</div>
@@ -126,7 +154,5 @@
 		</div>
 	</main>
 	<!--Main Container End-->
-
 </body>
-
 </html>

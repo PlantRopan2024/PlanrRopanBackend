@@ -3,7 +3,7 @@ var app = angular.module('viewRole', ['ui.bootstrap', 'ui.router']);
 app.config(function ($stateProvider, $urlRouterProvider, $locationProvider) {
     $locationProvider.hashPrefix('!');
 
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/Role');
 
     $stateProvider
         .state('addUsers', {

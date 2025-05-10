@@ -38,6 +38,10 @@ public interface userDao extends CrudRepository<user, Integer>{
 	@Transactional
 	@Query("select e FROM AgentMain e WHERE e.AgentIDPk = :AgentIDPk ")
 	public AgentMain findAgentID(@Param("AgentIDPk") String AgentIDPk);
+
+	@Transactional
+	@Query("select e FROM AgentMain e WHERE e.AgentIDPk = :AgentIDPk ")
+	public AgentMain findAgentID(@Param("AgentIDPk") int AgentIDPk);
 	
 	@Modifying
 	@Transactional

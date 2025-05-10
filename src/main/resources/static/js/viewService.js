@@ -3,7 +3,7 @@ var app = angular.module('viewService', ['ui.bootstrap', 'ui.router']);
 app.config(function ($stateProvider, $urlRouterProvider, $locationProvider) {
     $locationProvider.hashPrefix('!');
 
-    $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/viewService');
 
     $stateProvider
         .state('viewPlans', {
