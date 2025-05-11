@@ -1,7 +1,9 @@
 package com.plants.Service;
 
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -13,9 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plants.Dao.AppRatingRepo;
 import com.plants.Dao.LoginHoursRepo;
@@ -26,10 +25,7 @@ import com.plants.config.Utils;
 import com.plants.entities.AgentJsonRequest;
 import com.plants.entities.AgentMain;
 import com.plants.entities.AppRating;
-import com.plants.entities.CustomerMain;
 import com.plants.entities.LoginHours;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class AgentLoginService {
@@ -62,9 +58,7 @@ public class AgentLoginService {
 	
 	@Value("${google.url.address}")
 	private String googleUrlAddress;
-	
-	@Autowired
-	private S3Service s3Service;
+
 	
 	@Autowired
 	LoginHoursRepo loginHoursRepo;
@@ -110,6 +104,9 @@ public class AgentLoginService {
 				agent.setAadharInfoStepSecond(false);
 				agent.setBankInfoStepThird(false);
 				agent.setAgentReferralCode(generateReferralCode());
+				agent.setAgentId(generateAgentId());
+				agent.setCreatedAt(LocalDateTime.now());
+				agent.setUpdatedAt(LocalDateTime.now());
 				AgentMain saAgent = this.userdao.save(agent);
 				// response.put("AgentIdPk", saAgent.getAgentIDPk());
 				// response.put("isProfileCompleted", saAgent.isProfileCompleted());
@@ -179,6 +176,7 @@ public class AgentLoginService {
 				agentMain.setSelfieImagePath(selfieImageUrl);
 				agentMain.setSelfieImg_type(selfieImg.getContentType());
 				agentMain.setProfileInfoStepFirst(true);
+				agentMain.setUpdatedAt(LocalDateTime.now());
 				AgentMain getid = this.UserDao.save(agentMain);
 				response.put("isProfileInfoStepFirst", getid.isProfileInfoStepFirst());
 				response.put("message", "Agent profile saved successfully!");
@@ -225,6 +223,7 @@ public class AgentLoginService {
 				agentMain.setAadharImagBackSidePath(aadharBackImagePath);
 				agentMain.setAadharImgBackSide_type(aadharImgBackSide.getContentType());
 				agentMain.setAadharInfoStepSecond(true);
+				agentMain.setUpdatedAt(LocalDateTime.now());
 				AgentMain getid = this.UserDao.save(agentMain);
 				response.put("isAadharInfoStepSecond", getid.isAadharInfoStepSecond());
 				response.put("message", "Agent Aadhaar saved successfully!");
@@ -263,6 +262,7 @@ public class AgentLoginService {
 				agentMain.setBankPassBookImage_type(bankPassBookImage.getContentType());
 				agentMain.setProfileCompleted(true);
 				agentMain.setBankInfoStepThird(true);
+				agentMain.setUpdatedAt(LocalDateTime.now());
 				AgentMain getAgent = this.UserDao.save(agentMain);
 				response.put("isBankInfoStepThird", getAgent.isBankInfoStepThird());
 				response.put("message", "Bank Account saved successfully!");
@@ -410,4 +410,22 @@ public class AgentLoginService {
 	private String generateReferralCode() {
 		return "gar50" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 	}
+	
+	private String generateAgentId() {
+		String currentDate = new SimpleDateFormat("yyyyMMdd").format(new Date());
+		String agentFormat = "AGENT" + currentDate + "000";
+		// Fetch the latest order ID for today
+		Integer lastSequenceNumber = this.userdao.getMaxSequenceAgentId();
+		System.out.println(" Order  Number last digit -- " + lastSequenceNumber);
+		int sequenceNumber = 1;
+		String IdGenerated = "";
+		if (lastSequenceNumber != null) {
+			sequenceNumber = lastSequenceNumber + 1;
+			IdGenerated = agentFormat + sequenceNumber;
+		} else {
+			IdGenerated = agentFormat + sequenceNumber;
+		}
+		return IdGenerated;
+	}
+	
 }

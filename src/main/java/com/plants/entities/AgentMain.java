@@ -1,16 +1,14 @@
 package com.plants.entities;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -22,6 +20,9 @@ public class AgentMain {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int AgentIDPk;
+	
+	@Column(unique = true)
+	private String agentId;
 	private String firstName;
 	private String lastName;
 	private String gender;
@@ -83,24 +84,35 @@ public class AgentMain {
 	private String workStatus;
 	
 	private double totalLoginHoursCount;
+	
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime createdAt;
+	    
+	@Column(name = "updated_at", nullable = false, updatable = true)
+	private LocalDateTime updatedAt;
+	
+	@Column(name = "approved_at", nullable = false, updatable = true)
+	private LocalDateTime approvedAt;
+
 
 	public AgentMain() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
-	
-	public AgentMain(int agentIDPk, String firstName, String lastName, String gender, String selfieImg,
+	public AgentMain(int agentIDPk, String agentId, String firstName, String lastName, String gender, String selfieImg,
 			String selfieImagePath, String selfieImg_type, String emailId, String mobileNumber, boolean agentApproved,
 			boolean isActiveAgent, String state, String city, String address, String pincode, double latitude,
 			double longitude, String aadhaarNumber, String aadharImgFrontSide, String aadharImgFrontSide_type,
 			String aadharImagFrontSidePath, String aadharImgBackSide, String aadharImgBackSide_type,
 			String aadharImagBackSidePath, String token, String accHolderName, String accNumber, String bankName,
-			String ifscCode, String bankPassBookImage, String bankPassBookImage_type, String bankPassBookImagePath,
-			boolean isProfileCompleted, String fcmTokenAgent, boolean isProfileInfoStepFirst,
-			boolean isAadharInfoStepSecond, boolean isBankInfoStepThird, String agentReferralCode,
-			List<WalletHistory> referralHistory, List<Notification> notification,boolean isReferral,String workStatus,double totalLoginHoursCount) {
+			String ifscCode, String bankPassBookImage, String bankPassBookImage_type, boolean isReferral,
+			String bankPassBookImagePath, boolean isProfileCompleted, String fcmTokenAgent,
+			boolean isProfileInfoStepFirst, boolean isAadharInfoStepSecond, boolean isBankInfoStepThird,
+			String agentReferralCode, List<WalletHistory> referralHistory, List<Notification> notification,
+			String workStatus, double totalLoginHoursCount, LocalDateTime createdAt, LocalDateTime updatedAt,
+			LocalDateTime approvedAt) {
 		super();
 		AgentIDPk = agentIDPk;
+		this.agentId = agentId;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.gender = gender;
@@ -131,6 +143,7 @@ public class AgentMain {
 		this.ifscCode = ifscCode;
 		this.bankPassBookImage = bankPassBookImage;
 		this.bankPassBookImage_type = bankPassBookImage_type;
+		this.isReferral = isReferral;
 		this.bankPassBookImagePath = bankPassBookImagePath;
 		this.isProfileCompleted = isProfileCompleted;
 		this.fcmTokenAgent = fcmTokenAgent;
@@ -140,16 +153,27 @@ public class AgentMain {
 		this.agentReferralCode = agentReferralCode;
 		this.referralHistory = referralHistory;
 		this.notification = notification;
-		this.isReferral= isReferral;
-		this.workStatus =workStatus;
-		this.totalLoginHoursCount=totalLoginHoursCount;
+		this.workStatus = workStatus;
+		this.totalLoginHoursCount = totalLoginHoursCount;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.approvedAt = approvedAt;
 	}
+
 	public int getAgentIDPk() {
 		return AgentIDPk;
 	}
 	public void setAgentIDPk(int agentIDPk) {
 		AgentIDPk = agentIDPk;
 	}
+	public String getAgentId() {
+		return agentId;
+	}
+
+	public void setAgentId(String agentId) {
+		this.agentId = agentId;
+	}
+
 	public String getFirstName() {
 		return firstName;
 	}
@@ -408,6 +432,24 @@ public class AgentMain {
 		this.totalLoginHoursCount = totalLoginHoursCount;
 	}
 
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+	public LocalDateTime getApprovedAt() {
+		return approvedAt;
+	}
+	public void setApprovedAt(LocalDateTime approvedAt) {
+		this.approvedAt = approvedAt;
+	}
 	@Override
 	public String toString() {
 		return "AgentMain [AgentIDPk=" + AgentIDPk + ", firstName=" + firstName + ", lastName=" + lastName + ", gender="

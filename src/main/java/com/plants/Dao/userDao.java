@@ -3,8 +3,6 @@ package com.plants.Dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -99,5 +97,8 @@ public interface userDao extends CrudRepository<user, Integer>{
 	@Transactional
     @Query("UPDATE AgentMain a SET  a.agentApproved = :agentApproved  WHERE a.AgentIDPk = :AgentIDPk")
     public void updateAgentApproved(@Param("agentApproved") boolean agentApproved , @Param("AgentIDPk") int AgentIDPk);
+	
+	@Query("SELECT MAX(CAST(SUBSTRING(a.agentId, 16) AS int)) FROM AgentMain a ")
+	Integer getMaxSequenceAgentId();
 	
 }

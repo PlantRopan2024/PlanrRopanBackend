@@ -37,14 +37,14 @@
 				<div class="row mt-5">
 					<div class="col-md-12">
 						<ul class="nav nav-tabs" id="myTab" role="tablist">
-							<li class="nav-item" role="presentation">
+							<!-- <li class="nav-item" role="presentation">
 								<button class="nav-link  active" id="pending-order" data-bs-toggle="tab"
 									data-bs-target="#pending-order-pane" type="button" role="tab"
 									aria-controls="pending-order-pane" aria-selected="true">
 									Pendings Orders</button>
-							</li>
+							</li> -->
 							<li class="nav-item" role="presentation">
-								<button class="nav-link " id="accpeted-order" data-bs-toggle="tab"
+								<button class="nav-link active" id="accpeted-order" data-bs-toggle="tab"
 									data-bs-target="#accpeted-order-pane" type="button" role="tab"
 									aria-controls="accpeted-order-pane" aria-selected="false">Accpeted Orders </button>
 							</li>
@@ -60,11 +60,10 @@
 									data-bs-target="#rejected-order-pane" type="button" role="tab"
 									aria-controls="rejected-order-pane" aria-selected="false">Rejected Orders </button>
 							</li>
-
-
 						</ul>
+
 						<div class="tab-content" id="myTabContent">
-							<div class="tab-pane fade show active" id="pending-order-pane" role="tabpanel"
+							<!-- <div class="tab-pane fade show active" id="pending-order-pane" role="tabpanel"
 								aria-labelledby="pending-order" tabindex="0">
 								<div class="table-responsive">
 									<table class="table table-responsive table-striped">
@@ -92,9 +91,9 @@
 										</tbody>
 									</table>
 								</div>
-							</div>
+							</div> -->
 
-							<div class="tab-pane fade" id="accpeted-order-pane" role="tabpanel"
+							<div class="tab-pane fade show active" id="accpeted-order-pane" role="tabpanel"
 								aria-labelledby="accpeted-order" tabindex="0">
 								<div class="table-responsive">
 									<table class="table table-responsive table-striped">
@@ -109,14 +108,19 @@
 										</thead>
 										<tbody>
 											<tr ng-if="accpetedOrders.length === 0">
-												<td colspan="4" class="text-center">{{ accpetedMessage || 'No Accpeted orders available.' }}</td>
+												<td colspan="4" class="text-center">{{ accpetedMessage || 'No Accpeted
+													orders available.' }}</td>
 											</tr>
 											<tr ng-repeat="order in accpetedOrders">
-												<td>{{ order.OrderNumber }}</td>
-												<td>{{ order.customerName }}<br>{{ order.customerPhone }}</td>
-												<td>{{ order.maaliName }}<br>{{ order.maaliPhone }}</td>
-												<td>{{ order.planName }}<br>{{ order.planAmount }}</td>
-												<td>{{ order.order_Status }}</td>
+												<td>
+													<a data-bs-toggle="modal" data-bs-target="#viewOrdersDetails"
+														ng-click="getOrderDetails(order.OrderNumber)">
+														{{ order.OrderNumber }}
+												</td>
+												<td>{{ order.CustomerDetails }}</td>
+												<td>{{ order.MaaliDetails }}</td>
+												<td>{{ order.PlansDetails }}</td>
+												<td>{{ order.order_status }}</td>
 											</tr>
 										</tbody>
 									</table>
@@ -138,13 +142,18 @@
 										</thead>
 										<tbody>
 											<tr ng-if="completedOrders.length === 0">
-												<td colspan="4" class="text-center">{{ completedMessage || 'No orders completed available.' }}</td>
+												<td colspan="4" class="text-center">{{ completedMessage || 'No orders
+													completed available.' }}</td>
 											</tr>
 											<tr ng-repeat="order in completedOrders">
-												<td>{{ order.OrderNumber }}</td>
-												<td>{{ order.customerName }}<br>{{ order.customerPhone }}</td>
-												<td>{{ order.maaliName }}<br>{{ order.maaliPhone }}</td>
-												<td>{{ order.planName }}<br>{{ order.planAmount }}</td>
+												<td>
+													<a data-bs-toggle="modal" data-bs-target="#viewOrdersDetails"
+														ng-click="getOrderDetails(order.OrderNumber)">
+														{{ order.OrderNumber }}
+												</td>
+												<td>{{ order.CustomerDetails }}</td>
+												<td>{{ order.MaaliDetails }}</td>
+												<td>{{ order.PlansDetails }}</td>
 												<td>{{ order.order_status }}</td>
 											</tr>
 										</tbody>
@@ -167,28 +176,152 @@
 										</thead>
 										<tbody>
 											<tr ng-if="rejectedOrders.length === 0">
-												<td colspan="4" class="text-center">{{ rejectedMessage || 'No orders Rejected available.' }}</td>
+												<td colspan="4" class="text-center">{{ rejectedMessage || 'No orders
+													Rejected available.' }}</td>
 											</tr>
 											<tr ng-repeat="order in rejectedOrders">
-												<td>{{ order.OrderNumber }}</td>
-												<td>{{ order.customerName }}<br>{{ order.customerPhone }}</td>
-												<td>{{ order.maaliName }}<br>{{ order.maaliPhone }}</td>
-												<td>{{ order.planName }}<br>{{ order.planAmount }}</td>
+												<td>
+													<a data-bs-toggle="modal" data-bs-target="#viewOrdersDetails"
+														ng-click="getOrderDetails(order.OrderNumber)">
+														{{ order.OrderNumber }}
+												</td>
+												<td>{{ order.CustomerDetails }}</td>
+												<td>{{ order.MaaliDetails }}</td>
+												<td>{{ order.PlansDetails }}</td>
 												<td>{{ order.order_status }}</td>
 											</tr>
 										</tbody>
 									</table>
 								</div>
 							</div>
-
-
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</main>
-	<!--Main Container End-->
+
+
+	<div class="modal fade" id="viewOrdersDetails" tabindex="-1" aria-labelledby="viewOrdersDetailsLabel"
+		aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<h5 class="modal-title" id="viewOrdersDetailsLabel">View Order Details</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+
+				<div class="modal-body" ng-if="orderDetails.data">
+
+					<h6 class="mb-3"><strong>Order Info</strong></h6>
+					<div class="row">
+						<div class="col-12 text-center mb-3">
+							<div class="bg-light rounded p-3 d-inline-block shadow-sm">
+								<strong class="text-success fs-5">Order ID:</strong>
+								<span class="fw-bold text-success">{{ orderDetails.data.orderId }}</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6"><strong>Coupon Applied:</strong> {{ orderDetails.data.couponApplied ?
+							'Yes' : 'No' }}</div>
+						<div class="col-md-6"><strong>Offer Code:</strong> {{ orderDetails.data.offerCode }}</div>
+						<div class="col-md-6"><strong>Created At:</strong> {{ orderDetails.data.createdAt |
+							date:'medium' }}</div>
+						<div class="col-md-6"><strong>Status:</strong> {{ orderDetails.data.orderStatus }}</div>
+						<div class="col-md-6"><strong>Share Code:</strong> {{ orderDetails.data.shareCode }}</div>
+						<div class="col-md-12"><strong>Address:</strong> {{ orderDetails.data.address }}</div>
+						<div class="col-md-6"><strong>Latitude:</strong> {{ orderDetails.data.latitude }}</div>
+						<div class="col-md-6"><strong>Longitude:</strong> {{ orderDetails.data.longtitude }}</div>
+						<div class="col-md-6"><strong>Distance Travelled:</strong> {{ orderDetails.data.km | number:2 }}
+							km</div>
+					</div>
+
+					<hr />
+
+					<h6 class="mb-3"><strong>Payment Info</strong></h6>
+					<div class="row">
+						<div class="col-md-6"><strong>Method:</strong> {{ orderDetails.data.payment.paymentMethod }}
+						</div>
+						<div class="col-md-6"><strong>Status:</strong> {{ orderDetails.data.payment.paymentStatus }}
+						</div>
+						<div class="col-md-6"><strong>Paid On:</strong> {{ orderDetails.data.payment.createdAt |
+							date:'medium' }}</div>
+					</div>
+
+					<hr />
+
+					<h6 class="mb-3"><strong>Plan Details</strong></h6>
+					<div class="row">
+						<div class="col-md-6"><strong>Name:</strong> {{ orderDetails.data.plans.plansName }}</div>
+						<div class="col-md-6"><strong>Price:</strong> ₹{{ orderDetails.data.plans.plansRs }}</div>
+						<div class="col-md-6"><strong>Duration:</strong> {{ orderDetails.data.plans.timeDuration }}
+						</div>
+						<div class="col-md-6"><strong>Includes:</strong> {{
+							orderDetails.data.plans.includingServicesName }}</div>
+						<div class="col-md-6"><strong>Type:</strong> {{ orderDetails.data.plans.planType }}</div>
+						<div class="col-md-6"><strong>Pack:</strong> {{ orderDetails.data.plans.planPacks }}</div>
+						<div class="col-md-6"><strong>Upto Pots:</strong> {{ orderDetails.data.plans.uptoPots }}</div>
+					</div>
+
+					<hr />
+
+
+
+					<h6 class="mb-3"><strong>Customer Details</strong></h6>
+					<div class="row">
+						<div class="col-md-6"><strong>Name:</strong> {{ orderDetails.customerDetais.CusFirstName }}
+							{{ orderDetails.customerDetais.CuslastName }}</div>
+						<div class="col-md-6"><strong>Mobile:</strong> {{ orderDetails.customerDetais.CusMobileNu
+							}}</div>
+						<div class="col-md-12"><strong>Address:</strong> {{ orderDetails.customerDetais.CusAddress
+							}}</div>
+					</div>
+
+					<hr />
+
+					<h6 class="mb-3"><strong>Maali Details</strong></h6>
+					<div class="row">
+						<div class="col-md-6"><strong>Name:</strong> {{ orderDetails.maaliDetais.firstName }} {{
+							orderDetails.maaliDetais.lastName }}</div>
+						<div class="col-md-6"><strong>Mobile:</strong> {{ orderDetails.maaliDetais.mobileNu }}
+						</div>
+						<div class="col-md-12"><strong>Address:</strong> {{ orderDetails.maaliDetais.address }}
+						</div>
+					</div>
+
+					<div ng-if="orderDetails.data.workCompletedPhoto.length > 0">
+						<h6><strong>Work Completed Photos</strong></h6>
+						<div class="row" ng-repeat="photo in orderDetails.data.workCompletedPhoto">
+							<div class="col-md-6 mb-3">
+								<div>
+									<img ng-src="{{ displayedPhotos['photo1_' + photo.primary_key] }}"
+										alt="Work Photo 1" class="img-fluid border rounded" />
+								</div>
+							</div>
+
+							<div class="col-md-6 mb-3">
+								<div>
+									<img ng-src="{{ displayedPhotos['photo2_' + photo.primary_key] }}"
+										alt="Work Photo 2" class="img-fluid border rounded" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+
 </body>
 
 </html>

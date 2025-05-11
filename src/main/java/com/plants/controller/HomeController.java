@@ -101,4 +101,26 @@ public class HomeController {
 	public String SubRole() {
 		return "SubRole";
 	}
+	
+	@GetMapping("/NotifyTemplate")
+	public String NotifyTemplate() {
+		return "NotifyTemplate";
+	}
+	
+	@GetMapping("/Blog")
+	public String Blog() {
+		return "Blog";
+	}
+	
+	@GetMapping("/Report")
+	public String Report() {
+		return "Report";
+	}
+	
+	@GetMapping("/SendNotify")
+	public String SendNotify() {
+		return "SendNotify";
+	}
+	
+	
 }

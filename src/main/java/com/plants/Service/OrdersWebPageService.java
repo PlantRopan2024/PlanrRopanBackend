@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import com.plants.Dao.OrderRepo;
 import com.plants.Dao.RejectedOrdersRepo;
 import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
+import com.plants.entities.NotifyTemplate;
 import com.plants.entities.Order;
 import com.plants.entities.RejectedOrders;
 
@@ -58,6 +60,10 @@ public class OrdersWebPageService {
 		        orderDetails.put("Km", Utils.decimalFormat(order.getKm()) + " KM");
 		        orderDetails.put("PlanName", order.getPlans().getPlansName());
 		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+		        orderDetails.put("CustomerDetails", order.getCustomerMain().getFirstName()+" " + order.getCustomerMain().getLastName());
+		        orderDetails.put("MaaliDetails", order.getAgentMain().getFirstName()+" " + order.getAgentMain().getLastName());
+		        orderDetails.put("PlansDetails", order.getPlans().getPlansName() + " " + order.getPlans().getPlansRs());
+
 		        orderDetails.put("status", true);
 		        ordersList.add(orderDetails);
 		    }
@@ -101,6 +107,9 @@ public class OrdersWebPageService {
 		        orderDetails.put("workingTime", order.getPlans().getTimeDuration());
 		        orderDetails.put("PlanName", order.getPlans().getPlansName());
 		        orderDetails.put("PlanPrice", order.getPlans().getPlansRs());
+		        orderDetails.put("CustomerDetails", order.getCustomerMain().getFirstName()+" " + order.getCustomerMain().getLastName());
+		        orderDetails.put("MaaliDetails", order.getAgentMain().getFirstName()+" " + order.getAgentMain().getLastName());
+		        orderDetails.put("PlansDetails", order.getPlans().getPlansName() + " " + order.getPlans().getPlansRs());
 		        ordersList.add(orderDetails);
 		    }
 	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
@@ -140,9 +149,10 @@ public class OrdersWebPageService {
 		        orderDetails.put("Latitude", rejectedOrder.getOrders().getLatitude());
 		        orderDetails.put("Longitude", rejectedOrder.getOrders().getLongtitude());
 		        orderDetails.put("Km", Utils.decimalFormat(rejectedOrder.getOrders().getKm()) + " KM");
-		        orderDetails.put("PlanName", rejectedOrder.getOrders().getPlans().getPlansName());
-		        orderDetails.put("PlanPrice", rejectedOrder.getOrders().getPlans().getPlansRs());
 		        orderDetails.put("workingTime", rejectedOrder.getOrders().getPlans().getTimeDuration());
+		        orderDetails.put("CustomerDetails", rejectedOrder.getOrders().getCustomerMain().getFirstName()+" " + rejectedOrder.getOrders().getCustomerMain().getLastName());
+		        orderDetails.put("MaaliDetails", rejectedOrder.getOrders().getAgentMain().getFirstName()+" " + rejectedOrder.getOrders().getAgentMain().getLastName());
+		        orderDetails.put("PlansDetails", rejectedOrder.getOrders().getPlans().getPlansName() + " " + rejectedOrder.getOrders().getPlans().getPlansRs());
 		        ordersList.add(orderDetails);
 		    }
 	        Map<String, Object> pagination = Utils.buildPaginationResponse(getOrdersDetails, baseUrl, pageSize, ordersList);
@@ -154,5 +164,35 @@ public class OrdersWebPageService {
 	        response.put("message", "Something went wrong.");
 	    }
 	    return ResponseEntity.ok(response);
+	}
+	
+	public ResponseEntity<Map<String, Object>> getOrderDetails(String orderNumber) {
+		Map<String,Object> response = new HashMap<String, Object>();
+        Order getOrdersDetails = orderRepo.getOrderNumber(orderNumber);
+		if(Objects.isNull(getOrdersDetails)) {
+			response.put("data", getOrdersDetails);
+			response.put("data", getOrdersDetails);
+			response.put("status", false);
+		}else {
+			Map<String, Object> maaliDetais = new HashMap<>();
+	        maaliDetais.put("AgentId", getOrdersDetails.getAgentMain().getAgentId());
+	        maaliDetais.put("firstName", getOrdersDetails.getAgentMain().getFirstName());
+	        maaliDetais.put("lastName", getOrdersDetails.getAgentMain().getLastName());
+	        maaliDetais.put("mobileNu", getOrdersDetails.getAgentMain().getMobileNumber());
+	        maaliDetais.put("address", getOrdersDetails.getAgentMain().getAddress());
+	        
+	        Map<String, Object> customerDetais = new HashMap<>();
+	        customerDetais.put("CusFirstName", getOrdersDetails.getCustomerMain().getFirstName());
+	        customerDetais.put("CuslastName", getOrdersDetails.getCustomerMain().getLastName());
+	        customerDetais.put("CusMobileNu", getOrdersDetails.getCustomerMain().getMobileNumber());
+	        customerDetais.put("CusAddress", getOrdersDetails.getCustomerMain().getAddress());
+
+			response.put("data", getOrdersDetails);
+			response.put("maaliDetais", maaliDetais);
+			response.put("customerDetais", customerDetais);
+			response.put("data", getOrdersDetails);
+			response.put("status", true);
+		}
+		return ResponseEntity.ok(response);
 	}
 }

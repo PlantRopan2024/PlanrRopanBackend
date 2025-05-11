@@ -21,28 +21,37 @@ public class ExcelService {
 	            Sheet sheet = workbook.createSheet("Agent Data");
 
 	            Row headerRow = sheet.createRow(0);
-	            headerRow.createCell(0).setCellValue("First Name");
-	            headerRow.createCell(1).setCellValue("Last Name");
-	            headerRow.createCell(2).setCellValue("Mobile");
-	            headerRow.createCell(3).setCellValue("Gender");
-	            headerRow.createCell(4).setCellValue("Address");
-	            headerRow.createCell(5).setCellValue("Aadhar Number");
-	            headerRow.createCell(6).setCellValue("Account Holder Name");
-	            headerRow.createCell(7).setCellValue("Account Number");
-	            headerRow.createCell(8).setCellValue("Bank Name");
-	            headerRow.createCell(9).setCellValue("IFSC Code");
+	            headerRow.createCell(0).setCellValue("Agent ID");
+		        headerRow.createCell(1).setCellValue("First Name");
+		        headerRow.createCell(2).setCellValue("Last Name");
+		        headerRow.createCell(3).setCellValue("Mobile");
+		        headerRow.createCell(4).setCellValue("Gender");
+		        headerRow.createCell(5).setCellValue("Address");
+		        headerRow.createCell(6).setCellValue("Aadhar Number");
+		        headerRow.createCell(7).setCellValue("Account Holder Name");
+		        headerRow.createCell(8).setCellValue("Account Number");
+		        headerRow.createCell(9).setCellValue("Bank Name");
+		        headerRow.createCell(10).setCellValue("IFSC Code");
+		        headerRow.createCell(10).setCellValue("IFSC Code");
+		        headerRow.createCell(11).setCellValue("Onboarding Date");
+		        headerRow.createCell(12).setCellValue("Approval Date");
+
 	      
 	            Row dataRow = sheet.createRow(1);
-	            dataRow.createCell(0).setCellValue(agent.getFirstName());
-	            dataRow.createCell(1).setCellValue(agent.getLastName());
-	            dataRow.createCell(2).setCellValue(agent.getMobileNumber());
-	            dataRow.createCell(3).setCellValue(agent.getGender());
-	            dataRow.createCell(4).setCellValue(agent.getAddress());
-	            dataRow.createCell(5).setCellValue(agent.getAadhaarNumber());
-	            dataRow.createCell(6).setCellValue(agent.getAccHolderName());
-	            dataRow.createCell(7).setCellValue(agent.getAccNumber());
-	            dataRow.createCell(8).setCellValue(agent.getBankName());
-	            dataRow.createCell(9).setCellValue(agent.getIfscCode());
+	            dataRow.createCell(0).setCellValue(agent.getAgentId());
+	            dataRow.createCell(1).setCellValue(agent.getFirstName());
+	            dataRow.createCell(2).setCellValue(agent.getLastName());
+	            dataRow.createCell(3).setCellValue(agent.getMobileNumber());
+	            dataRow.createCell(4).setCellValue(agent.getGender());
+	            dataRow.createCell(5).setCellValue(agent.getAddress());
+	            dataRow.createCell(6).setCellValue(agent.getAadhaarNumber());
+	            dataRow.createCell(7).setCellValue(agent.getAccHolderName());
+	            dataRow.createCell(8).setCellValue(agent.getAccNumber());
+	            dataRow.createCell(9).setCellValue(agent.getBankName());
+	            dataRow.createCell(10).setCellValue(agent.getIfscCode());
+	            dataRow.createCell(11).setCellValue(agent.getCreatedAt());
+	            dataRow.createCell(12).setCellValue(agent.getApprovedAt());
+
 
 	            workbook.write(out);
 	            return out.toByteArray();
@@ -59,31 +68,37 @@ public class ExcelService {
 
 		        // Header Row
 		        Row headerRow = sheet.createRow(0);
-		        headerRow.createCell(0).setCellValue("First Name");
-		        headerRow.createCell(1).setCellValue("Last Name");
-		        headerRow.createCell(2).setCellValue("Mobile");
-		        headerRow.createCell(3).setCellValue("Gender");
-		        headerRow.createCell(4).setCellValue("Address");
-		        headerRow.createCell(5).setCellValue("Aadhar Number");
-		        headerRow.createCell(6).setCellValue("Account Holder Name");
-		        headerRow.createCell(7).setCellValue("Account Number");
-		        headerRow.createCell(8).setCellValue("Bank Name");
-		        headerRow.createCell(9).setCellValue("IFSC Code");
+		        headerRow.createCell(0).setCellValue("Agent ID");
+		        headerRow.createCell(1).setCellValue("First Name");
+		        headerRow.createCell(2).setCellValue("Last Name");
+		        headerRow.createCell(3).setCellValue("Mobile");
+		        headerRow.createCell(4).setCellValue("Gender");
+		        headerRow.createCell(5).setCellValue("Address");
+		        headerRow.createCell(6).setCellValue("Aadhar Number");
+		        headerRow.createCell(7).setCellValue("Account Holder Name");
+		        headerRow.createCell(8).setCellValue("Account Number");
+		        headerRow.createCell(9).setCellValue("Bank Name");
+		        headerRow.createCell(10).setCellValue("IFSC Code");
+		        headerRow.createCell(11).setCellValue("Onboarding Date");
+		        headerRow.createCell(12).setCellValue("Approval Date");
 
 		        int rowIdx = 1;
 		        for (AgentMain agent : listAgent) {
 		            Row dataRow = sheet.createRow(rowIdx++);
-
-		            dataRow.createCell(0).setCellValue(agent.getFirstName());
-		            dataRow.createCell(1).setCellValue(agent.getLastName());
-		            dataRow.createCell(2).setCellValue(agent.getMobileNumber());
-		            dataRow.createCell(3).setCellValue(agent.getGender());
-		            dataRow.createCell(4).setCellValue(agent.getAddress());
-		            dataRow.createCell(5).setCellValue(agent.getAadhaarNumber());
-		            dataRow.createCell(6).setCellValue(agent.getAccHolderName());
-		            dataRow.createCell(7).setCellValue(agent.getAccNumber());
-		            dataRow.createCell(8).setCellValue(agent.getBankName());
-		            dataRow.createCell(9).setCellValue(agent.getIfscCode());
+		            
+		            dataRow.createCell(0).setCellValue(agent.getAgentId());
+		            dataRow.createCell(1).setCellValue(agent.getFirstName());
+		            dataRow.createCell(2).setCellValue(agent.getLastName());
+		            dataRow.createCell(3).setCellValue(agent.getMobileNumber());
+		            dataRow.createCell(4).setCellValue(agent.getGender());
+		            dataRow.createCell(5).setCellValue(agent.getAddress());
+		            dataRow.createCell(6).setCellValue(agent.getAadhaarNumber());
+		            dataRow.createCell(7).setCellValue(agent.getAccHolderName());
+		            dataRow.createCell(8).setCellValue(agent.getAccNumber());
+		            dataRow.createCell(9).setCellValue(agent.getBankName());
+		            dataRow.createCell(10).setCellValue(agent.getIfscCode());
+		            dataRow.createCell(11).setCellValue(agent.getCreatedAt());
+		            dataRow.createCell(12).setCellValue(agent.getApprovedAt());
 		        }
 
 		        workbook.write(out);

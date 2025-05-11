@@ -1,6 +1,6 @@
 package com.plants.controller;
 
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 import com.plants.Dao.userDao;
 import com.plants.Service.ExcelService;
@@ -90,14 +88,6 @@ public class VerficationAgent {
 	@ResponseBody
 	public AgentMain findDetailAgent(@RequestBody String AgentIDPk) {
 		AgentMain getdetailRecord = this.userdao.findAgentID(AgentIDPk);
-		
-		
-		//getdetailRecord.setBankPassBookImage(Utils.findImgPath(getdetailRecord.getBankPassBookImage()));
-		//getdetailRecord.setSelfieImg(Utils.findImgPath(getdetailRecord.getSelfieImg()));
-		//getdetailRecord.setAadharImgFrontSide(Utils.findImgPath(getdetailRecord.getAadharImgFrontSide()));
-		//getdetailRecord.setAadharImgBackSide(Utils.findImgPath(getdetailRecord.getAadharImgBackSide()));
-		
-		System.out.println(" getdetailRecord   ---  " + getdetailRecord);
 		return getdetailRecord;
 	}
 	
@@ -111,7 +101,9 @@ public class VerficationAgent {
 	public String agentApproved(@RequestBody Map<String, String> request) {
 		String agentIDPkStr = request.get("agentIDPk");
 		AgentMain agentMain = this.userdao.findAgentID(agentIDPkStr);
-		this.userdao.updateAgentApproved(true,agentMain.getAgentIDPk());
+		agentMain.setAgentApproved(true);
+		agentMain.setApprovedAt(LocalDateTime.now());
+		this.userdao.save(agentMain);
 		return null;
 	}
 	
