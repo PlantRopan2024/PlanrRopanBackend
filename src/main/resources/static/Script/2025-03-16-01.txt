@@ -27,9 +27,4 @@ ALTER TABLE Agent_Main ADD COLUMN updated_at TIMESTAMP;
 ALTER TABLE Agent_Main ADD COLUMN approved_at TIMESTAMP;
 
 
-ALTER TABLE work_completed ADD COLUMN completedAt TIMESTAMP;
-
-ALTER TABLE work_completed ADD COLUMN completedAt TIMESTAMP;
-
-
-
+ALTER TABLE work_completed ADD COLUMN completed_at TIMESTAMP;
