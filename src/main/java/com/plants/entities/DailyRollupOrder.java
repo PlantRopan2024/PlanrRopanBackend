@@ -1,18 +1,18 @@
 package com.plants.entities;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
-public class DailyOrder {
+@Table(name = "daily_rollup_order")
+public class DailyRollupOrder {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,20 +29,18 @@ public class DailyOrder {
 	private double totalOrder;
 	
 	private LocalDateTime createdAt;
+	private LocalDate rollupAt;
 	
-	@ManyToOne
-	@JsonIgnore
-	@JoinColumn(name = "fk_agent_main_id", nullable = true)
-	private AgentMain agentMain;
-
-	public DailyOrder() {
+	private LocalDateTime startOfDay;
+	private LocalDateTime endOfDay;
+	
+	public DailyRollupOrder() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	public DailyOrder(int primary_key, double grandTotalAmount, double plansRs, double companyEarningRs,
+	public DailyRollupOrder(int primary_key, double grandTotalAmount, double plansRs, double companyEarningRs,
 			double agentEarningRs, double platformFess, double couponAppliedRs, double companyFertilizerAmount,
-			double agentFertilizerAmount, double totalOrder, LocalDateTime createdAt, AgentMain agentMain) {
+			double agentFertilizerAmount, double totalOrder, LocalDateTime createdAt,LocalDate rollupAt,LocalDateTime startOfDay,LocalDateTime endOfDay ) {
 		super();
 		this.primary_key = primary_key;
 		this.grandTotalAmount = grandTotalAmount;
@@ -55,7 +53,9 @@ public class DailyOrder {
 		this.agentFertilizerAmount = agentFertilizerAmount;
 		this.totalOrder = totalOrder;
 		this.createdAt = createdAt;
-		this.agentMain = agentMain;
+		this.rollupAt = rollupAt;
+		this.endOfDay=endOfDay;
+		this.startOfDay=startOfDay;
 	}
 
 	public int getPrimary_key() {
@@ -146,13 +146,27 @@ public class DailyOrder {
 		this.createdAt = createdAt;
 	}
 
-	public AgentMain getAgentMain() {
-		return agentMain;
+	public LocalDate getRollupAt() {
+		return rollupAt;
 	}
 
-	public void setAgentMain(AgentMain agentMain) {
-		this.agentMain = agentMain;
+	public void setRollupAt(LocalDate rollupAt) {
+		this.rollupAt = rollupAt;
 	}
-	
-	
+
+	public LocalDateTime getStartOfDay() {
+		return startOfDay;
+	}
+
+	public void setStartOfDay(LocalDateTime startOfDay) {
+		this.startOfDay = startOfDay;
+	}
+
+	public LocalDateTime getEndOfDay() {
+		return endOfDay;
+	}
+
+	public void setEndOfDay(LocalDateTime endOfDay) {
+		this.endOfDay = endOfDay;
+	}
 }

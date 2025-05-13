@@ -1,0 +1,63 @@
+/* Container holding the Maali dropdown and Date Picker */
+.maali-filter-container {
+    background-color: #ffffff;
+    padding: 14px 30px;
+    margin-top: 43px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Labels */
+.maali-filter-container .form-label {
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+}
+
+/* Inputs */
+.maali-filter-container .form-control,
+.maali-filter-container .form-select {
+    border-radius: 13px;
+    width: 230px;
+    border: 1px solid #ccc;
+}
+
+/* Button */
+.maali-filter-container .btn-success {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 10px;
+}
+
+@media (min-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 auto;
+        width: 27.333333%;
+    }
+}
+
+.px-4 {
+    padding-right: 0.5rem !important;
+    padding-left: 17.5rem !important;
+}
+
+.plx-4{
+    padding-right: 18.5rem !important;
+    padding-left: 0.5rem !important;
+}
+
+.table-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}
+
+/* Optional: fix header during scroll */
+.table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Adjust padding to prevent overflow on sides */

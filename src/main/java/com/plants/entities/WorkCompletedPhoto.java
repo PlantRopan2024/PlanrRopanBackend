@@ -1,5 +1,7 @@
 package com.plants.entities;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -31,6 +33,9 @@ public class WorkCompletedPhoto {
 	
 	private String OrderNumber;
 	
+	private LocalDateTime completedAt;
+
+	
 	@ManyToOne
 	@JsonIgnore
 	@JoinColumn(name = "fk_order_id", nullable = true)
@@ -43,7 +48,7 @@ public class WorkCompletedPhoto {
 
 	public WorkCompletedPhoto(int primary_key, String workCompletdPhoto1, String workCompletdPhoto1_type,
 			String workCompletdPhoto1Path, String workCompletdPhoto2, String workCompletdPhoto2_type,
-			String workCompletdPhoto2Path, String orderNumber, Order orders) {
+			String workCompletdPhoto2Path, String orderNumber, Order orders,LocalDateTime completedAt) {
 		super();
 		this.primary_key = primary_key;
 		this.workCompletdPhoto1 = workCompletdPhoto1;
@@ -54,6 +59,7 @@ public class WorkCompletedPhoto {
 		this.workCompletdPhoto2Path = workCompletdPhoto2Path;
 		OrderNumber = orderNumber;
 		this.orders = orders;
+		this.completedAt = completedAt;
 	}
 
 	public int getPrimary_key() {
@@ -126,6 +132,14 @@ public class WorkCompletedPhoto {
 
 	public void setOrders(Order orders) {
 		this.orders = orders;
+	}
+
+	public LocalDateTime getCompletedAt() {
+		return completedAt;
+	}
+
+	public void setCompletedAt(LocalDateTime completedAt) {
+		this.completedAt = completedAt;
 	}
 	
 	

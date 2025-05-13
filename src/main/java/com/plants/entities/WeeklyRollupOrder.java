@@ -12,7 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class WeeklyOrder {
+public class WeeklyRollupOrder {
 	
 	
 	@Id
@@ -36,12 +36,12 @@ public class WeeklyOrder {
 	@JoinColumn(name = "fk_agent_main_id", nullable = true)
 	private AgentMain agentMain;
 
-	public WeeklyOrder() {
+	public WeeklyRollupOrder() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public WeeklyOrder(int primary_key, double grandTotalAmount, double plansRs, double companyEarningRs,
+	public WeeklyRollupOrder(int primary_key, double grandTotalAmount, double plansRs, double companyEarningRs,
 			double agentEarningRs, double platformFess, double couponAppliedRs, double companyFertilizerAmount,
 			double agentFertilizerAmount, double totalOrder, LocalDateTime createdAt, AgentMain agentMain) {
 		super();

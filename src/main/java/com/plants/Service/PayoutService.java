@@ -19,7 +19,7 @@ import com.plants.Dao.LoginHoursRepo;
 import com.plants.Dao.OrderEarningRepo;
 import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
-import com.plants.entities.DailyOrder;
+import com.plants.entities.DailyRollupOrder;
 import com.plants.entities.LoginHours;
 import com.plants.entities.OrderEarning;
 import com.plants.entities.OrderFertilizers;

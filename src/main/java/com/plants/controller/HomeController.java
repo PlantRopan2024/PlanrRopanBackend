@@ -122,5 +122,16 @@ public class HomeController {
 		return "SendNotify";
 	}
 	
+	@GetMapping("/orderHistory")
+	public String orderHistory() {
+		return "orderHistory";
+	}
+	
+	@GetMapping("/viewCityOrder")
+	public String viewCityOrder() {
+		return "viewCityOrder";
+	}
+	
+	
 	
 }

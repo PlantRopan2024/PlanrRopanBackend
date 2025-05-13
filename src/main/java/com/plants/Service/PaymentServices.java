@@ -1029,9 +1029,12 @@ public class PaymentServices {
 
 			workCompletedPhoto.setOrderNumber(OrderNumber);
 			workCompletedPhoto.setOrders(getOrdersDetails);
+			workCompletedPhoto.setCompletedAt(LocalDateTime.now());
 			this.workCompletedPhotoRepo.save(workCompletedPhoto);
-
+			
+			// update status
 			getOrdersDetails.setOrderStatus("COMPLETED");
+			getOrdersDetails.setOrderCompletedDate(LocalDateTime.now());
 			Order saveOrders = this.orderRepo.save(getOrdersDetails);
 		//	double totalMalliFertilizer=0;
 		//	double totalCompanyFertilizer=0;

@@ -43,6 +43,9 @@ public class Order {
     private double longtitude;
     private double Km;
     private String shareCode;  //4 digit code
+    
+	private LocalDateTime orderCompletedDate;
+
 	
 	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
@@ -61,6 +64,9 @@ public class Order {
     private List<OrderFertilizers> orderFertilizers = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "orders")
+    private List<OrderEarning> orderEarnings = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "orders")
     private List<WorkCompletedPhoto> workCompletedPhoto = new ArrayList<>();
 	
 	@ManyToOne
@@ -77,7 +83,7 @@ public class Order {
 			LocalTime startTime, LocalTime endTime, String orderStatus, String address, double latitude,
 			double longtitude, double km, String shareCode, Payment payment, AgentMain agentMain,
 			CustomerMain customerMain, List<OrderFertilizers> orderFertilizers,
-			List<WorkCompletedPhoto> workCompletedPhoto, Plans plans) {
+			List<WorkCompletedPhoto> workCompletedPhoto,List<OrderEarning> orderEarnings, Plans plans,LocalDateTime orderCompletedDate) {
 		super();
 		this.primary_key = primary_key;
 		this.orderId = orderId;
@@ -97,7 +103,9 @@ public class Order {
 		this.customerMain = customerMain;
 		this.orderFertilizers = orderFertilizers;
 		this.workCompletedPhoto = workCompletedPhoto;
+		this.orderEarnings = orderEarnings;
 		this.plans = plans;
+		this.orderCompletedDate= orderCompletedDate;
 	}
 
 
@@ -236,5 +244,18 @@ public class Order {
 	}
 	public void setEndTime(LocalTime endTime) {
 		this.endTime = endTime;
+	}
+	public List<OrderEarning> getOrderEarnings() {
+		return orderEarnings;
+	}
+	public void setOrderEarnings(List<OrderEarning> orderEarnings) {
+		this.orderEarnings = orderEarnings;
+	}
+
+	public LocalDateTime getOrderCompletedDate() {
+		return orderCompletedDate;
+	}
+	public void setOrderCompletedDate(LocalDateTime orderCompletedDate) {
+		this.orderCompletedDate = orderCompletedDate;
 	}
 }

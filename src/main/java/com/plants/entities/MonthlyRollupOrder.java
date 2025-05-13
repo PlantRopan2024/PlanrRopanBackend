@@ -12,7 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class MonthlyOrder {
+public class MonthlyRollupOrder {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,12 +35,12 @@ public class MonthlyOrder {
 	@JoinColumn(name = "fk_agent_main_id", nullable = true)
 	private AgentMain agentMain;
 
-	public MonthlyOrder() {
+	public MonthlyRollupOrder() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public MonthlyOrder(int primary_key, double grandTotalAmount, double plansRs, double companyEarningRs,
+	public MonthlyRollupOrder(int primary_key, double grandTotalAmount, double plansRs, double companyEarningRs,
 			double agentEarningRs, double platformFess, double couponAppliedRs, double companyFertilizerAmount,
 			double agentFertilizerAmount, double totalOrder, LocalDateTime createdAt, AgentMain agentMain) {
 		super();

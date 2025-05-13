@@ -1,5 +1,6 @@
 package com.plants.Dao;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -48,5 +49,9 @@ public interface OrderRepo extends JpaRepository<Order, Integer>{
 	
 	@Query("SELECT MAX(CAST(SUBSTRING(o.orderId, 14) AS int)) FROM Order o ")
 	Integer getMaxSequenceOrderNumber();
-
+	
+	
+	@Query("SELECT o FROM Order o WHERE o.orderCompletedDate BETWEEN :startOfHour AND :endOfHour AND o.orderStatus = 'COMPLETED'")
+	List<Order> getOrderDateWise(@Param("startOfHour") LocalDateTime startOfHour,
+	                             @Param("endOfHour") LocalDateTime endOfHour);
 }
