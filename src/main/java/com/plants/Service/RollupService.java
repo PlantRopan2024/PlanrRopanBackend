@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.plants.Dao.DailyRollupOrderRepo;
 import com.plants.Dao.HourlyRollupOrderRepo;
 import com.plants.Dao.OrderRepo;
+import com.plants.config.Utils;
 import com.plants.entities.DailyRollupOrder;
 import com.plants.entities.HourlyRollupOrder;
 import com.plants.entities.Order;
@@ -45,14 +46,17 @@ public class RollupService {
 			double couponRs = 0;
 			int orderCount = 0;
 
-			LocalDateTime now = LocalDateTime.now();
-			LocalDateTime startOfHour = now.withMinute(0).withSecond(0).withNano(0);
-			LocalDateTime endOfHour = startOfHour.plusHours(1);
+			LocalDateTime now =Utils.getCurrentDateTimeInIST(LocalDateTime.now());
+			System.out.println(" now  curretn date " + now);
 
-			System.out.println(" start hours " + startOfHour);
-			System.out.println(" end hours " + endOfHour);
+			LocalDateTime endHours = now.withMinute(0).withSecond(0).withNano(0);
+			LocalDateTime startHours = endHours.minusHours(1);
 
-			List<Order> listOrder = orderRepo.getOrderDateWise(startOfHour, endOfHour);
+			System.out.println(" start hours " + endHours);
+			System.out.println(" end hours " + startHours);
+			
+			
+			List<Order> listOrder = orderRepo.getOrderDateWise(startHours, endHours);
 			orderCount = listOrder.size();
 			System.out.println("Orders in " + orderCount);
 
@@ -74,18 +78,17 @@ public class RollupService {
 			hourlyRollup.setGrandTotalAmount(totalAmount);
 			hourlyRollup.setPlansRs(plansRs);
 			hourlyRollup.setPlatformFess(platformFees);
-			hourlyRollup.setCreatedAt(LocalDateTime.now());
+			hourlyRollup.setCreatedAt(Utils.getCurrentDateTimeInIST(LocalDateTime.now()));
 			hourlyRollup.setTotalOrder(orderCount);
-			hourlyRollup.setRollupAt(LocalDate.now());
-			hourlyRollup.setStartHours(startOfHour);
-			hourlyRollup.setEndHours(endOfHour);
+			hourlyRollup.setRollupAt(Utils.getCurrentDateInIST());
+			hourlyRollup.setStartHours(startHours);
+			hourlyRollup.setEndHours(endHours);
 
 			this.hourlyRollupOrderRepo.save(hourlyRollup);
 
 			response.put("status", true);
 			response.put("message", "Hourly rollup completed successfully.");
 			response.put("ordersRolledUp", orderCount);
-			response.put("rollupTime", startOfHour);
 			response.put("totalAmount", totalAmount);
 			response.put("agentEarning", agentEarn);
 			response.put("companyEarning", companyEarn);
@@ -114,7 +117,9 @@ public class RollupService {
 			double couponRs = 0;
 			int orderCount = 0;
 			
-			LocalDate today = LocalDate.now();
+			LocalDate today = Utils.getCurrentDateInIST();
+			System.out.println(" now  today date " + today);
+
 			LocalDateTime startOfDay = today.atStartOfDay(); // 00:00:00
 			LocalDateTime endOfDay = startOfDay.plusDays(1); // next day's 00:00:00
 
@@ -144,9 +149,9 @@ public class RollupService {
 			dailyRollupOrder.setGrandTotalAmount(totalAmount);
 			dailyRollupOrder.setPlansRs(plansRs);
 			dailyRollupOrder.setPlatformFess(platformFees);
-			dailyRollupOrder.setCreatedAt(LocalDateTime.now());
+			dailyRollupOrder.setCreatedAt(Utils.getCurrentDateTimeInIST(LocalDateTime.now()));
 			dailyRollupOrder.setTotalOrder(orderCount);
-			dailyRollupOrder.setRollupAt(LocalDate.now());
+			dailyRollupOrder.setRollupAt(Utils.getCurrentDateInIST());
 			dailyRollupOrder.setStartOfDay(startOfDay);
 			dailyRollupOrder.setEndOfDay(endOfDay);
 

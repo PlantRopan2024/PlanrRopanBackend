@@ -53,12 +53,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.core.io.Resource;
 
 public class Utils {
-	
-    private static final DateTimeFormatter FORMATTER_AM = DateTimeFormatter.ofPattern("hh:mm:ss a dd-MM-yyyy");
+
+	private static final DateTimeFormatter FORMATTER_AM = DateTimeFormatter.ofPattern("hh:mm:ss a dd-MM-yyyy");
 	private static final DateTimeFormatter FORMATTER_PM = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
 	private static final DateTimeFormatter FORMATTER_DATE = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+	private static final DateTimeFormatter FORMATTER_DATE_TIME = DateTimeFormatter.ofPattern("dd-MM-yyyy a hh:mm:ss");
 	private static final DateTimeFormatter FORMATTER_TIME_AM = DateTimeFormatter.ofPattern("hh:mm a");
-
 
 	public static String saveImgFile(MultipartFile file, String baseDirectory, String subDirectoryFolderName,
 			String fileName) throws IOException {
@@ -192,19 +192,19 @@ public class Utils {
 
 			String fileUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
 					+ "/uploads/" + folderName + "/" + fileName;
-			
+
 			return ResponseEntity.ok(fileUrl);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating file URL");
 		}
 	}
 
-	public static String findImgPath(HttpServletRequest request, String baseDirectory, String folderName, String fileName) {
-		//http://103.25.130.57//opt/UploadQaPlantRoanFiles//+918565933042/+9185659330421743998451474_image_cropper_1743998432160.jpg
-	    String serverUrl = request.getScheme() + "://" + request.getServerName();
-	    return serverUrl  + baseDirectory + folderName + "/" + fileName;
+	public static String findImgPath(HttpServletRequest request, String baseDirectory, String folderName,
+			String fileName) {
+		// http://103.25.130.57//opt/UploadQaPlantRoanFiles//+918565933042/+9185659330421743998451474_image_cropper_1743998432160.jpg
+		String serverUrl = request.getScheme() + "://" + request.getServerName();
+		return serverUrl + baseDirectory + folderName + "/" + fileName;
 	}
-
 
 	public static MediaType getFileExtensionName(String fileName) {
 		String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
@@ -449,49 +449,82 @@ public class Utils {
 		return pagination;
 	}
 
-	 public static String formatDateTime(LocalDateTime dateTime) {
-	        try {
-	            ZonedDateTime istDateTime = dateTime.atZone(ZoneId.of("UTC"))
-	                                                 .withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
-	            return istDateTime.format(FORMATTER_AM);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            return dateTime.toString(); // fallback
-	        }
-	    }
-	 
-	 public static String formatTime(LocalTime time) {
-		    try {
-		        // Combine with current date to form a LocalDateTime
-		        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(ZoneId.of("UTC")), time);
-		        
-		        // Convert from UTC to IST
-		        ZonedDateTime utcZoned = localDateTime.atZone(ZoneId.of("UTC"));
-		        ZonedDateTime istZoned = utcZoned.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
-		        
-		        return istZoned.format(FORMATTER_TIME_AM); // formatted string like "04:15 PM"
-		    } catch (Exception e) {
-		        e.printStackTrace();
-		        return time.toString(); // fallback to raw time string
-		    }
+	public static String formatDateTime(LocalDateTime dateTime) {
+		try {
+			ZonedDateTime istDateTime = dateTime.atZone(ZoneId.of("UTC"))
+					.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
+			return istDateTime.format(FORMATTER_AM);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return dateTime.toString(); // fallback
 		}
-	 
-	 public static LocalTime formatTimetoIst(LocalTime time) {
-		    try {
-		        // Combine with current date to form a LocalDateTime
-		        LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(ZoneId.of("UTC")), time);
-		        
-		        // Convert from UTC to IST
-		        ZonedDateTime utcZoned = localDateTime.atZone(ZoneId.of("UTC"));
-		        ZonedDateTime istZoned = utcZoned.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
-		        
-		        return istZoned.toLocalTime(); // return IST time
-		    } catch (Exception e) {
-		        e.printStackTrace();
-		        return time; // fallback to original
-		    }
+	}
+
+	public static LocalDateTime getCurrentDateTimeInIST(LocalDateTime dateTime) {
+		try {
+			ZonedDateTime istZonedDateTime = dateTime.atZone(ZoneId.of("UTC")) // Assuming input is in UTC
+					.withZoneSameInstant(ZoneId.of("Asia/Kolkata")); // Convert to IST
+			return istZonedDateTime.toLocalDateTime(); // Return as LocalDateTime in IST
+		} catch (Exception e) {
+			e.printStackTrace();
+			return dateTime;
 		}
+	}
 	
+	public static LocalDate formatDateIST(LocalDate date) {
+	    try {
+	        // Convert LocalDate to LocalDateTime at start of day in UTC
+	        LocalDateTime dateTimeUTC = date.atStartOfDay();
+	        
+	        // Convert to IST time zone
+	        ZonedDateTime istZonedDateTime = dateTimeUTC
+	                .atZone(ZoneId.of("UTC"))
+	                .withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
+
+	        // Return only the date part in IST
+	        return istZonedDateTime.toLocalDate();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return date; // fallback
+	    }
+	}
+	
+	public static LocalDate getCurrentDateInIST() {
+	    return LocalDate.now(ZoneId.of("Asia/Kolkata"));
+	}
+
+	public static String formatTime(LocalTime time) {
+		try {
+			// Combine with current date to form a LocalDateTime
+			LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(ZoneId.of("UTC")), time);
+
+			// Convert from UTC to IST
+			ZonedDateTime utcZoned = localDateTime.atZone(ZoneId.of("UTC"));
+			ZonedDateTime istZoned = utcZoned.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
+
+			return istZoned.format(FORMATTER_TIME_AM); // formatted string like "04:15 PM"
+		} catch (Exception e) {
+			e.printStackTrace();
+			return time.toString(); // fallback to raw time string
+		}
+	}
+
+	public static LocalTime formatTimetoIst(LocalTime time) {
+		try {
+			// Combine with current date to form a LocalDateTime
+			LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(ZoneId.of("UTC")), time);
+
+			// Convert from UTC to IST
+			ZonedDateTime utcZoned = localDateTime.atZone(ZoneId.of("UTC"));
+			ZonedDateTime istZoned = utcZoned.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
+
+			return istZoned.toLocalTime(); // return IST time
+		} catch (Exception e) {
+			e.printStackTrace();
+			return time; // fallback to original
+		}
+	}
+
 	public static String formatDate(LocalDate date) {
 		return date.format(FORMATTER_DATE);
 	}
@@ -503,30 +536,29 @@ public class Utils {
 
 		return String.format("%d Hour %d minutes %d seconds", hours, minutes, seconds);
 	}
-	
-	
+
 	public static String convertToIST(String dateStr) {
-        try {
-            // Input format: 24-hour format
-            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+		try {
+			// Input format: 24-hour format
+			DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
 
-            // Output format: 12-hour format with AM/PM
-            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("hh:mm:ss a dd-MM-yyyy");
+			// Output format: 12-hour format with AM/PM
+			DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("hh:mm:ss a dd-MM-yyyy");
 
-            // Parse the server time
-            LocalDateTime localDateTime = LocalDateTime.parse(dateStr, inputFormatter);
+			// Parse the server time
+			LocalDateTime localDateTime = LocalDateTime.parse(dateStr, inputFormatter);
 
-            // Assume server time is UTC. Change to your server's timezone if different.
-            ZonedDateTime utcDateTime = localDateTime.atZone(ZoneId.of("UTC"));
+			// Assume server time is UTC. Change to your server's timezone if different.
+			ZonedDateTime utcDateTime = localDateTime.atZone(ZoneId.of("UTC"));
 
-            // Convert to IST
-            ZonedDateTime istDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
+			// Convert to IST
+			ZonedDateTime istDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("Asia/Kolkata"));
 
-            // Format to desired output
-            return istDateTime.format(outputFormatter);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return dateStr; // fallback
-        }
-    }
+			// Format to desired output
+			return istDateTime.format(outputFormatter);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return dateStr; // fallback
+		}
+	}
 }
