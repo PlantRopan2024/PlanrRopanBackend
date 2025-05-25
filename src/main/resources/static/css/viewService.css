@@ -1,0 +1,5 @@
+img[ng-src] {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    object-fit: cover;
+}

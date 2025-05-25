@@ -23,6 +23,11 @@ public class serviceName {
     private boolean isActive;
 
     private String name;
+    
+    private String serviceImage;
+	@Column(columnDefinition = "TEXT")
+	private String serviceImagePath;
+	private String serviceImage_type;   
 
     @OneToMany(mappedBy = "servicesName")
     private List<Plans> plans = new ArrayList<>();
@@ -37,12 +42,15 @@ public class serviceName {
 		super();
 	}
 
-	public serviceName(int primaryKey, boolean isActive, String name, List<Plans> plans, LocalDateTime createdAt,
-			LocalDateTime updatedAt) {
+	public serviceName(int primaryKey, boolean isActive, String name, String serviceImage, String serviceImagePath,
+			String serviceImage_type, List<Plans> plans, LocalDateTime createdAt, LocalDateTime updatedAt) {
 		super();
 		this.primaryKey = primaryKey;
 		this.isActive = isActive;
 		this.name = name;
+		this.serviceImage = serviceImage;
+		this.serviceImagePath = serviceImagePath;
+		this.serviceImage_type = serviceImage_type;
 		this.plans = plans;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
@@ -95,8 +103,28 @@ public class serviceName {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-	
-    
-    
-   
+
+	public String getServiceImage() {
+		return serviceImage;
+	}
+
+	public void setServiceImage(String serviceImage) {
+		this.serviceImage = serviceImage;
+	}
+
+	public String getServiceImagePath() {
+		return serviceImagePath;
+	}
+
+	public void setServiceImagePath(String serviceImagePath) {
+		this.serviceImagePath = serviceImagePath;
+	}
+
+	public String getServiceImage_type() {
+		return serviceImage_type;
+	}
+
+	public void setServiceImage_type(String serviceImage_type) {
+		this.serviceImage_type = serviceImage_type;
+	}
 }

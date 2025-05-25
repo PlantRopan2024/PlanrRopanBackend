@@ -119,15 +119,18 @@ public class RollupService {
 			
 			LocalDate today = Utils.getCurrentDateInIST();
 			System.out.println(" now  today date " + today);
+			
+			LocalDate previousDate = today.minusDays(1);
+			System.out.println(" now  previousDate date " + previousDate);
 
 			LocalDateTime startOfDay = today.atStartOfDay(); // 00:00:00
-			LocalDateTime endOfDay = startOfDay.plusDays(1); // next day's 00:00:00
+			LocalDateTime endOfDay = startOfDay.minusDays(1); // next day's 00:00:00
 
 			System.out.println("Start of day: " + startOfDay);
 			System.out.println("End of day: " + endOfDay);
 
 			
-			List<HourlyRollupOrder> liHourlyRollupOrders = this.hourlyRollupOrderRepo.getHourlyRollup(today);
+			List<HourlyRollupOrder> liHourlyRollupOrders = this.hourlyRollupOrderRepo.getHourlyRollup(previousDate);
 			
 			System.out.println("  hourly Orders in " + liHourlyRollupOrders.size());
 
@@ -151,9 +154,8 @@ public class RollupService {
 			dailyRollupOrder.setPlatformFess(platformFees);
 			dailyRollupOrder.setCreatedAt(Utils.getCurrentDateTimeInIST(LocalDateTime.now()));
 			dailyRollupOrder.setTotalOrder(orderCount);
-			dailyRollupOrder.setRollupAt(Utils.getCurrentDateInIST());
-			dailyRollupOrder.setStartOfDay(startOfDay);
-			dailyRollupOrder.setEndOfDay(endOfDay);
+			dailyRollupOrder.setRollupAt(previousDate);
+			dailyRollupOrder.setStartOfDay(endOfDay);
 
 			this.dailyRollupOrderRepo.save(dailyRollupOrder);
 

@@ -131,7 +131,16 @@ public class HomeController {
 	public String viewCityOrder() {
 		return "viewCityOrder";
 	}
+
+	@GetMapping("/viewState")
+	public String viewState() {
+		return "viewState";
+	}
 	
+	@GetMapping("/viewCity")
+	public String viewCity() {
+		return "viewCity";
+	}
 	
 	
 }

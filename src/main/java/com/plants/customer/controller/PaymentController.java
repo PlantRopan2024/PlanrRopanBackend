@@ -1,9 +1,12 @@
 package com.plants.customer.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,7 @@ import com.plants.Dao.MobileApiDao;
 import com.plants.Service.PaymentServices;
 import com.plants.config.HelperToken;
 import com.plants.config.JwtUtil;
+import com.plants.config.RazorpayUtil;
 import com.plants.entities.AgentMain;
 import com.plants.entities.CustomerMain;
 import com.plants.entities.PaymentRequest;
@@ -28,6 +32,10 @@ import com.plants.entities.PaymentRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import com.razorpay.Order;
+import com.razorpay.RazorpayClient;
+import com.razorpay.RazorpayException;
+
 
 
 @RestController
@@ -48,6 +56,50 @@ public class PaymentController {
 
 	@Autowired
 	private MobileApiDao mobileApiDao;
+	
+	@Value("${razorPay.key.id}")
+	private String keyId;
+	
+	@Value("${razorPay.key.secret}")
+	private String secreteKey;
+	
+	@PostMapping("/create-order")
+	public ResponseEntity<Map<String, Object>> createOrder(@RequestBody Map<String, Object> data) {
+	    try {
+	        RazorpayClient client = new RazorpayClient(keyId, secreteKey);
+
+	        JSONObject options = new JSONObject();
+	        options.put("amount", data.get("amount")); // amount in paise
+	        options.put("currency", "INR");
+	        options.put("receipt", "order_rcptid_11");
+	        options.put("payment_capture", 1);
+
+	        Order orders = client.orders.create(options);
+
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("id", orders.get("id"));
+	        response.put("amount", orders.get("amount"));
+
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500).build();
+	    }
+	}
+	
+	
+	 @PostMapping("/verify-payment")
+	    public Map<String, Object> verifyPayment(@RequestBody Map<String, String> payload) {
+	        String paymentId = payload.get("razorpay_payment_id");
+	        String orderId = payload.get("razorpay_order_id");
+	        String signature = payload.get("razorpay_signature");
+
+	        boolean isValid = RazorpayUtil.verifyPaymentSignature(orderId, paymentId, signature, secreteKey);
+
+	        Map<String, Object> response = new HashMap<>();
+	        response.put("status", isValid ? "success" : "failure");
+
+	        return response;
+	    }
 
 	@PostMapping("/initiatePayment")
 	public ResponseEntity<Map<String, Object>> initiatePayment(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,@RequestBody PaymentRequest request) {

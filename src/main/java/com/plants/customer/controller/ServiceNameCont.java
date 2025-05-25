@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.plants.Service.PlansServices;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/serviceNameCont")
 public class ServiceNameCont {
@@ -24,8 +26,8 @@ public class ServiceNameCont {
 	PlansServices plansServices;
 	
 	@GetMapping("/viewServiceName")
-	public ResponseEntity<Map<String, Object>> viewServiceName() {
-		ResponseEntity<Map<String, Object>> response = this.plansServices.viewService();
+	public ResponseEntity<Map<String, Object>> viewServiceName(HttpServletRequest request) {
+		ResponseEntity<Map<String, Object>> response = this.plansServices.viewService(request);
 		return response;
 	}
 	
@@ -42,8 +44,14 @@ public class ServiceNameCont {
 	}
 	
 	@PostMapping("/addServiceName")
-	public ResponseEntity<Map<String, Object>> addServiceName(@RequestBody Map<String, String> request) {
-		ResponseEntity<Map<String, Object>> response = this.plansServices.addService(request);
+	public ResponseEntity<Map<String, Object>> addServiceName(@RequestPart("services") String serviceJson, @RequestPart(value = "serviceImage", required = false) MultipartFile serviceImage) {
+		ResponseEntity<Map<String, Object>> response = this.plansServices.addService(serviceJson,serviceImage);
+		return response;
+	}
+	
+	@PostMapping("/updateServiceName")
+	public ResponseEntity<Map<String, Object>> updateServiceName(@RequestPart("services") String serviceJson, @RequestPart(value = "serviceImage", required = false) MultipartFile serviceImage) {
+		ResponseEntity<Map<String, Object>> response = this.plansServices.updateServiceName(serviceJson,serviceImage);
 		return response;
 	}
 	
@@ -53,6 +61,11 @@ public class ServiceNameCont {
 		return response;
 	}
 	
+	@PostMapping("/updatePlans")
+	public ResponseEntity<Map<String, Object>> updatePlans(@RequestParam("plans") String plansJson, @RequestPart(value = "planImage", required = false) MultipartFile planImage) {
+		ResponseEntity<Map<String, Object>> response = this.plansServices.updatePlans(plansJson,planImage);
+		return response;
+	}
 	@PostMapping("/getApprovedServiceName")
 	public ResponseEntity<Map<String, Object>> getApprovedServiceName(@RequestBody Map<String, String> request) {
 		ResponseEntity<Map<String, Object>> response = this.plansServices.getApprovedServiceName(request);

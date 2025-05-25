@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" ng-app="viewCity">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" />
+	<link rel="stylesheet" href="css/dataTables.bootstrap5.min.css" th:href="@{/css/dataTables.bootstrap5.min.css}" />
+	<link rel="stylesheet" href="css/dashboard.css" th:href="@{/css/dashboard.css}" />
+	<link rel="stylesheet" href="css/viewState.css" th:href="@{/css/viewState.css}" />
+	<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+	 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+        href="js/1c26fb5c51.js" th:src="@{js/1c26fb5c51.js}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+        href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.29/angular-ui-router.min.js"></script>
+
+	<script src="/js/viewState.js" th:src="@{js/viewState.js}"></script>
+
+	<title>Welcome to Plant Ropan</title>
+</head>
+
+<body ng-controller="viewCityCtrl">
+	<!--  header.html  -->
+	<div th:include="header :: nav-bar"></div>
+
+	<!--  side nav bar  -->
+	<div th:include="sideNavbar :: sidenav-bar"></div>
+
+	
+    <main class="mt-5 pt-3">
+		<div class="container-fluid">
+			<!-- Cards -->
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header d-flex justify-content-between align-items-center">
+							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCity">
+								Add City
+							</button>
+							<span> {{getStateName}}</span>
+							<button class="btn btn-secondary" ng-click="goBack()">← Back to Page</button>
+						</div>
+						<div class="card-body">
+							<div class="select-container">
+								<div class="table-responsive">
+									<table class="table table-responsive table-striped">
+										<thead class="table-dark">
+											<tr>
+												<th scope="col">City Name</th>
+												<th scope="col">Is Active</th>
+												<th scope="col">Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="viewCityDatas in viewCityData">
+												<td>{{ viewCityDatas.cityName}}</td>
+												<td>{{ viewCityDatas.active }}</td>
+												<td>
+													<button type="button" class="btn" title="Approved City"
+														ng-click="handleAction(viewCityDatas.primaryKey, 'like')">
+														<i class="fa-regular fa-thumbs-up" style="font-size: 16px;"></i>
+													</button>
+
+													<button type="button" class="btn" title="Dis Approved City"
+														ng-click="handleAction(viewCityDatas.primaryKey, 'dislike')">
+														<i class="fa-regular fa-thumbs-down"
+															style="font-size: 16px;"></i>
+													</button>
+													<button type="button" class="btn" title="Edit State "
+														ng-click="updateCity(viewCityDatas.primaryKey)">
+														<i class="fa-regular fa-pen-to-square"
+															style="font-size: 16px;"></i>
+													</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+	
+    <div class="modal fade" id="addCity" tabindex="-1" aria-labelledby="addCityLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ isEdit ? 'Edit City' : 'Add City' }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        ng-click="clearForm()"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="myCityForm" ng-submit="submitCity()">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="cityName" class="form-label">City Name</label>
+                                <input type="text" id="cityName" class="form-control" name="cityName"
+                                    ng-model="cityName" placeholder="Enter the City Name" required />
+                                <div ng-show="myCityForm.cityName.$touched && myCityForm.cityName.$error.required"
+                                    class="text-danger">
+                                    State is required.
+                                </div>
+                            </div>
+                            <div class="col-md-12 text-end">
+                                <button type="submit" class="btn btn-success me-2">
+                                    {{ isEdit ? 'Update' : 'Add' }}
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                                    ng-click="clearForm()">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

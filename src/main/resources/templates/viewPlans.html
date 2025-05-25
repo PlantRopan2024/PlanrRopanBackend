@@ -73,15 +73,19 @@
 												<td>{{ viewPlansDatas.plansRs }}</td>
 												<td>{{ viewPlansDatas.active }}</td>
 												<td>
-													<button type="button" class="btn btn-success"
+													<button type="button" class="btn" title="Approved Plan"
 														ng-click="handleAction(viewPlansDatas.primaryKey, 'like')">
-														<img th:src="@{/images/like.png}" alt="Icon"
-															style="width: 16px; height: 16px;">
+														<i class="fa-regular fa-thumbs-up" style="font-size: 16px;"></i>
 													</button>
-													<button type="button" class="btn btn-success"
+													<button type="button" class="btn" title="Dis Approved Plan"
 														ng-click="handleAction(viewPlansDatas.primaryKey, 'dislike')">
-														<img th:src="@{/images/dislike.png}" alt="Icon"
-															style="width: 16px; height: 16px;">
+														<i class="fa-regular fa-thumbs-down"
+															style="font-size: 16px;"></i>
+													</button>
+													<button type="button" class="btn" title="Edit Service "
+														ng-click="updatePlanRecord(viewPlansDatas.primaryKey)">
+														<i class="fa-regular fa-pen-to-square"
+															style="font-size: 16px;"></i>
 													</button>
 												</td>
 											</tr>
@@ -101,8 +105,9 @@
 			<div class="modal-content">
 
 				<div class="modal-header">
-					<h5 class="modal-title" id="addPlansLabel">Add Plan</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<h5 class="modal-title">
+						{{ isEdit ? 'Update Plan' : 'Add Plan' }}
+					</h5> <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 
 				<div class="modal-body">
@@ -237,8 +242,9 @@
 
 						<div class="text-end mt-3">
 							<button id="myButton" type="submit" class="btn btn-success"
-								ng-disabled="myPlansForm.$invalid">
-								Add
+								ng-disabled="myPlansForm.$invalid"
+								title="{{myPlansForm.$invalid ? 'Please fill all required fields' : ''}}">
+								{{ isEdit ? 'Update' : 'Add' }}
 							</button>
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
 								ng-click="resetForm()">Cancel</button>

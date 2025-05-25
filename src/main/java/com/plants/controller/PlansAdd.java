@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +28,15 @@ import com.plants.Dao.OfferDao;
 import com.plants.Dao.serviceNameDao;
 import com.plants.Dao.userDao;
 import com.plants.Service.PlansServices;
+import com.plants.config.Utils;
 import com.plants.entities.AgentMain;
 import com.plants.entities.Fertilizer;
 import com.plants.entities.Offers;
 import com.plants.entities.Plans;
 import com.plants.entities.PlansDto;
 import com.plants.entities.serviceName;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/ShowPlans")
@@ -57,6 +61,9 @@ public class PlansAdd {
 	
 	@Autowired
 	PlansServices plansServices;
+	
+	@Value("${file.upload-dir}")
+    private String uploadDir;
 	
 //	@PostMapping("/addPlans")
 //	@ResponseBody
@@ -153,7 +160,7 @@ public class PlansAdd {
 	}
 	
 	@GetMapping("/getServiceIdPlan/{id}") 
-	public ResponseEntity<Map<String, Object>> getServiceIdPlan(@PathVariable Integer id) {
+	public ResponseEntity<Map<String, Object>> getServiceIdPlan(@PathVariable Integer id,HttpServletRequest request) {
 		serviceName service = this.serviceNameDao.getById(id);
 	    List<Plans> getPlanId = this.customerDao.getPlansListId(id);
 
@@ -165,6 +172,7 @@ public class PlansAdd {
 	                planDetails.put("primaryKey", plan.getPrimaryKey());
 	                planDetails.put("plansName", plan.getPlansName());
 	                planDetails.put("plansRs", plan.getPlansRs());
+	                planDetails.put("planImage", Utils.findImgPath(request,uploadDir, service.getName(), plan.getPlanImage()));
 	                planDetails.put("ratingStar", plan.getRatingStar());
 	                planDetails.put("uptoPots", plan.getUptoPots());
 	                return planDetails;
@@ -192,7 +200,7 @@ public class PlansAdd {
 
 	
 	@GetMapping("/getPlanID/{id}") 
-	public ResponseEntity<?> getPlanID(@PathVariable String id) {
+	public ResponseEntity<?> getPlanID(@PathVariable String id,HttpServletRequest request) {
 	    Map<String, Object> response = new HashMap<>();
 		Plans getPlan = this.customerDao.getPlansId(id);
 		if(Objects.isNull(getPlan)) {
@@ -201,6 +209,7 @@ public class PlansAdd {
 	        return ResponseEntity.ok(response);
 	    }else {
 	    	response.put("Plan", getPlan);
+	    	response.put("planImage", Utils.findImgPath(request,uploadDir, getPlan.getServicesName().getName(), getPlan.getPlanImage()));
 	     	response.put("status", "true");
 			return ResponseEntity.ok(response);
 		}

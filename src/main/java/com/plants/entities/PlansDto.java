@@ -18,12 +18,22 @@ public class PlansDto {
     private String planType;
 	private String servicesName;
 	private String serviceNamePk;
+    @JsonProperty("planKey") 
+	private String planKey;
     private List<IncludingServiceDto> includingServicesList; // Including services
     private MultipartFile imageFile; // Image file for the plan
 
     // Getters and Setters
     public String getPlansName() {
 		return plansName;
+	}
+
+	public String getPlanKey() {
+		return planKey;
+	}
+
+	public void setPlanKey(String planKey) {
+		this.planKey = planKey;
 	}
 
 	public void setPlansName(String plansName) {
@@ -101,8 +111,20 @@ public class PlansDto {
 	public void setImageFile(MultipartFile imageFile) {
 		this.imageFile = imageFile;
 	}
+	
+	
 
-    public static class IncludingServiceDto {
+    @Override
+	public String toString() {
+		return "PlansDto [plansName=" + plansName + ", planPacks=" + planPacks + ", plansRs=" + plansRs
+				+ ", timeDuration=" + timeDuration + ", uptoPots=" + uptoPots + ", planType=" + planType
+				+ ", servicesName=" + servicesName + ", serviceNamePk=" + serviceNamePk + ", planKey=" + planKey
+				+ ", includingServicesList=" + includingServicesList + ", imageFile=" + imageFile + "]";
+	}
+
+
+
+	public static class IncludingServiceDto {
         public String getHeaderName() {
 			return headerName;
 		}
@@ -117,6 +139,10 @@ public class PlansDto {
 		}
 		private String headerName;
         private Integer primaryKey;
+		@Override
+		public String toString() {
+			return "IncludingServiceDto [headerName=" + headerName + ", primaryKey=" + primaryKey + "]";
+		}
 
         // Getters and Setters
     }
