@@ -14,7 +14,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,7 +25,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
@@ -41,10 +39,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -485,7 +481,7 @@ public class Utils {
 	        return istZonedDateTime.toLocalDate();
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	        return date; // fallback
+	        return date;
 	    }
 	}
 	
@@ -505,13 +501,12 @@ public class Utils {
 			return istZoned.format(FORMATTER_TIME_AM); // formatted string like "04:15 PM"
 		} catch (Exception e) {
 			e.printStackTrace();
-			return time.toString(); // fallback to raw time string
+			return time.toString();
 		}
 	}
 
 	public static LocalTime formatTimetoIst(LocalTime time) {
 		try {
-			// Combine with current date to form a LocalDateTime
 			LocalDateTime localDateTime = LocalDateTime.of(LocalDate.now(ZoneId.of("UTC")), time);
 
 			// Convert from UTC to IST
@@ -521,7 +516,7 @@ public class Utils {
 			return istZoned.toLocalTime(); // return IST time
 		} catch (Exception e) {
 			e.printStackTrace();
-			return time; // fallback to original
+			return time; 
 		}
 	}
 
@@ -558,7 +553,7 @@ public class Utils {
 			return istDateTime.format(outputFormatter);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return dateStr; // fallback
+			return dateStr; 
 		}
 	}
 }

@@ -9,7 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class GeocodingService {
 	
-	 private static final String API_KEY = "AIzaSyBR9n1842MV-SwPuUJRIuDDu_C7hcem93k";
+	 private static final String API_KEY = "AIzaSyBws6rj_ALG9oEOHRxR_Q3D-UzlZ2CbrDM";
 	    private static final String GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json";
 
 	    public String getAddressFromCoordinates(double latitude, double longitude) {

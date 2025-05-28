@@ -13,6 +13,9 @@ public interface StateRepo extends JpaRepository<State, Integer>{
 	@Query("SELECT s FROM State s")
 	List<State> getAllState();
 	
+	@Query("SELECT s FROM State s Where s.isActive=true")
+	List<State> getAllStateActive();
+	
 	@Query("SELECT s FROM State s where s.stateName = :stateName")
 	State getStateName(@Param("stateName") String StateName);
 	

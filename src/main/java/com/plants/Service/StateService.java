@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,29 +14,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.plants.Dao.CityRepo;
 import com.plants.Dao.StateRepo;
+import com.plants.config.Utils;
 import com.plants.entities.City;
 import com.plants.entities.State;
+import com.plants.entities.serviceName;
 
 @Service
 public class StateService {
-	
+
 	@Autowired
 	StateRepo stateRepo;
-	
+
 	@Autowired
 	CityRepo cityRepo;
-	
+
 	public ResponseEntity<Map<String, Object>> addState(@RequestBody Map<String, String> request) {
-		Map<String,Object> response = new HashMap<String, Object>();
-		
+		Map<String, Object> response = new HashMap<String, Object>();
+
 		try {
 			String stateName = request.get("stateName");
-			
+
 			State stateDB = this.stateRepo.getStateName(stateName);
 
-			if(Objects.nonNull(stateDB)) {
-				if(stateDB.getStateName().equals(stateName)) {
-					response.put("message", "State Already Added "+stateName);
+			if (Objects.nonNull(stateDB)) {
+				if (stateDB.getStateName().equals(stateName)) {
+					response.put("message", "State Already Added " + stateName);
 					response.put("status", false);
 					return ResponseEntity.ok(response);
 				}
@@ -48,7 +51,7 @@ public class StateService {
 			this.stateRepo.save(state);
 			response.put("message", " State Added");
 			response.put("status", true);
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("message", "Something Went Wrong!");
 			response.put("status", false);
@@ -56,22 +59,68 @@ public class StateService {
 		}
 		return ResponseEntity.ok(response);
 	}
-	
+
 	public ResponseEntity<Map<String, Object>> ViewStateList() {
-		Map<String,Object> response = new HashMap<String, Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		List<State> listState = this.stateRepo.getAllState();
-		if(listState.isEmpty()) {
+		if (listState.isEmpty()) {
 			response.put("data", listState);
 			response.put("status", false);
-		}else {
+		} else {
 			response.put("data", listState);
 			response.put("status", true);
 		}
 		return ResponseEntity.ok(response);
 	}
+
+	public ResponseEntity<Map<String, Object>> getStateList() {
+		Map<String, Object> response = new HashMap<String, Object>();
+		List<State> listState = this.stateRepo.getAllStateActive();
+		List<Map<String, Object>> filteredState = listState.stream().map(getState -> {
+			Map<String, Object> serviceMap = new HashMap<>();
+			serviceMap.put("primaryKey", getState.getPrimaryKey());
+			serviceMap.put("name", getState.getStateName());
+			serviceMap.put("active", getState.isActive());
+			return serviceMap;
+		}).collect(Collectors.toList());
+
+		if (filteredState.isEmpty()) {
+			response.put("data", filteredState);
+			response.put("message", "Data Not Found");
+			response.put("status", false);
+		} else {
+			response.put("data", filteredState);
+			response.put("status", true);
+		}
+		return ResponseEntity.ok(response);
+	}
 	
+	public ResponseEntity<Map<String, Object>> getCityList(int pk) {
+		Map<String, Object> response = new HashMap<String, Object>();
+		List<City> listCity = this.cityRepo.getCityStatePk(pk);
+		
+		List<Map<String, Object>> filteredCity = listCity.stream().map(getCity -> {
+			Map<String, Object> serviceMap = new HashMap<>();
+			serviceMap.put("primaryKey", getCity.getPrimaryKey());
+			serviceMap.put("name", getCity.getCityName());
+			serviceMap.put("active", getCity.isActive());
+			return serviceMap;
+		}).collect(Collectors.toList());
+
+		if (filteredCity.isEmpty()) {
+			response.put("data", filteredCity);
+			response.put("message", "Data Not Found");
+			response.put("status", false);
+		} else {
+			response.put("data", filteredCity);
+			response.put("status", true);
+		}
+		return ResponseEntity.ok(response);
+	}
+	
+
 	public ResponseEntity<Map<String, Object>> updateState(@RequestBody Map<String, String> request) {
-		Map<String,Object> response = new HashMap<String, Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			String primarykey = request.get("primarykey");
 			String stateName = request.get("stateName");
@@ -81,18 +130,18 @@ public class StateService {
 			state.setUpdatedAt(LocalDateTime.now());
 			this.stateRepo.save(state);
 			response.put("message", "State Name Updated");
-			response.put("status",true);
-		}catch(Exception e) {
+			response.put("status", true);
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("message", "Something Went Wrong");
-			response.put("status",false);
+			response.put("status", false);
 			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.ok(response);
 	}
-	
+
 	public ResponseEntity<Map<String, Object>> getApprovedState(@RequestBody Map<String, String> request) {
-		Map<String,Object> response = new HashMap<String, Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			String primaryKey = request.get("primaryKey");
 			State state = this.stateRepo.getStatePk(primaryKey);
@@ -100,18 +149,18 @@ public class StateService {
 			state.setUpdatedAt(LocalDateTime.now());
 			this.stateRepo.save(state);
 			response.put("message", " State Approved");
-			response.put("status",true);
-		}catch(Exception e) {
+			response.put("status", true);
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("message", "Something Went Wrong");
-			response.put("status",false);
+			response.put("status", false);
 			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.ok(response);
 	}
-	
+
 	public ResponseEntity<Map<String, Object>> getDisApprovedState(@RequestBody Map<String, String> request) {
-		Map<String,Object> response = new HashMap<String, Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			String primaryKey = request.get("primaryKey");
 			State state = this.stateRepo.getStatePk(primaryKey);
@@ -119,49 +168,47 @@ public class StateService {
 			state.setUpdatedAt(LocalDateTime.now());
 			this.stateRepo.save(state);
 			response.put("message", "State DisApproved");
-			response.put("status",true);
-		}catch(Exception e) {
+			response.put("status", true);
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("message", "Something Went Wrong");
-			response.put("status",false);
+			response.put("status", false);
 			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.ok(response);
 	}
-	
-	
+
 	public ResponseEntity<Map<String, Object>> stateByGetCity(int statePk) {
 		Map<String, Object> response = new HashMap<>();
-		
+
 		State state = this.stateRepo.getStatePk(statePk);
-			if(state.getCity().isEmpty()) {
-				response.put("data", state.getCity());
-				response.put("stateName", state.getStateName());
-				response.put("message", "City are not avaliable for this State");
-				response.put("status", false);
-			}else {
-				response.put("data", state.getCity());
-				response.put("stateName", state.getStateName());
-				response.put("status", true);
-			}
+		if (state.getCity().isEmpty()) {
+			response.put("data", state.getCity());
+			response.put("stateName", state.getStateName());
+			response.put("message", "City are not avaliable for this State");
+			response.put("status", false);
+		} else {
+			response.put("data", state.getCity());
+			response.put("stateName", state.getStateName());
+			response.put("status", true);
+		}
 		return ResponseEntity.ok(response);
 	}
-	
-	
+
 	public ResponseEntity<Map<String, Object>> addCity(@RequestBody Map<String, String> request) {
-		Map<String,Object> response = new HashMap<String, Object>();
-		
+		Map<String, Object> response = new HashMap<String, Object>();
+
 		try {
 			String cityName = request.get("cityName");
 			String statePk = request.get("statePk");
-			
+
 			State state = this.stateRepo.getStatePk(statePk);
 
 			City cityDB = this.cityRepo.getCityName(cityName);
 
-			if(Objects.nonNull(cityDB)) {
-				if(cityDB.getCityName().equals(cityName)) {
-					response.put("message", "City Already Added "+cityName);
+			if (Objects.nonNull(cityDB)) {
+				if (cityDB.getCityName().equals(cityName)) {
+					response.put("message", "City Already Added " + cityName);
 					response.put("status", false);
 					return ResponseEntity.ok(response);
 				}
@@ -175,7 +222,7 @@ public class StateService {
 			this.cityRepo.save(city);
 			response.put("message", " City Added");
 			response.put("status", true);
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("message", "Something Went Wrong!");
 			response.put("status", false);
@@ -183,11 +230,9 @@ public class StateService {
 		}
 		return ResponseEntity.ok(response);
 	}
-	
-	
-	
+
 	public ResponseEntity<Map<String, Object>> updateCity(@RequestBody Map<String, String> request) {
-		Map<String,Object> response = new HashMap<String, Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			String primarykey = request.get("primarykey");
 			String cityName = request.get("cityName");
@@ -197,57 +242,56 @@ public class StateService {
 			city.setUpdatedAt(LocalDateTime.now());
 			this.cityRepo.save(city);
 			response.put("message", "City Name Updated");
-			response.put("status",true);
-		}catch(Exception e) {
+			response.put("status", true);
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("message", "Something Went Wrong");
-			response.put("status",false);
+			response.put("status", false);
 			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.ok(response);
 	}
-	
+
 	public ResponseEntity<Map<String, Object>> getApprovedCity(@RequestBody Map<String, String> request) {
-		Map<String,Object> response = new HashMap<String, Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			String primaryKey = request.get("primaryKey");
-			
+
 			City city = this.cityRepo.getCityPk(primaryKey);
 
 			city.setActive(true);
 			city.setUpdatedAt(LocalDateTime.now());
 			this.cityRepo.save(city);
 			response.put("message", " City Approved");
-			response.put("status",true);
-		}catch(Exception e) {
+			response.put("status", true);
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("message", "Something Went Wrong");
-			response.put("status",false);
+			response.put("status", false);
 			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.ok(response);
 	}
-	
+
 	public ResponseEntity<Map<String, Object>> getDisApprovedCity(@RequestBody Map<String, String> request) {
-		Map<String,Object> response = new HashMap<String, Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			String primaryKey = request.get("primaryKey");
-			
+
 			City city = this.cityRepo.getCityPk(primaryKey);
 
 			city.setActive(false);
 			city.setUpdatedAt(LocalDateTime.now());
 			this.cityRepo.save(city);
 			response.put("message", " City Dis Approved");
-			response.put("status",true);
-		}catch(Exception e) {
+			response.put("status", true);
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("message", "Something Went Wrong");
-			response.put("status",false);
+			response.put("status", false);
 			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.ok(response);
 	}
-	
-	
+
 }

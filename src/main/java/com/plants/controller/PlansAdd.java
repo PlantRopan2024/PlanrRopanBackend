@@ -65,50 +65,8 @@ public class PlansAdd {
 	@Value("${file.upload-dir}")
     private String uploadDir;
 	
-//	@PostMapping("/addPlans")
-//	@ResponseBody
-//	public Map<String, String> addPlan(@RequestBody PlansDto plans) {
-//		Map<String, String> response = new HashMap<>();
-//		try {
-//		    serviceName serviceList = this.serviceNameDao.getServiceId(plans.getServicesName());
-//		    Plans savePlan = new Plans();
-//			savePlan.setPlansName(plans.getPlansName());
-//			savePlan.setPlanPacks(plans.getPlanPacks());
-//			savePlan.setPlansRs(plans.getPlansRs());
-//			savePlan.setPlanType(plans.getPlanType());
-//			savePlan.setTimeDuration(plans.getTimeDuration());
-//			savePlan.setUptoPots(plans.getUptoPots());
-//			savePlan.setActive(plans.isActive());
-//			//savePlan.setIncludingServicesName(plans.getIncludingServicesName());
-//			savePlan.setServicesName(serviceList);
-//			
-////	        List<Fertilizer> fertilizers = plans.getFertilizers().stream().map(fertilizerDto -> {
-////	            Fertilizer fertilizer = new Fertilizer();
-////	            fertilizer.setFertilizerName(fertilizerDto.getFertilizerName());
-////	            fertilizer.setAmount(fertilizerDto.getAmount());
-////	            fertilizer.setKg(fertilizerDto.getKg());
-////	            return fertilizer;
-////	        }).collect(Collectors.toList());
-//
-//	        savePlan.setFertilizers(fertilizers);
-//			Plans savedPlan = this.userdao.save(savePlan);
-//			for(Fertilizer fera : fertilizers) {
-//				fera.setAmount(fera.getAmount());
-//				fera.setFertilizerName(fera.getFertilizerName());
-//				fera.setKg(fera.getKg());
-//				fera.setPlans(savedPlan);
-//				this.fertlizerRepo.save(fera);
-//			}
-//			response.put("message", "Plans Add Successfully");
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			response.put("message", "Error while adding plans");
-//		}
-//		return response;
-//	}
-	
 	@GetMapping("/getServiceName")
-	public ResponseEntity<Map<String, Object>> getServiceName() {
+	public ResponseEntity<Map<String, Object>> getServiceName(HttpServletRequest request) {
 	    Map<String, Object> response = new HashMap<>();
 	    
 	    List<serviceName> serviceList = this.serviceNameDao.getallService();
@@ -117,6 +75,7 @@ public class PlansAdd {
 	        serviceMap.put("primaryKey", service.getPrimaryKey());
 	        serviceMap.put("name", service.getName());
 	        serviceMap.put("active", service.isActive());
+	        serviceMap.put("servicePlanImage", Utils.findImgPath(request,uploadDir, service.getName(), service.getServiceImage()));
 	        return serviceMap;
 	    }).collect(Collectors.toList());
 
@@ -132,7 +91,7 @@ public class PlansAdd {
 	}
 
 	@GetMapping("/getDashboardDataUser")
-	public ResponseEntity<Map<String, Object>> getDashboardDataUser() {
+	public ResponseEntity<Map<String, Object>> getDashboardDataUser(HttpServletRequest request) {
 	    Map<String, Object> response = new HashMap<>();
 
 	    List<serviceName> serviceList = this.serviceNameDao.getallService();
@@ -141,6 +100,7 @@ public class PlansAdd {
 	    List<Map<String, Object>> filteredServices = serviceList.stream().map(service -> {
 	        Map<String, Object> serviceMap = new HashMap<>();
 	        serviceMap.put("primaryKey", service.getPrimaryKey());
+	        serviceMap.put("servicePlanImage", Utils.findImgPath(request,uploadDir, service.getName(), service.getServiceImage()));
 	        serviceMap.put("name", service.getName());
 	        serviceMap.put("active", service.isActive());
 	        return serviceMap;
@@ -208,8 +168,8 @@ public class PlansAdd {
 	    	response.put("message","No Data Found");
 	        return ResponseEntity.ok(response);
 	    }else {
+	    	getPlan.setPlanImagePath(Utils.findImgPath(request,uploadDir, getPlan.getServicesName().getName(), getPlan.getPlanImage()));
 	    	response.put("Plan", getPlan);
-	    	response.put("planImage", Utils.findImgPath(request,uploadDir, getPlan.getServicesName().getName(), getPlan.getPlanImage()));
 	     	response.put("status", "true");
 			return ResponseEntity.ok(response);
 		}

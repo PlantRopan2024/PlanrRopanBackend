@@ -79,4 +79,16 @@ public class StateCtrl {
 		ResponseEntity<Map<String, Object>> response = this.stateService.getDisApprovedCity(request);
 		return response;
 	}
+	
+	@GetMapping("/getStateList")
+	public ResponseEntity<Map<String, Object>> getStateList() {
+		ResponseEntity<Map<String, Object>> response = this.stateService.getStateList();
+		return response;
+	}
+	
+	@GetMapping("/getCityList/{id}")
+	public ResponseEntity<Map<String, Object>> getCityList(@PathVariable int id) {
+		ResponseEntity<Map<String, Object>> response = this.stateService.getCityList(id);
+		return response;
+	}
 }
