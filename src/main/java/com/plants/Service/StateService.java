@@ -95,9 +95,9 @@ public class StateService {
 		return ResponseEntity.ok(response);
 	}
 	
-	public ResponseEntity<Map<String, Object>> getCityList(int pk) {
+	public ResponseEntity<Map<String, Object>> getCityList(String stateName) {
 		Map<String, Object> response = new HashMap<String, Object>();
-		List<City> listCity = this.cityRepo.getCityStatePk(pk);
+		List<City> listCity = this.cityRepo.getCityStatePk(stateName);
 		
 		List<Map<String, Object>> filteredCity = listCity.stream().map(getCity -> {
 			Map<String, Object> serviceMap = new HashMap<>();

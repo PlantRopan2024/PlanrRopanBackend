@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="css/orderHistory.css" th:href="@{/css/orderHistory.css}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.20.0/select.min.css" />
+
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
@@ -19,7 +21,9 @@
         href="js/bootstrap.bundle.min.js" th:src="@{js/bootstrap.bundle.min.js}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>\
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.15/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.20.0/select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
     <script type="text/javascript" href="js/angular.js" th:src="@{js/angular.js}"></script>
     <script src="/js/orderHistory.js" th:src="@{js/orderHistory.js}"></script>
     <title>Welcome to Plant Ropan</title>
@@ -35,13 +39,33 @@
     <div class="container maali-filter-container" style="margin-left: 280px;">
         <div class="row align-items-end g-3">
             <!-- Maali Dropdown -->
-            <div class="col-md-4">
-                <label for="maaliSelect" class="form-label">Select Maali</label>
-                <select class="form-select" id="maaliSelect" ng-model="selectedMaali"
-                    ng-options="maali.name for maali in maaliList">
-                    <option value="">-- Select Maali --</option>
-                </select>
-            </div>
+            <div class="container" style="margin-top: 50px;">
+    <div class="row">
+        <div class="col-md-4">
+            <label for="maaliSelect">Select Maali</label>
+            <ui-select ng-model="selectedMaali" theme="bootstrap" style="width: 100%;" search-enabled="true">
+                <ui-select-match placeholder="-- Select Maali --">
+                    {{$select.selected.name}}
+                </ui-select-match>
+                <ui-select-choices repeat="maali in maaliList | filter: $select.search">
+                    <div ng-bind-html="maali.name | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-md-4">
+            <strong>Selected Maali:</strong>
+            <span ng-if="selectedMaali">{{ selectedMaali.name }}</span>
+            <span ng-if="!selectedMaali">None</span>
+        </div>
+    </div>
+</div>
+
+
+
+
 
             <!-- Date Picker -->
             <div class="col-md-4">

@@ -19,6 +19,6 @@ public interface CityRepo extends JpaRepository<City, Integer>{
 	@Query("SELECT c FROM City c where c.primaryKey = :primaryKey")
 	City getCityPk(@Param("primaryKey") String primaryKey);
 	
-	@Query("SELECT c FROM City c where c.state.primaryKey = :primaryKey and c.isActive=true")
-	List<City> getCityStatePk(@Param("primaryKey") int primaryKey);
+	@Query("SELECT c FROM City c where c.state.stateName = :stateName and c.isActive=true")
+	List<City> getCityStatePk(@Param("stateName") String stateName);
 }

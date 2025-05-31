@@ -1,13 +1,16 @@
-var app = angular.module('ordersHistory', ['ui.bootstrap']);
+var app = angular.module('ordersHistory', ['ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.controller('ordersHistoryCtrl', ['$scope', '$http', '$timeout', function ($scope, $http, $timeout) {
 
     // Example Maali list — you can fetch this via API as well
     $scope.maaliList = [
-        { id: 1, name: 'Ramesh' },
-        { id: 2, name: 'Suresh' },
-        { id: 3, name: 'Mahesh' }
+        { name: 'Ram' },
+        { name: 'Shyam' },
+        { name: 'Raju' },
+        { name: 'Mohan' },
+        { name: 'Sohan' }
     ];
+
 
     $scope.earnings = {
         orderCompleted: 5,
@@ -24,6 +27,10 @@ app.controller('ordersHistoryCtrl', ['$scope', '$http', '$timeout', function ($s
         console.log("Selected Maali:", $scope.selectedMaali);
         console.log("Selected Date:", $scope.selectedDate);
         // Add your filtering or API call logic here
+    };
+
+    $scope.onFocusOpen = function ($select) {
+        $select.open = true;
     };
 
 

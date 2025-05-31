@@ -86,9 +86,9 @@ public class StateCtrl {
 		return response;
 	}
 	
-	@GetMapping("/getCityList/{id}")
-	public ResponseEntity<Map<String, Object>> getCityList(@PathVariable int id) {
-		ResponseEntity<Map<String, Object>> response = this.stateService.getCityList(id);
+	@GetMapping("/getCityList/{stateName}")
+	public ResponseEntity<Map<String, Object>> getCityList(@PathVariable String stateName) {
+		ResponseEntity<Map<String, Object>> response = this.stateService.getCityList(stateName);
 		return response;
 	}
 }
